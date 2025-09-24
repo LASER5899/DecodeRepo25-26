@@ -1,9 +1,7 @@
-package org.firstinspires.ftc.teamcode.Classes;
+package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
-import com.qualcomm.robotcore.util.ElapsedTime;
+
 public class LEDlights {
 
     private Servo lights;
