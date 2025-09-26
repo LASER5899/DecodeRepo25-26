@@ -284,11 +284,11 @@ public class OLD_LASER_Teleop extends LinearOpMode {
                 C_HORIZ_SLIDE_RESET = gamepad2.right_trigger + gamepad2.left_trigger;
             }
             if (slideHorizontal.getCurrentPosition() > -200) {
-                lights.setColor(LEDlights.yellowColor);
+                lights.setColor(LEDlights.yellow);
             } else if (slideHorizontal.getCurrentPosition() < -1500) {
-                lights.setColor(LEDlights.redFireColor);
+                lights.setColor(LEDlights.fire_Large);
             } else {
-                lights.setColor(LEDlights.blueRayColor);
+                lights.setColor(LEDlights.shot_Blue);
             }
 
             // OUTTAKE SERVO CONTROLS
