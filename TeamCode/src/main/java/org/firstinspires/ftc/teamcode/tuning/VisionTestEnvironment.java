@@ -19,6 +19,7 @@ public class VisionTestEnvironment extends LinearOpMode {
             Vision.toggleDevModeOn();
             camera.scanForTarget();
         }
+
     }
 
     
