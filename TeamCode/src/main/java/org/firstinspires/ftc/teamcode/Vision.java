@@ -34,7 +34,7 @@ public class Vision{
     static final double TAG_TO_CENTER = 8.75; //put the horizontal distance from tag to center of goal here
     static final double TAG_TO_TOP= 23.5; //put the vertical distance from center of tag to top of goal here
 
-    static boolean devModeOn=true; //change default mode of devMode here. Can be changed in code using Vision.toggleDevMode();
+    static boolean devModeOn=false; //change default mode of devMode here. Can be changed in code using Vision.toggleDevMode();
 
     String webCamName="webCam";//put the webCamName here.
 
@@ -115,6 +115,9 @@ public class Vision{
                 telemetry.addData("xDistance",xDistance);
                 telemetry.addData("xDistance",xDistance);
                 telemetry.addData("xDistance",xDistance);
+                telemetry.addData("horizontal Angle",horizAngleReturn());
+                telemetry.addData("center Distance",centerDistanceReturn());
+                telemetry.addData("Vertical angle ",vertAngleReturn());
             }
 
         }
