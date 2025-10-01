@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode;
-
 import com.qualcomm.robotcore.hardware.*;
+import org.firstinspires.ftc.teamcode.Classes.LEDlights;
 
 // THIS IS BASED ON THE OLD TELEOP
 
@@ -8,7 +8,7 @@ public class RobotHardware {
     public DcMotor leftFrontDrive, leftBackDrive, rightFrontDrive, rightBackDrive;
     public DcMotor slideVertical, slideHorizontal, wristMotor;
     public Servo outtakeServo, intakeServo, blockPushServo;
-    //public LEDlights lights;
+    public LEDlights lights;
 
     public static final double OUT_SERVO_DOWN_POS = 0.7;
     public static final double OUT_SERVO_UP_POS   = 0.06;
@@ -25,8 +25,8 @@ public class RobotHardware {
         wristMotor      = hwMap.get(DcMotor.class, "wrist_drive");
         intakeServo     = hwMap.get(Servo.class, "intake_servo");
         blockPushServo  = hwMap.get(Servo.class, "block_push_servo");
-        outtakeServo    = hwMap.get(Servo.class, "outtake_servo");
-        //lights          = new LEDlights(hwMap, "light_strip");
+        //outtakeServo    = hwMap.get(Servo.class, "outtake_servo");
+        lights          = new LEDlights(hwMap, "light_strip");
 
         // set directions / behaviors / run modes
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -55,7 +55,6 @@ public class RobotHardware {
         wristMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         wristMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         wristMotor.setTargetPosition(0);
-        wristMotor.setPower(0.5);
         wristMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
 }
