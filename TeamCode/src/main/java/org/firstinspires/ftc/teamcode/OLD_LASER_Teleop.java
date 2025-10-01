@@ -1,12 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
-import org.firstinspires.ftc.teamcode.Classes.LEDlights;
 
 @TeleOp(name="LASER Main Teleop", group="Linear OpMode")
 //@Disabled
@@ -287,11 +284,11 @@ public class OLD_LASER_Teleop extends LinearOpMode {
                 C_HORIZ_SLIDE_RESET = gamepad2.right_trigger + gamepad2.left_trigger;
             }
             if (slideHorizontal.getCurrentPosition() > -200) {
-                lights.setColor(LEDlights.yellowColor);
+                lights.setColor(LEDlights.yellow);
             } else if (slideHorizontal.getCurrentPosition() < -1500) {
-                lights.setColor(LEDlights.redFireColor);
+                lights.setColor(LEDlights.fire_Large);
             } else {
-                lights.setColor(LEDlights.blueRayColor);
+                lights.setColor(LEDlights.shot_Blue);
             }
 
             // OUTTAKE SERVO CONTROLS
