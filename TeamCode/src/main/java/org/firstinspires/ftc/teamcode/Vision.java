@@ -45,13 +45,13 @@ public class Vision{
     AprilTagProcessor  tagProcessor;
     AprilTagProcessor.Builder myAprilTagProcessorBuilder;
     AprilTagGameDatabase aprilTagGameDatabase;
-    int AprilTagId;
-    int TargetId = 0;
+    private int AprilTagId;
+    private int TargetId = 0;
 
-    double xDistance, yDistance, zDistance, range;
+    private double xDistance, yDistance, zDistance, range;
 
-    double pitch, roll, yaw;
-    double elevation, bearing;
+    private double pitch, roll, yaw;
+    private double elevation, bearing;
     AprilTagDetection tag;
 
 
@@ -162,7 +162,7 @@ public class Vision{
     }
     public double vertAngleReturn(){
         double angle;
-        angle = (zDistance+TAG_TO_TOP)/range; //distance = the distance of target from base of robot
+        angle = Math.tan((zDistance+TAG_TO_TOP)/range); //distance = the distance of target from base of robot
         return angle;
     }
 
@@ -175,6 +175,7 @@ public class Vision{
             TargetId=20;
 
         }
+
 
 
 
