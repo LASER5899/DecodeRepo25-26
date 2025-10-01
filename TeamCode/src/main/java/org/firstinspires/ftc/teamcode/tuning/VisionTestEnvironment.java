@@ -10,6 +10,7 @@ public class VisionTestEnvironment extends LinearOpMode {
     public Vision camera = new Vision();
 
 
+
     @Override
     public void runOpMode(){
         camera.setCamera("Camera 1");
