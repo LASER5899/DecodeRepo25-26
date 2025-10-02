@@ -1,12 +1,14 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.old.redo;
 import com.qualcomm.robotcore.hardware.*;
-import org.firstinspires.ftc.teamcode.Classes.LEDlights;
-
+import org.firstinspires.ftc.teamcode.LEDlights;
+import org.firstinspires.ftc.teamcode.old.redo.VerticalSlide;
+import com.qualcomm.robotcore.hardware.DcMotor;
 // THIS IS BASED ON THE OLD TELEOP
 
 public class RobotHardware {
     public DcMotor leftFrontDrive, leftBackDrive, rightFrontDrive, rightBackDrive;
-    public DcMotor slideVertical, slideHorizontal, wristMotor;
+    public DcMotor slideHorizontal, wristMotor;
+    public VerticalSlide slideVertical;
     public Servo outtakeServo, intakeServo, blockPushServo;
     public LEDlights lights;
 
@@ -21,11 +23,11 @@ public class RobotHardware {
         rightFrontDrive = hwMap.get(DcMotor.class, "right_front_drive");
         rightBackDrive  = hwMap.get(DcMotor.class, "right_back_drive");
         slideHorizontal = hwMap.get(DcMotor.class, "horizontal_slide");
-        slideVertical   = hwMap.get(DcMotor.class, "vertical_slide");
         wristMotor      = hwMap.get(DcMotor.class, "wrist_drive");
         intakeServo     = hwMap.get(Servo.class, "intake_servo");
         blockPushServo  = hwMap.get(Servo.class, "block_push_servo");
         //outtakeServo    = hwMap.get(Servo.class, "outtake_servo");
+        slideVertical   = new VerticalSlide(hwMap, "vertical_slide");
         lights          = new LEDlights(hwMap, "light_strip");
 
         // set directions / behaviors / run modes
