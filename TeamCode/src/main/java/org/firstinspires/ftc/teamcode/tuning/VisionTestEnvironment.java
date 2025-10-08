@@ -17,6 +17,7 @@ public class VisionTestEnvironment extends LinearOpMode {
     public void runOpMode(){
         camera.setCamera("Camera 1");
         camera.setTarget(Target.blue);
+
         camera.aprilTagSetUp();
         while(opModeIsActive()){
             Vision.toggleDevModeOn();
