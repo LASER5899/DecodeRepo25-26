@@ -1,19 +1,29 @@
 package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+
 
 import android.util.Size;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.*;
+import com.qualcomm.robotcore.util.ElapsedTime;
+//package org.firstinspires.ftc.teamcode;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.*;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
+
+
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
-import com.qualcomm.robotcore.hardware.*;
+
 
 
 
@@ -43,7 +53,7 @@ public class Vision{
 
     static boolean devModeOn=false; //change default mode of devMode here. Can be changed in code using Vision.toggleDevMode();
 
-    String webCamName="Camera1";//put the webCamName here.
+    //String webCamName="Camera1";//put the webCamName here.
     //HardwareMap hardwareMap;
     //do not change
 
@@ -97,14 +107,10 @@ public class Vision{
     public void scanForTarget(){
         //telemetry.addLine("scanny scan scan");
         if (!tagProcessor.getDetections().isEmpty()){
-            //telemetry.addLine("Not empty yo :)");
-            if (TargetId == 0 ){
-                telemetry.addLine("You need to set target  target.red or target.blue using the Vision.setTarget() function before attempting to read the target distances. - Juliette");
-            }
-            else{
+            //telemetry.addLine("Not empty yo :)")
+
                 tag = tagProcessor.getDetections().get(0);
                 if(TargetId==(int)tag.id) {
-                    telemetry.addLine("Updating with tag values!");
                     xDistance = tag.ftcPose.x;
                     yDistance = tag.ftcPose.y;
                     zDistance = tag.ftcPose.z;
@@ -133,8 +139,8 @@ public class Vision{
 
                 }
 
-            }
-            //if (devModeOn){
+
+            /*if (devModeOn){
                 telemetry.addData("xDistance",xDistance);
                 telemetry.addData("yDistance",yDistance);
                 telemetry.addData("zDistance",zDistance);
@@ -150,7 +156,7 @@ public class Vision{
                 telemetry.addData("Vertical angle ",vertAngleReturn());
                 telemetry.update();
 
-            //}
+            }*/
 
         }
         else{
@@ -227,4 +233,45 @@ public class Vision{
     static public void DevModeOn(){
         devModeOn= true;
     }
+    //               ---------RETURN FUNCTIONS---------
+    public double getyDistance(){
+        return yDistance;
+    }
+    public double getzDistance(){
+        return zDistance;
+    }
+    public double getxDistance(){
+        return xDistance;
+    }
+    public double getRange(){
+        return range;
+    }
+    public double getPitch(){
+        return pitch;
+    }
+    public double getRoll(){
+        return roll;
+    }
+    public double getYaw(){
+        return yaw;
+    }
+    public double getElevation(){
+        return yDistance;
+    }
+    public double getBearing(){
+        return bearing;
+    }
+
+    /*        xDistance=-1;
+    yDistance=-1;
+    zDistance=-1;
+    range=-1;
+
+    pitch=0;
+    roll=0;
+    yaw=0;
+
+    elevation=0;
+    bearing=0;
+    AprilTagId = -1;*/
 }
