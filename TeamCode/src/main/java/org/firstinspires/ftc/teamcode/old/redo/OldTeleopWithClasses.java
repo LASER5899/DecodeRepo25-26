@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name="LASER Main Teleop", group="Linear OpMode")
+@TeleOp(name="second innovate", group="Linear OpMode")
 public class OldTeleopWithClasses extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -33,6 +33,7 @@ public class OldTeleopWithClasses extends LinearOpMode {
                 C_BPUSHSERVO, C_BPUSHSERVO_LOAD, C_VERT_SLIDE_RESET;
 
         double outtakeServoPosition = robot.outtakeServo.getPosition();
+        //double outtakeServoPosition = 0;
         int vSlideMotorState = 0;
 
         telemetry.addData("Status", "Initialized");

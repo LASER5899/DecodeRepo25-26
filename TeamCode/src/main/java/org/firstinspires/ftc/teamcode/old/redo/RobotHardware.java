@@ -26,7 +26,7 @@ public class RobotHardware {
         wristMotor      = hwMap.get(DcMotor.class, "wrist_drive");
         intakeServo     = hwMap.get(Servo.class, "intake_servo");
         blockPushServo  = hwMap.get(Servo.class, "block_push_servo");
-        //outtakeServo    = hwMap.get(Servo.class, "outtake_servo");
+        outtakeServo    = hwMap.get(Servo.class, "outtake_servo");
         slideVertical   = new VerticalSlide(hwMap, "vertical_slide");
         lights          = new LEDlights(hwMap, "light_strip");
 
