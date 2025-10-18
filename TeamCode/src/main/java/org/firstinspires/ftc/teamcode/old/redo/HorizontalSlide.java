@@ -8,15 +8,17 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.old.redo.RobotHardware;
 
-public class VerticalSlide {
 
-    public enum VerticalSlideState {
-        LOW, MID, HIGH, RESETTING //, HIME
+// this is all copied from verticalslide none of this works yet :(
+public class HorizontalSlide {
+
+    public enum HorizontalSlideState {
+        HOME, LOW, MID, HIGH, RESETTING
     }
     private final DcMotor slide;
-    private VerticalSlideState state = VerticalSlideState.LOW; //.HOME;
+    private HorizontalSlideState state = HorizontalSlideState.HOME;
 
-    public VerticalSlide(HardwareMap hardwareMap, String deviceName) {
+    public HorizontalSlide(HardwareMap hardwareMap, String deviceName) {
         slide = hardwareMap.get(DcMotor.class, deviceName);
         slide.setTargetPosition(10);
         slide.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -34,36 +36,35 @@ public class VerticalSlide {
 
     public void update(boolean upPressed, boolean downPressed, boolean resetPressed) {
         switch(state) {
-            /*case HOME:
+            case HOME:
                 slide.setTargetPosition(0);
                 slide.setPower(1.0);
-                if (upPressed) state = VerticalSlideState.LOW;
-                else if (resetPressed) state = VerticalSlideState.RESETTING; // juuuust in case something weird happened with the encoders
-                
-                break;*/
+                if (upPressed) state = HorizontalSlideState.LOW;
+                else if (resetPressed) state = HorizontalSlideState.RESETTING; // juuuust in case something weird happened with the encoders
+                break;
             case LOW:
                 slide.setTargetPosition(78);
                 slide.setPower(1.0);
-                if (upPressed) state = VerticalSlideState.MID;
-                else if (resetPressed) state = VerticalSlideState.RESETTING;
+                if (upPressed) state = HorizontalSlideState.MID;
+                else if (resetPressed) state = HorizontalSlideState.RESETTING;
                 break;
             case MID:
                 slide.setTargetPosition(2669);
                 slide.setPower(1.0);
-                if (upPressed) state = VerticalSlideState.HIGH;
-                else if (downPressed) state = VerticalSlideState.LOW;
-                else if (resetPressed) state = VerticalSlideState.RESETTING;
+                if (upPressed) state = HorizontalSlideState.HIGH;
+                else if (downPressed) state = HorizontalSlideState.HOME;
+                else if (resetPressed) state = HorizontalSlideState.RESETTING;
                 break;
             case HIGH:
                 slide.setTargetPosition(5024);
                 slide.setPower(0.7);
-                if (downPressed) state = VerticalSlideState.MID;
-                else if (resetPressed) state = VerticalSlideState.RESETTING;
+                if (downPressed) state = HorizontalSlideState.HOME;
+                else if (resetPressed) state = HorizontalSlideState.RESETTING;
                 break;
             case RESETTING:
                 slide.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER); // if encoder skips or drifts or smth
                 slide.setPower(-0.5);
-                if (!resetPressed) state = VerticalSlideState.LOW; // assumes a hold to reset
+                if (!resetPressed) state = HorizontalSlideState.HOME; // assumes a hold to reset
                 break;
 
 
