@@ -164,10 +164,10 @@ public class OldTeleopWithClasses extends LinearOpMode {
                 robot.wristMotor.setPower(0.5);
                 robot.wristMotor.setTargetPosition(683);
                 if (C_INTAKE) robot.intakeServo.setPosition(1.0);
-            } else if (robot.slideVertical.isBusy() && robot.slideVertical.getCurrentPosition() < 1500 && robot.slideVertical.getCurrentPosition() > 150) {
+            } /*else if (robot.slideVertical.isBusy() && robot.slideVertical.getCurrentPosition() < 1500 && robot.slideVertical.getCurrentPosition() > 150) {
                 robot.wristMotor.setPower(0.2);
                 robot.wristMotor.setTargetPosition(130);
-            } else if (robot.slideHorizontal.getCurrentPosition() < -300) {
+            } */else if (robot.slideHorizontal.getCurrentPosition() < -300) {
                 robot.wristMotor.setPower(0.5);
                 robot.wristMotor.setTargetPosition(400);
             } else {

@@ -5,28 +5,37 @@ import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.tel
 
 import android.util.Size;
 
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import com.qualcomm.robotcore.hardware.*;
+
+
 
 
 /*
  *      This class is made to give the position of the goal relative to the robot.
  *
- *       setCamera() sets the camera that will be used.
+ *       setCamera(cameraName) sets the camera that will be used.
  *       aprilTagSetup() sets up the april tag with the library needed
  *       centerDistanceReturn() returns how far away the goal is.
  *       horizAngleReturn() returns the angle left and right the goal is relative the the camera.
  *       vertAngleReturn() returns the angle to the top of the goal.
- *       Vision.toggleDevMode() turns on and off showing all distances and readings in telemetry
+ *       Vision.DevMode() turns showing all distances and readings in telemetry
  *
  *
  *
  */
 public class Vision{
 
+   // public Vision(HardwareMap map) {
+   //     this.hardwareMap = map;
+    //}
 
     //CHANGE STUFF HERE
     static final double TAG_TO_CENTER = 8.75; //put the horizontal distance from tag to center of goal here
@@ -34,8 +43,8 @@ public class Vision{
 
     static boolean devModeOn=false; //change default mode of devMode here. Can be changed in code using Vision.toggleDevMode();
 
-    String webCamName="webCam";//put the webCamName here.
-
+    String webCamName="Camera1";//put the webCamName here.
+    //HardwareMap hardwareMap;
     //do not change
 
     WebcamName theWebCam;
@@ -50,23 +59,25 @@ public class Vision{
 
     private double pitch, roll, yaw;
     private double elevation, bearing;
+
+
     AprilTagDetection tag;
 
 
+    //Telemetry telemetry = ;
 
 
-
-    public void setCamera(String wcn){
-        webCamName =wcn;
-    }
+    //public void setCamera(String wcn){
+    //    webCamName =wcn;
+    //}
     public enum Target{
         red,
         blue
 
     }
 
-    public void aprilTagSetUp(){
-
+    public void aprilTagSetUp(WebcamName camera){
+        //telemetry.addLine("aprilTagSetUp");
 
         tagProcessor = new AprilTagProcessor.Builder()
                 .setDrawAxes(true)
@@ -78,31 +89,52 @@ public class Vision{
 
         VisionPortal visionPortal = new VisionPortal.Builder()
                 .addProcessor(tagProcessor)
-                .setCamera(hardwareMap.get(WebcamName.class,webCamName))  // uncomment once it exists
+                .setCamera(camera)  // uncomment once it exists
                 .setCameraResolution(new Size(640, 480))
                 .build();
 
     }
     public void scanForTarget(){
-        if (tagProcessor.getDetections().size()>0){
+        //telemetry.addLine("scanny scan scan");
+        if (!tagProcessor.getDetections().isEmpty()){
+            //telemetry.addLine("Not empty yo :)");
             if (TargetId == 0 ){
-                telemetry.addLine("You need to set target  target.red or target.blue using the Vision.setTarget() function before attempting to read the target distances");
+                telemetry.addLine("You need to set target  target.red or target.blue using the Vision.setTarget() function before attempting to read the target distances. - Juliette");
             }
-            else if(TargetId==(int)tag.id) {
+            else{
                 tag = tagProcessor.getDetections().get(0);
-                xDistance = tag.ftcPose.x;
-                yDistance = tag.ftcPose.y;
-                zDistance = tag.ftcPose.z;
-                range = tag.ftcPose.range;
+                if(TargetId==(int)tag.id) {
+                    telemetry.addLine("Updating with tag values!");
+                    xDistance = tag.ftcPose.x;
+                    yDistance = tag.ftcPose.y;
+                    zDistance = tag.ftcPose.z;
+                    range = tag.ftcPose.range;
 
-                pitch = tag.ftcPose.pitch;
-                roll = tag.ftcPose.roll;
-                yaw = tag.ftcPose.yaw;
+                    pitch = tag.ftcPose.pitch;
+                    roll = tag.ftcPose.roll;
+                    yaw = tag.ftcPose.yaw;
 
-                elevation = tag.ftcPose.elevation;
-                bearing = tag.ftcPose.bearing;
+                    elevation = tag.ftcPose.elevation;
+                    bearing = tag.ftcPose.bearing;
+                }
+                else{
+
+                    xDistance = -1;
+                    yDistance = -1;
+                    zDistance = -1;
+                    range = -1;
+
+                    pitch = 0;
+                    roll = 0 ;
+                    yaw = 0;
+
+                    elevation = 0;
+                    bearing = 0;
+
+                }
+
             }
-            if (devModeOn){
+            //if (devModeOn){
                 telemetry.addData("xDistance",xDistance);
                 telemetry.addData("yDistance",yDistance);
                 telemetry.addData("zDistance",zDistance);
@@ -116,7 +148,9 @@ public class Vision{
                 telemetry.addData("horizontal Angle",horizAngleReturn());
                 telemetry.addData("center Distance",centerDistanceReturn());
                 telemetry.addData("Vertical angle ",vertAngleReturn());
-            }
+                telemetry.update();
+
+            //}
 
         }
         else{
@@ -136,6 +170,7 @@ public class Vision{
         }
     }
     public double centerDistanceReturn(){
+
         scanForTarget();
         double centerDistance;
         if (range==-1.0){
@@ -189,7 +224,7 @@ public class Vision{
 
 
     }
-    static public void toggleDevModeOn(){
-        devModeOn= !devModeOn;
+    static public void DevModeOn(){
+        devModeOn= true;
     }
 }
