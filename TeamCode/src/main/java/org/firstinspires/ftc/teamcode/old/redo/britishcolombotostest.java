@@ -47,7 +47,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="ITD_demo2", group="auto")
+@Autonomous(name="A naturaaaal", group="auto")
 //@Disabled
 public class britishcolombotostest extends LinearOpMode {
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
@@ -141,7 +141,7 @@ public class britishcolombotostest extends LinearOpMode {
         // clockwise (negative rotation) from the robot's orientation, the offset
         // would be {-5, 10, -90}. These can be any value, even the angle can be
         // tweaked slightly to compensate for imperfect mounting (eg. 1.3 degrees).
-        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(7, 0, 90); // should be -3.75 & -7.5 and 90
+        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(7, 0, 270); // should be -3.75 & -7.5 and 90
         myOtos.setOffset(offset);
 
         // Here we can set the linear and angular scalars, which can compensate for

@@ -117,12 +117,10 @@ public class Decode_Teleop extends LinearOpMode {
             //      the setDirection() calls above.
             // Once the correct motors move in the correct direction re-comment this code.
 
-            /*
-            leftFrontPower  = gamepad1.dpad_left ? 1.0 : 0.0;  // X gamepad
-            leftBackPower   = gamepad1.dpad_down ? 1.0 : 0.0;  // A gamepad
-            rightFrontPower = gamepad1.dpad_up ? 1.0 : 0.0;  // Y gamepad
-            rightBackPower  = gamepad1.dpad_right ? 1.0 : 0.0;  // B gamepad
-            */
+            leftFrontPower  = gamepad1.dpad_left ? 1.0 : 0.0;  // left gamepad
+            leftBackPower   = gamepad1.dpad_down ? 1.0 : 0.0;  // down gamepad
+            rightFrontPower = gamepad1.dpad_up ? 1.0 : 0.0;  // up gamepad
+            rightBackPower  = gamepad1.dpad_right ? 1.0 : 0.0;  // right gamepad
 
             // HALF SPEED CONTROLS
             if (C_HALF_SPEED) {
