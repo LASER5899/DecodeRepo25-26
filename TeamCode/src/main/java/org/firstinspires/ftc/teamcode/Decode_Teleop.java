@@ -154,19 +154,28 @@ public class Decode_Teleop extends LinearOpMode {
 
             // if some button and pA empty
                 // move servo to pA
-                // set pA color to whatever color color sensor has
-                // intake
-                // move servo home
+                // do we want it?
+                    // set pA color to whatever color color sensor has
+                    // intake
+                    // move servo home
+                // no?
+                    // spit it out
             // if some other button and pB empty
                 // move servo to pB
-                // set pB color to whatever color color sensor has
-                // intake
-                // move servo home
+                // do we want it?
+                    // set pA color to whatever color color sensor has
+                    // intake
+                    // move servo home
+                // no?
+                    // spit it out
             // if some other button and pC empty
                 // move servo to pC
-                // set pC color to whatever color color sensor has
-                // intake
-                // move servo home
+                // do we want it?
+                    // set pA color to whatever color color sensor has
+                    // intake
+                    // move servo home
+                // no?
+                    // spit it out
 
             // if some other button
                 // find an empty slot
