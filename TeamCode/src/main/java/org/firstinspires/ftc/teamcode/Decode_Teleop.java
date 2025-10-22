@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 @TeleOp(name="MecanumTeleop", group="Linear OpMode")
-public class MecanumTeleop extends LinearOpMode {
+public class Decode_Teleop extends LinearOpMode {
 
 
     private DcMotor leftFrontDrive;
@@ -32,6 +32,12 @@ public class MecanumTeleop extends LinearOpMode {
         leftBackDrive   = hardwareMap.get(DcMotor.class, "left_back_drive");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         rightBackDrive  = hardwareMap.get(DcMotor.class, "right_back_drive");
+
+        // set up transfer servo
+
+        // tranfer servo pos A = ✨position✨
+        // tranfer servo pos B = ✨position✨
+        // tranfer servo pos C = ✨position✨
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -111,12 +117,12 @@ public class MecanumTeleop extends LinearOpMode {
             //      the setDirection() calls above.
             // Once the correct motors move in the correct direction re-comment this code.
 
-
+            /*
             leftFrontPower  = gamepad1.dpad_left ? 1.0 : 0.0;  // X gamepad
             leftBackPower   = gamepad1.dpad_down ? 1.0 : 0.0;  // A gamepad
             rightFrontPower = gamepad1.dpad_up ? 1.0 : 0.0;  // Y gamepad
             rightBackPower  = gamepad1.dpad_right ? 1.0 : 0.0;  // B gamepad
-
+            */
 
             // HALF SPEED CONTROLS
             if (C_HALF_SPEED) {
@@ -145,6 +151,40 @@ public class MecanumTeleop extends LinearOpMode {
             } else {
                 keyB = false;
             }
+
+            // if some button and pA empty
+                // move servo to pA
+                // set pA color to whatever color color sensor has
+                // intake
+                // move servo home
+            // if some other button and pB empty
+                // move servo to pB
+                // set pB color to whatever color color sensor has
+                // intake
+                // move servo home
+            // if some other button and pC empty
+                // move servo to pC
+                // set pC color to whatever color color sensor has
+                // intake
+                // move servo home
+
+            // if some other button
+                // find an empty slot
+                // move servo
+                // intake
+                // move servo home
+
+            // if outtake green button
+                // does A have green?
+                    // outtake A
+                // does B have green?
+                    // outtake B
+                // does C have green?
+                    // outtake C
+                // else
+                    // flash lights red
+            // if outtake purple button
+                // same sequence but for purple
 
             // Send calculated power to wheels
             leftFrontDrive.setPower(leftFrontPower * speed * invDir);

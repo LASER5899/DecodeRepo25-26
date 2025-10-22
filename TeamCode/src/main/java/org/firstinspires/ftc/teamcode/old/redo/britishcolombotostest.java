@@ -1,4 +1,5 @@
-package org.firstinspires.ftc.teamcode.old.redo;/* Copyright (c) 2021 FIRST. All rights reserved.
+package org.firstinspires.ftc.teamcode.old.redo;
+/* Copyright (c) 2021 FIRST. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted (subject to the limitations in the disclaimer below) provided that
@@ -27,7 +28,6 @@ package org.firstinspires.ftc.teamcode.old.redo;/* Copyright (c) 2021 FIRST. All
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-//package org.firstinspires.ftc.teamcode;
 /* this is an autonomous program for red. Start centered on tile F2 along wall.
     It uses the SparkFun OTOS sensor to control driving.
     It drives forward to push a sample into the net zone,
@@ -141,7 +141,7 @@ public class britishcolombotostest extends LinearOpMode {
         // clockwise (negative rotation) from the robot's orientation, the offset
         // would be {-5, 10, -90}. These can be any value, even the angle can be
         // tweaked slightly to compensate for imperfect mounting (eg. 1.3 degrees).
-        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(-3.75, -7.5, 90); // should be -3.75 & -7.5 and 90
+        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(7, 0, 90); // should be -3.75 & -7.5 and 90
         myOtos.setOffset(offset);
 
         // Here we can set the linear and angular scalars, which can compensate for
