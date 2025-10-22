@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.*;
 
 @TeleOp(name="MecanumTeleop", group="Linear OpMode")
 public class Decode_Teleop extends LinearOpMode {
@@ -12,6 +12,9 @@ public class Decode_Teleop extends LinearOpMode {
     private DcMotor leftBackDrive;
     private DcMotor rightFrontDrive;
     private DcMotor rightBackDrive;
+
+    private Servo intakeServo;
+    private Servo transferServo;
 
     @Override
     public void runOpMode() {
@@ -24,7 +27,7 @@ public class Decode_Teleop extends LinearOpMode {
         boolean keyA = false, keyB = false;    // used for toggle keys
 
         double C_LATERAL, C_AXIAL, C_YAW;
-        boolean C_HALF_SPEED, C_INV_DIR;
+        boolean C_HALF_SPEED, C_INV_DIR, C_INTAKE, C_TRANSFER_PA, C_TRANSFER_PB, C_TRANSFER_PC;
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
@@ -33,22 +36,24 @@ public class Decode_Teleop extends LinearOpMode {
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         rightBackDrive  = hardwareMap.get(DcMotor.class, "right_back_drive");
 
-        // set up transfer servo
+        intakeServo   = hardwareMap.get(Servo.class, "intake_servo");
+        transferServo = hardwareMap.get(Servo.class, "transfer_servo");
 
-        // tranfer servo pos A = ✨position✨
-        // tranfer servo pos B = ✨position✨
-        // tranfer servo pos C = ✨position✨
+        double tranferPosNeutral = 0.2 * (16.0/22.0);
+        double tranferPosA = 0.0 * (16.0/24.0); // gear ratio
+        double tranferPosB = 0.4 * (16.0/24.0);
+        double tranferPosC = 0.8 * (16.0/24.0);
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
         // ########################################################################################
-        // Most robots need the motors on one side to be reversed to drive forward.
+        // Most robots need the motors on one side to be reversed to drive axial.
         // The motor reversals shown here are for a "direct drive" robot (the wheels turn the same direction as the motor shaft)
         // If your robot has additional gear reductions or uses a right-angled drive, it's important to ensure
         // that your motors are turning in the correct direction.  So, start out with the reversals here, BUT
-        // when you first test your robot, push the left joystick forward and observe the direction the wheels turn.
-        // Reverse the direction (flip FORWARD <-> REVERSE ) of any wheel that runs backward
-        // Keep testing until ALL the wheels move the robot forward when you push the left joystick forward.
+        // when you first test your robot, push the left joystick axial and observe the direction the wheels turn.
+        // Reverse the direction (flip axial <-> REVERSE ) of any wheel that runs backward
+        // Keep testing until ALL the wheels move the robot axial when you push the left joystick axial.
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
@@ -70,29 +75,33 @@ public class Decode_Teleop extends LinearOpMode {
 
             // KEYBINDS
             /*
-             * 1) Axial:    Driving forward and backward               Left-joystick Forward/Backward
+             * 1) Axial:    Driving axial and backward               Left-joystick axial/Backward
              * 2) Lateral:  Strafing right and left                     Left-joystick Right and Left
              * 3) Yaw:      Rotating Clockwise and counter clockwise    Right-joystick Right and Left
              */
-            C_AXIAL               = gamepad1.left_stick_y;
-            C_LATERAL             = gamepad1.left_stick_x;
-            C_YAW                 = gamepad1.right_stick_x;
-            C_HALF_SPEED          = gamepad1.a;
-            C_INV_DIR             = gamepad1.b;
+            C_AXIAL       = gamepad1.left_stick_y;
+            C_LATERAL     = gamepad1.left_stick_x;
+            C_YAW         = gamepad1.right_stick_x;
+            C_HALF_SPEED  = gamepad1.a;
+            C_INV_DIR     = gamepad1.b;
+            C_INTAKE      = gamepad1.x;
+            C_TRANSFER_PA = gamepad1.dpad_left;
+            C_TRANSFER_PB = gamepad1.dpad_up;
+            C_TRANSFER_PC = gamepad1.dpad_right;
 
             double max;
 
-            // POV Mode uses left joystick to go forward & strafe, and right joystick to rotate.
-            double axial   = -C_AXIAL;  // Note: pushing stick forward gives negative value
-            double lateral = -C_LATERAL;
+            // POV Mode uses left joystick to go axial & strafe, and right joystick to yaw.
+            double axial   = -C_AXIAL;  // Note: pushing stick axial gives negative value
+            double lateral =  C_LATERAL;
             double yaw     =  C_YAW;
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
-            double leftFrontPower  = -axial + lateral + yaw;
-            double rightFrontPower = -axial - lateral - yaw;
-            double leftBackPower   = -axial - lateral + yaw;
-            double rightBackPower  =  axial - lateral + yaw;
+            double leftFrontPower = axial + lateral + yaw;
+            double rightFrontPower = axial - lateral - yaw;
+            double rightBackPower = axial + lateral - yaw;
+            double leftBackPower = axial - lateral + yaw;
 
             // Normalize the values so no wheel power exceeds 100%
             // This ensures that the robot maintains the desired motion.
@@ -110,17 +119,19 @@ public class Decode_Teleop extends LinearOpMode {
             // This is test code:
             //
             // Uncomment the following code to test your motor directions.
-            // Each button should make the corresponding motor run FORWARD.
+            // Each button should make the corresponding motor run axial.
             //   1) First get all the motors to take to correct positions on the robot
             //      by adjusting your Robot Configuration if necessary.
             //   2) Then make sure they run in the correct direction by modifying the
             //      the setDirection() calls above. -_-
             // Once the correct motors move in the correct direction re-comment this code.
 
+            /*
             leftFrontPower  = gamepad1.dpad_left ? 1.0 : 0.0;  // left gamepad
             leftBackPower   = gamepad1.dpad_down ? 1.0 : 0.0;  // down gamepad
             rightFrontPower = gamepad1.dpad_up ? 1.0 : 0.0;  // up gamepad
             rightBackPower  = gamepad1.dpad_right ? 1.0 : 0.0;  // right gamepad
+            */
 
             // HALF SPEED CONTROLS
             if (C_HALF_SPEED) {
@@ -148,6 +159,24 @@ public class Decode_Teleop extends LinearOpMode {
                 }
             } else {
                 keyB = false;
+            }
+
+            if (C_INTAKE) {
+                intakeServo.setPosition(0.0);
+            } else if (gamepad1.y) {
+                intakeServo.setPosition(1.0);
+            } else {
+                intakeServo.setPosition(0.5);
+            }
+
+            if (C_TRANSFER_PA) {
+                transferServo.setPosition(tranferPosA);
+            } else if (C_TRANSFER_PB) {
+                transferServo.setPosition(tranferPosB);
+            } else if (C_TRANSFER_PC) {
+                transferServo.setPosition(tranferPosC);
+            } else {
+                transferServo.setPosition(tranferPosNeutral);
             }
 
             // if some button and pA empty
