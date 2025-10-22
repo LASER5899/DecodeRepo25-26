@@ -31,6 +31,20 @@ public class VisionTestEnvironment extends LinearOpMode {
 
         while(opModeIsActive()){
             camera.scanForTarget();
+            telemetry.addData("xDistance",camera.getxDistance());
+            telemetry.addData("yDistance",camera.getyDistance());
+            telemetry.addData("zDistance",camera.getzDistance());
+            telemetry.addData("range",camera.getRange());
+
+            telemetry.addData("pitch",camera.getPitch());
+            telemetry.addData("yaw",camera.getxDistance());
+            telemetry.addData("yeet",camera.getxDistance());
+            telemetry.addData("xDistance",camera.getxDistance());
+            telemetry.addData("xDistance",camera.getxDistance());
+            telemetry.addData("horizontal Angle",camera.horizAngleReturn());
+            telemetry.addData("center Distance",camera.centerDistanceReturn());
+            telemetry.addData("Vertical angle ",camera.vertAngleReturn());
+            telemetry.update();
         }
 
     }
