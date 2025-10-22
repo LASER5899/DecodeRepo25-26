@@ -114,7 +114,7 @@ public class Decode_Teleop extends LinearOpMode {
             //   1) First get all the motors to take to correct positions on the robot
             //      by adjusting your Robot Configuration if necessary.
             //   2) Then make sure they run in the correct direction by modifying the
-            //      the setDirection() calls above.
+            //      the setDirection() calls above. -_-
             // Once the correct motors move in the correct direction re-comment this code.
 
             leftFrontPower  = gamepad1.dpad_left ? 1.0 : 0.0;  // left gamepad
