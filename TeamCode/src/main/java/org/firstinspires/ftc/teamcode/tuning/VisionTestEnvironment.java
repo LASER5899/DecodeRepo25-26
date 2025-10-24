@@ -10,9 +10,7 @@ import org.firstinspires.ftc.teamcode.Vision;
 import org.firstinspires.ftc.teamcode.Vision.*;
 @Autonomous(name="Vision Test Environment", group="Linear OpMode")
 public class VisionTestEnvironment extends LinearOpMode {
-   // public VisionTestEnvironment(HardwareMap map){
-   //     this.hardwareMap=map;
-   // }
+
 
     public Vision camera = new Vision();
 
@@ -30,20 +28,8 @@ public class VisionTestEnvironment extends LinearOpMode {
         camera.aprilTagSetUp(cam1);
 
         while(opModeIsActive()){
-            camera.scanForTarget();
-            telemetry.addData("xDistance",camera.getxDistance());
-            telemetry.addData("yDistance",camera.getyDistance());
-            telemetry.addData("zDistance",camera.getzDistance());
-            telemetry.addData("range",camera.getRange());
+            telemetry.addData("pattern",camera.scanForPattern());
 
-            telemetry.addData("pitch",camera.getPitch());
-            telemetry.addData("yaw",camera.getxDistance());
-            telemetry.addData("yeet",camera.getxDistance());
-            telemetry.addData("xDistance",camera.getxDistance());
-            telemetry.addData("xDistance",camera.getxDistance());
-            telemetry.addData("horizontal Angle",camera.horizAngleReturn());
-            telemetry.addData("center Distance",camera.centerDistanceReturn());
-            telemetry.addData("Vertical angle ",camera.vertAngleReturn());
             telemetry.update();
         }
 
