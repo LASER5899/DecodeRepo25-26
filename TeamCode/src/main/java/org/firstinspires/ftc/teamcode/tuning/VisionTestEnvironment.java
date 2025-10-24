@@ -28,7 +28,7 @@ public class VisionTestEnvironment extends LinearOpMode {
         camera.aprilTagSetUp(cam1);
 
         while(opModeIsActive()){
-            telemetry.addData("pattern",camera.scanForPattern());
+            telemetry.addData("Pattern: ",camera.scanForPattern());
 
             telemetry.update();
         }
