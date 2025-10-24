@@ -85,6 +85,12 @@ public class Vision{
         blue
 
     }
+    public enum Pattern {
+        GPP,
+        PGP,
+        PPG,
+        none
+    }
 
     public void aprilTagSetUp(WebcamName camera){
         //telemetry.addLine("aprilTagSetUp");
@@ -274,4 +280,32 @@ public class Vision{
     elevation=0;
     bearing=0;
     AprilTagId = -1;*/
+
+
+
+    Pattern gamePattern = Pattern.none;
+    int scanForPatternRun = 0;
+    public Vision.Pattern scanForPattern() {
+
+
+        if (!tagProcessor.getDetections().isEmpty()) {
+            //telemetry.addLine("Not empty yo :)")
+
+            tag = tagProcessor.getDetections().get(0);
+            if (23 == (int) tag.id) {
+                gamePattern= Pattern.GPP;
+                scanForPatternRun++;
+            }
+            if (22 == (int) tag.id) {
+                gamePattern = Pattern.PGP;
+                scanForPatternRun++;
+            }
+            if (21 == (int) tag.id) {
+                gamePattern = Pattern.PPG;
+                scanForPatternRun++;
+            }
+
+        }
+        return gamePattern;
+    }
 }
