@@ -256,7 +256,7 @@ public class britishcolombotostest extends LinearOpMode {
         */
     SparkFunOTOS.Pose2D myPosition() {
         pos = myOtos.getPosition();
-        SparkFunOTOS.Pose2D myPos = new SparkFunOTOS.Pose2D(pos.y, pos.x, -pos.h);
+        SparkFunOTOS.Pose2D myPos = new SparkFunOTOS.Pose2D(pos.x, pos.y, -pos.h);
         return(myPos);
     }
     /**

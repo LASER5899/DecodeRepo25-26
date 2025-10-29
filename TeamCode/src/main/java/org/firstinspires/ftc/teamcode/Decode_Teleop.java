@@ -13,6 +13,8 @@ public class Decode_Teleop extends LinearOpMode {
     private DcMotor rightFrontDrive;
     private DcMotor rightBackDrive;
 
+    private DcMotor outtake_motor;
+
     private Servo intakeServo;
     private Servo transferServo;
 
@@ -27,7 +29,7 @@ public class Decode_Teleop extends LinearOpMode {
         boolean keyA = false, keyB = false;    // used for toggle keys
 
         double C_LATERAL, C_AXIAL, C_YAW;
-        boolean C_HALF_SPEED, C_INV_DIR, C_INTAKE, C_TRANSFER_PA, C_TRANSFER_PB, C_TRANSFER_PC;
+        boolean C_HALF_SPEED, C_INV_DIR, C_INTAKE, C_TRANSFER_PA, C_TRANSFER_PB, C_TRANSFER_PC, C_OUTTAKE;
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
@@ -35,6 +37,8 @@ public class Decode_Teleop extends LinearOpMode {
         leftBackDrive   = hardwareMap.get(DcMotor.class, "left_back_drive");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         rightBackDrive  = hardwareMap.get(DcMotor.class, "right_back_drive");
+
+        outtake_motor   = hardwareMap.get(DcMotor.class, "outtake_drive");
 
         intakeServo   = hardwareMap.get(Servo.class, "intake_servo");
         transferServo = hardwareMap.get(Servo.class, "transfer_servo");
@@ -88,6 +92,7 @@ public class Decode_Teleop extends LinearOpMode {
             C_TRANSFER_PA = gamepad1.dpad_left;
             C_TRANSFER_PB = gamepad1.dpad_up;
             C_TRANSFER_PC = gamepad1.dpad_right;
+            C_OUTTAKE     = gamepad1.y;
 
             double max;
 
@@ -98,10 +103,10 @@ public class Decode_Teleop extends LinearOpMode {
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
-            double leftFrontPower = axial + lateral + yaw;
+            double leftFrontPower  = axial + lateral + yaw;
             double rightFrontPower = axial - lateral - yaw;
-            double rightBackPower = axial + lateral - yaw;
-            double leftBackPower = axial - lateral + yaw;
+            double rightBackPower  = axial + lateral - yaw;
+            double leftBackPower   = axial - lateral + yaw;
 
             // Normalize the values so no wheel power exceeds 100%
             // This ensures that the robot maintains the desired motion.
@@ -179,6 +184,12 @@ public class Decode_Teleop extends LinearOpMode {
                 transferServo.setPosition(tranferPosNeutral);
             }
 
+            if (C_OUTTAKE) {
+                outtake_motor.setPower(1.0);
+            } else {
+                outtake_motor.setPower(0.0);
+            }
+
             // if some button and pA empty
                 // move servo to pA
                 // do we want it?
@@ -223,6 +234,7 @@ public class Decode_Teleop extends LinearOpMode {
                 // same sequence but for purple
 
             // Send calculated power to wheels
+
             leftFrontDrive.setPower(leftFrontPower * speed * invDir);
             rightFrontDrive.setPower(rightFrontPower * speed * invDir);
             leftBackDrive.setPower(leftBackPower * speed * invDir);
