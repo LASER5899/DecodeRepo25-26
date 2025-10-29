@@ -31,14 +31,19 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 /*
  *      This class is made to give the position of the goal relative to the robot.
  *
- *       setCamera(cameraName) sets the camera that will be used.
- *       aprilTagSetup() sets up the april tag with the library needed
+ *
+ *       aprilTagSetUp(WebcamName camera) sets up the april tag runner with the camera needed. Please use this function to initialize before running the opMode
+ *       scanForPattern() returns the game pattern as one of the options below. If the Pattern is currently none, it will scan for the tag and change it to
+ *          Possible Patterns: Vision.Pattern.none, Vision.Pattern.PPG, Vision.Pattern.PGP, Vision.Pattern.GPP
+ *       scanForTarget() Updates all values on the goal target.
+ *
+ *
+ *
+ *
+ *      These three are particularly useful in aiming:::
  *       centerDistanceReturn() returns how far away the goal is.
  *       horizAngleReturn() returns the angle left and right the goal is relative the the camera.
  *       vertAngleReturn() returns the angle to the top of the goal.
- *       Vision.DevMode() turns showing all distances and readings in telemetry
- *
- *
  *
  */
 public class Vision{
@@ -84,6 +89,12 @@ public class Vision{
         red,
         blue
 
+    }
+    public enum Pattern {
+        GPP,
+        PGP,
+        PPG,
+        none
     }
 
     public void aprilTagSetUp(WebcamName camera){
@@ -274,4 +285,32 @@ public class Vision{
     elevation=0;
     bearing=0;
     AprilTagId = -1;*/
+
+
+
+    Pattern gamePattern = Pattern.none;
+    int scanForPatternRun = 0;
+    public Vision.Pattern scanForPattern() {
+
+
+        if (gamePattern==Pattern.none&&!tagProcessor.getDetections().isEmpty()) {
+            //telemetry.addLine("Not empty yo :)")
+
+            tag = tagProcessor.getDetections().get(0);
+            if (23 == (int) tag.id) {
+                gamePattern= Pattern.PPG;
+                scanForPatternRun++;
+            }
+            if (22 == (int) tag.id) {
+                gamePattern = Pattern.PGP;
+                scanForPatternRun++;
+            }
+            if (21 == (int) tag.id) {
+                gamePattern = Pattern.GPP;
+                scanForPatternRun++;
+            }
+
+        }
+        return gamePattern;
+    }
 }
