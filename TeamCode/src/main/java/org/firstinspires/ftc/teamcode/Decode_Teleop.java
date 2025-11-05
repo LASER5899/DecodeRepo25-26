@@ -17,7 +17,7 @@ public class Decode_Teleop extends LinearOpMode {
 
     private Servo intakeServo;
     private Servo transferServo;
-
+    private Servo flickServo;
     @Override
     public void runOpMode() {
 
@@ -29,7 +29,7 @@ public class Decode_Teleop extends LinearOpMode {
         boolean keyA = false, keyB = false;    // used for toggle keys
 
         double C_LATERAL, C_AXIAL, C_YAW;
-        boolean C_HALF_SPEED, C_INV_DIR, C_INTAKE, C_TRANSFER_PA, C_TRANSFER_PB, C_TRANSFER_PC, C_OUTTAKE;
+        boolean C_HALF_SPEED, C_INV_DIR, C_INTAKE, C_TRANSFER_PA, C_TRANSFER_PB, C_TRANSFER_PC, C_FLICK;
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
@@ -39,10 +39,11 @@ public class Decode_Teleop extends LinearOpMode {
         rightBackDrive  = hardwareMap.get(DcMotor.class, "right_back_drive");
 
         outtake_motor   = hardwareMap.get(DcMotor.class, "outtake_drive");
+        outtake_motor.setPower(-1.0);
 
         intakeServo   = hardwareMap.get(Servo.class, "intake_servo");
         transferServo = hardwareMap.get(Servo.class, "transfer_servo");
-
+        flickServo    = hardwareMap.get(Servo.class, "flick_servo");
         double tranferPosNeutral = 0.2 * (16.0/22.0);
         double tranferPosA = 0.0 * (16.0/24.0); // gear ratio
         double tranferPosB = 0.4 * (16.0/24.0);
@@ -88,11 +89,11 @@ public class Decode_Teleop extends LinearOpMode {
             C_YAW         = gamepad1.right_stick_x;
             C_HALF_SPEED  = gamepad1.a;
             C_INV_DIR     = gamepad1.b;
-            C_INTAKE      = gamepad1.x;
-            C_TRANSFER_PA = gamepad1.dpad_left;
-            C_TRANSFER_PB = gamepad1.dpad_up;
-            C_TRANSFER_PC = gamepad1.dpad_right;
-            C_OUTTAKE     = gamepad1.y;
+            C_INTAKE      = gamepad2.x;
+            C_FLICK       = gamepad2.y;
+            C_TRANSFER_PA = gamepad2.dpad_left;
+            C_TRANSFER_PB = gamepad2.dpad_up;
+            C_TRANSFER_PC = gamepad2.dpad_right;
 
             double max;
 
@@ -168,8 +169,6 @@ public class Decode_Teleop extends LinearOpMode {
 
             if (C_INTAKE) {
                 intakeServo.setPosition(0.0);
-            } else if (gamepad1.y) {
-                intakeServo.setPosition(1.0);
             } else {
                 intakeServo.setPosition(0.5);
             }
@@ -181,13 +180,14 @@ public class Decode_Teleop extends LinearOpMode {
             } else if (C_TRANSFER_PC) {
                 transferServo.setPosition(tranferPosC);
             } else {
-                transferServo.setPosition(tranferPosNeutral);
-            }
-
-            if (C_OUTTAKE) {
-                outtake_motor.setPower(1.0);
+                   if (flickServo.getPosition()<= 0.05){
+                        transferServo.setPosition(tranferPosNeutral);
+                    }
+                }
+            if (C_FLICK) {
+                flickServo.setPosition(0.0);
             } else {
-                outtake_motor.setPower(0.0);
+                flickServo.setPosition(0.3);
             }
 
             // if some button and pA empty
