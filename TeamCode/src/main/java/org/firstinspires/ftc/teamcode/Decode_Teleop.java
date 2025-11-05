@@ -44,10 +44,12 @@ public class Decode_Teleop extends LinearOpMode {
         intakeServo   = hardwareMap.get(Servo.class, "intake_servo");
         transferServo = hardwareMap.get(Servo.class, "transfer_servo");
         flickServo    = hardwareMap.get(Servo.class, "flick_servo");
-        double tranferPosNeutral = 0.2 * (16.0/22.0);
-        double tranferPosA = 0.0 * (16.0/24.0); // gear ratio
-        double tranferPosB = 0.4 * (16.0/24.0);
-        double tranferPosC = 0.8 * (16.0/24.0);
+        double tranferPosA = 0.68;
+        double tranferPosB = 0.61;
+        double tranferPosC = 0.535;
+        double tranferPosCOut = 0.647;
+        double tranferPosAOut = 0.575;
+        double tranferPosBOut = 0.497;
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -173,17 +175,24 @@ public class Decode_Teleop extends LinearOpMode {
                 intakeServo.setPosition(0.5);
             }
 
-            if (C_TRANSFER_PA) {
-                transferServo.setPosition(tranferPosA);
-            } else if (C_TRANSFER_PB) {
-                transferServo.setPosition(tranferPosB);
-            } else if (C_TRANSFER_PC) {
-                transferServo.setPosition(tranferPosC);
-            } else {
-                   if (flickServo.getPosition()<= 0.05){
-                        transferServo.setPosition(tranferPosNeutral);
-                    }
+            //if (flickServo.getPosition() >= 2.95){
+                if (C_TRANSFER_PA && !gamepad2.left_bumper) {
+                    transferServo.setPosition(tranferPosA);
+                } else if (C_TRANSFER_PB && !gamepad2.left_bumper) {
+                    transferServo.setPosition(tranferPosB);
+                } else if (C_TRANSFER_PC && !gamepad2.left_bumper) {
+                    transferServo.setPosition(tranferPosC);
+                } else if (C_TRANSFER_PA && gamepad2.left_bumper){
+                    transferServo.setPosition(tranferPosAOut);
+                } else if (C_TRANSFER_PB && gamepad2.left_bumper){
+                    transferServo.setPosition(tranferPosBOut);
+                } else if (C_TRANSFER_PC && gamepad2.left_bumper){
+                    transferServo.setPosition(tranferPosCOut);
+                } else {
+                    transferServo.setPosition(tranferPosAOut);
                 }
+            //}
+
             if (C_FLICK) {
                 flickServo.setPosition(0.0);
             } else {
@@ -245,6 +254,7 @@ public class Decode_Teleop extends LinearOpMode {
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower * speed * invDir, rightBackPower * speed * invDir);
             telemetry.addData("Speed", "%4.2f", speed);
             telemetry.addData("Invert Direction", "%1b", invertDir);
+            telemetry.addData("flickServo", flickServo.getPosition());
             telemetry.update();
 
             sleep(CYCLE_MS);
