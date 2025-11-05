@@ -272,6 +272,7 @@ public class Vision{
     public double getBearing(){
         return bearing;
     }
+    public int getId(){return tag.id;}
 
     /*        xDistance=-1;
     yDistance=-1;
