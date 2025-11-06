@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
 
-@TeleOp(name="Decode_Teleop", group="Linear OpMode")
-public class Decode_Teleop extends LinearOpMode {
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+
+@TeleOp(name="Decode_Teleop_Field_Relative", group="Linear OpMode")
+public class Decode_Teleop_Field_Relative extends LinearOpMode {
 
 
     private DcMotor leftFrontDrive;
@@ -18,6 +21,53 @@ public class Decode_Teleop extends LinearOpMode {
     private Servo intakeServo;
     private Servo transferServo;
     private Servo flickServo;
+
+    private IMU imu;
+
+    private void driveFieldRelative(double forward, double right, double rotate) {
+        // First, convert direction being asked to drive to polar coordinates
+        double theta = Math.atan2(forward, right);
+        double r = Math.hypot(right, forward);
+
+        // Second, rotate angle by the angle the robot is pointing
+        theta = AngleUnit.normalizeRadians(theta -
+                imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS));
+
+        // Third, convert back to cartesian
+        double newForward = r * Math.sin(theta);
+        double newRight = r * Math.cos(theta);
+
+        // Finally, call the drive method with robot relative forward and right amounts
+        drive(newForward, newRight, rotate);
+    }
+
+    public void drive(double forward, double right, double rotate) {
+        // This calculates the power needed for each wheel based on the amount of forward,
+        // strafe right, and rotate
+        double frontLeftPower = forward + right + rotate;
+        double frontRightPower = forward - right - rotate;
+        double backRightPower = forward + right - rotate;
+        double backLeftPower = forward - right + rotate;
+
+        double maxPower = 1.0;
+
+        // This is needed to make sure we don't pass > 1.0 to any wheel
+        // It allows us to keep all of the motors in proportion to what they should
+        // be and not get clipped
+        maxPower = Math.max(maxPower, Math.abs(frontLeftPower));
+        maxPower = Math.max(maxPower, Math.abs(frontRightPower));
+        maxPower = Math.max(maxPower, Math.abs(backRightPower));
+        maxPower = Math.max(maxPower, Math.abs(backLeftPower));
+
+        // We multiply by maxSpeed so that it can be set lower for outreaches
+        // When a young child is driving the robot, we may not want to allow full
+        // speed.
+        leftFrontDrive.setPower(frontLeftPower / maxPower);
+        rightFrontDrive.setPower(frontRightPower / maxPower);
+        leftBackDrive.setPower(backLeftPower / maxPower);
+        rightBackDrive.setPower(backRightPower / maxPower);
+    }
+
     @Override
     public void runOpMode() {
 
@@ -71,6 +121,17 @@ public class Decode_Teleop extends LinearOpMode {
         rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        imu = hardwareMap.get(IMU.class, "imu");
+        // This needs to be changed to match the orientation on your robot
+        RevHubOrientationOnRobot.LogoFacingDirection logoDirection =
+                RevHubOrientationOnRobot.LogoFacingDirection.UP;
+        RevHubOrientationOnRobot.UsbFacingDirection usbDirection =
+                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
+
+        RevHubOrientationOnRobot orientationOnRobot = new
+                RevHubOrientationOnRobot(logoDirection, usbDirection);
+        imu.initialize(new IMU.Parameters(orientationOnRobot));
+
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -97,31 +158,17 @@ public class Decode_Teleop extends LinearOpMode {
             C_TRANSFER_PB = gamepad2.dpad_up;
             C_TRANSFER_PC = gamepad2.dpad_right;
 
-            double max;
-
-            // POV Mode uses left joystick to go axial & strafe, and right joystick to yaw.
-            double axial   = -C_AXIAL;  // Note: pushing stick axial gives negative value
-            double lateral =  C_LATERAL;
-            double yaw     =  C_YAW;
-
-            // Combine the joystick requests for each axis-motion to determine each wheel's power.
-            // Set up a variable for each drive wheel to save the power level for telemetry.
-            double leftFrontPower  = axial + lateral + yaw;
-            double rightFrontPower = axial - lateral - yaw;
-            double rightBackPower  = axial + lateral - yaw;
-            double leftBackPower   = axial - lateral + yaw;
-
-            // Normalize the values so no wheel power exceeds 100%
-            // This ensures that the robot maintains the desired motion.
-            max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
-            max = Math.max(max, Math.abs(leftBackPower));
-            max = Math.max(max, Math.abs(rightBackPower));
-
-            if (max > 1.0) {
-                leftFrontPower  /= max;
-                rightFrontPower /= max;
-                leftBackPower   /= max;
-                rightBackPower  /= max;
+            // If you press the A button, then you reset the Yaw to be zero from the way
+            // the robot is currently pointing
+            if (gamepad1.x) {
+                imu.resetYaw();
+            }
+            // If you press the left bumper, you get a drive from the point of view of the robot
+            // (much like driving an RC vehicle)
+            if (gamepad1.right_bumper) {
+                drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+            } else {
+                driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
             }
 
             // This is test code:
@@ -140,7 +187,7 @@ public class Decode_Teleop extends LinearOpMode {
             rightFrontPower = gamepad1.dpad_up ? 1.0 : 0.0;  // up gamepad
             rightBackPower  = gamepad1.dpad_right ? 1.0 : 0.0;  // right gamepad
             */
-
+/*
             // HALF SPEED CONTROLS
             if (C_HALF_SPEED) {
                 if (keyA == false) {
@@ -168,7 +215,7 @@ public class Decode_Teleop extends LinearOpMode {
             } else {
                 keyB = false;
             }
-
+*/
             if (C_INTAKE) {
                 intakeServo.setPosition(0.0);
             } else {
@@ -176,82 +223,76 @@ public class Decode_Teleop extends LinearOpMode {
             }
 
             //if (flickServo.getPosition() >= 2.95){
-                if (C_TRANSFER_PA && !gamepad2.left_bumper) {
-                    transferServo.setPosition(tranferPosA);
-                } else if (C_TRANSFER_PB && !gamepad2.left_bumper) {
-                    transferServo.setPosition(tranferPosB);
-                } else if (C_TRANSFER_PC && !gamepad2.left_bumper) {
-                    transferServo.setPosition(tranferPosC);
-                } else if (C_TRANSFER_PA && gamepad2.left_bumper){
-                    transferServo.setPosition(tranferPosAOut);
-                } else if (C_TRANSFER_PB && gamepad2.left_bumper){
-                    transferServo.setPosition(tranferPosBOut);
-                } else if (C_TRANSFER_PC && gamepad2.left_bumper){
-                    transferServo.setPosition(tranferPosCOut);
-                } else {
-                    transferServo.setPosition(tranferPosAOut);
-                }
+            if (C_TRANSFER_PA && !gamepad2.left_bumper) {
+                transferServo.setPosition(tranferPosA);
+            } else if (C_TRANSFER_PB && !gamepad2.left_bumper) {
+                transferServo.setPosition(tranferPosB);
+            } else if (C_TRANSFER_PC && !gamepad2.left_bumper) {
+                transferServo.setPosition(tranferPosC);
+            } else if (C_TRANSFER_PA && gamepad2.left_bumper){
+                transferServo.setPosition(tranferPosAOut);
+            } else if (C_TRANSFER_PB && gamepad2.left_bumper){
+                transferServo.setPosition(tranferPosBOut);
+            } else if (C_TRANSFER_PC && gamepad2.left_bumper){
+                transferServo.setPosition(tranferPosCOut);
+            } else {
+                transferServo.setPosition(tranferPosAOut);
+            }
             //}
 
-            if (C_FLICK) {
+            if (C_FLICK && gamepad2.left_bumper) {
                 flickServo.setPosition(0.0);
             } else {
                 flickServo.setPosition(0.3);
             }
 
             // if some button and pA empty
-                // move servo to pA
-                // do we want it?
-                    // set pA color to whatever color color sensor has
-                    // intake
-                    // move servo home
-                // no?
-                    // spit it out
+            // move servo to pA
+            // do we want it?
+            // set pA color to whatever color color sensor has
+            // intake
+            // move servo home
+            // no?
+            // spit it out
             // if some other button and pB empty
-                // move servo to pB
-                // do we want it?
-                    // set pA color to whatever color color sensor has
-                    // intake
-                    // move servo home
-                // no?
-                    // spit it out
+            // move servo to pB
+            // do we want it?
+            // set pA color to whatever color color sensor has
+            // intake
+            // move servo home
+            // no?
+            // spit it out
             // if some other button and pC empty
-                // move servo to pC
-                // do we want it?
-                    // set pA color to whatever color color sensor has
-                    // intake
-                    // move servo home
-                // no?
-                    // spit it out
+            // move servo to pC
+            // do we want it?
+            // set pA color to whatever color color sensor has
+            // intake
+            // move servo home
+            // no?
+            // spit it out
 
             // if some other button
-                // find an empty slot
-                // move servo
-                // intake
-                // move servo home
+            // find an empty slot
+            // move servo
+            // intake
+            // move servo home
 
             // if outtake green button
-                // does A have green?
-                    // outtake A
-                // does B have green?
-                    // outtake B
-                // does C have green?
-                    // outtake C
-                // else
-                    // flash lights red
+            // does A have green?
+            // outtake A
+            // does B have green?
+            // outtake B
+            // does C have green?
+            // outtake C
+            // else
+            // flash lights red
             // if outtake purple button
-                // same sequence but for purple
+            // same sequence but for purple
 
-            // Send calculated power to wheels
-
-            leftFrontDrive.setPower(leftFrontPower * speed * invDir);
-            rightFrontDrive.setPower(rightFrontPower * speed * invDir);
-            leftBackDrive.setPower(leftBackPower * speed * invDir);
-            rightBackDrive.setPower(rightBackPower * speed * invDir);
 
             // Show the elapsed game time and wheel power.
-            telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower * speed * invDir, rightFrontPower * speed * invDir);
-            telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower * speed * invDir, rightBackPower * speed * invDir);
+            //telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower * speed * invDir, rightFrontPower * speed * invDir);
+            //telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower * speed * invDir, rightBackPower * speed * invDir);
             telemetry.addData("Speed", "%4.2f", speed);
             telemetry.addData("Invert Direction", "%1b", invertDir);
             telemetry.addData("flickServo", flickServo.getPosition());
