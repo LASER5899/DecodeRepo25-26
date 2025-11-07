@@ -89,7 +89,9 @@ public class Decode_Teleop_Field_Relative extends LinearOpMode {
         rightBackDrive  = hardwareMap.get(DcMotor.class, "right_back_drive");
 
         outtake_motor   = hardwareMap.get(DcMotor.class, "outtake_drive");
-        outtake_motor.setPower(-1.0);
+        double outtakeMotorPower = -0.5;
+        boolean prevG2A = false;
+        boolean prevG2B = false;
 
         intakeServo   = hardwareMap.get(Servo.class, "intake_servo");
         transferServo = hardwareMap.get(Servo.class, "transfer_servo");
@@ -246,6 +248,15 @@ public class Decode_Teleop_Field_Relative extends LinearOpMode {
                 flickServo.setPosition(0.3);
             }
 
+            if (gamepad2.a && !prevG2A) {
+                outtakeMotorPower -= 0.1;
+            } else if (gamepad2.b && !prevG2B) {
+                outtakeMotorPower += 0.1;
+            }
+            outtake_motor.setPower(outtakeMotorPower);
+            prevG2A = gamepad2.a;
+            prevG2B = gamepad2.b;
+
             // if some button and pA empty
             // move servo to pA
             // do we want it?
@@ -296,6 +307,7 @@ public class Decode_Teleop_Field_Relative extends LinearOpMode {
             telemetry.addData("Speed", "%4.2f", speed);
             telemetry.addData("Invert Direction", "%1b", invertDir);
             telemetry.addData("flickServo", flickServo.getPosition());
+            telemetry.addData("outtakePower", outtakeMotorPower);
             telemetry.update();
 
             sleep(CYCLE_MS);
