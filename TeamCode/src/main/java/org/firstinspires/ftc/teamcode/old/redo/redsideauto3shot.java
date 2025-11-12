@@ -8,10 +8,10 @@ package org.firstinspires.ftc.teamcode.old.redo;
 */
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -19,9 +19,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name="auto test or sum ig", group="auto")
+@Autonomous(name="red side auto", group="auto")
 //@Disabled
-public class autotest3shot extends LinearOpMode {
+public class redsideauto3shot extends LinearOpMode {
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
     //  applied to the drive motors to correct the error.
     //  Drive = Error * Gain    Make these values smaller for smoother control, or larger for a more aggressive response.
@@ -98,19 +98,20 @@ public class autotest3shot extends LinearOpMode {
         telemetry.addData("Status", "Running");
         telemetry.update();
 
-        sleep(5000);
+        sleep(1000);
         transferServo.setPosition(tranferPosAOut);
         sleep(1500);
         flickServo.setPosition(0.0);
         sleep(500);
         flickServo.setPosition(0.3);
-        sleep(2000);
+        outtake_motor.setPower(-0.78);
+        sleep(4000);
         transferServo.setPosition(tranferPosBOut);
         sleep(1500);
         flickServo.setPosition(0.0);
         sleep(500);
         flickServo.setPosition(0.3);
-        sleep(2000);
+        sleep(4000);
         transferServo.setPosition(tranferPosCOut);
         sleep(1500);
         flickServo.setPosition(0.0);
@@ -118,7 +119,7 @@ public class autotest3shot extends LinearOpMode {
         flickServo.setPosition(0.3);
         sleep(500);
 
-        //otosDrive(2, 2, 0, 2);      // small move forward and right away from wall
+        otosDrive(2, 2, 0, 2);      // small move forward and right away from wall
 
         //otosDrive(18, 2, 0, 2);     // forward and push sample into net zone
         //otosDrive(0, 24, 0, 2);     // backup and move away from wall
