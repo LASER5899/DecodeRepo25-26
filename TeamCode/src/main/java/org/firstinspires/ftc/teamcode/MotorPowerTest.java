@@ -4,6 +4,21 @@ import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.PoseVelocity2d;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.DualNum;
+import com.acmerobotics.roadrunner.Time;
+import com.acmerobotics.roadrunner.Twist2dDual;
+import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.Vector2dDual;
+import com.acmerobotics.roadrunner.ftc.Encoder;
+import com.acmerobotics.roadrunner.ftc.FlightRecorder;
+import com.acmerobotics.roadrunner.ftc.OverflowEncoder;
+import com.acmerobotics.roadrunner.ftc.PositionVelocityPair;
+import com.acmerobotics.roadrunner.ftc.RawEncoder;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.Range;
@@ -14,12 +29,21 @@ import com.qualcomm.robotcore.util.Range;
 @TeleOp(name="Motor Power Test", group="Linear OpMode")
 public class MotorPowerTest extends LinearOpMode {
 
+
     private DcMotor leftFrontDrive, leftBackDrive, rightFrontDrive, rightBackDrive;
     private DcMotor outtake_motor;
 
     private SparkFunOTOS otos;
     private VoltageSensor myControlHubVoltageSensor;
     double presentVoltage;
+
+    final static double TICKS_PER_REV = 537.7;
+    final static double WHEEL_RADIUS  = 1.88976; // inches
+    final static double GEAR_RATIO    = 1.0;
+
+    public static double ticksToInches(int ticks) {
+        return WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV;
+    }
 
     //TODO: DO NOT PUSH! I DELETED SHOTPOSITIONER
 
@@ -34,7 +58,8 @@ public class MotorPowerTest extends LinearOpMode {
 
         final double distMax = 62 * Math.sqrt(2);
 
-        final double distMin = 10; //TODO: Find this empirically
+
+        final double distMin = (62 * Math.sqrt(2)) - 29 ; //TODO: Find this empirically
 
         final double goalX = -62;
 
@@ -43,6 +68,10 @@ public class MotorPowerTest extends LinearOpMode {
         final double minPow = 0.35;
 
         final double maxPow = 0.85;
+
+        final double a = 0;
+        final double b = 0;
+        final double c = 0;
 
         double outtakeCalcPower;
 
@@ -62,9 +91,9 @@ public class MotorPowerTest extends LinearOpMode {
 
         double outtakeMotorPower = -0.05;
 
-        MotorPowerTest_OTOS_Config odoDrive =
+        /* MotorPowerTest_OTOS_Config odoDrive =
                 new MotorPowerTest_OTOS_Config(this, leftFrontDrive, leftBackDrive, rightFrontDrive, rightBackDrive, otos);
-        odoDrive.configureOtos();
+        odoDrive.configureOtos(); */
 
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -87,9 +116,25 @@ public class MotorPowerTest extends LinearOpMode {
 
             presentVoltage = myControlHubVoltageSensor.getVoltage();
 
-            //begin power calculation
+            double leftTicks = (leftFrontDrive.getCurrentPosition() + leftBackDrive.getCurrentPosition()) / 2.0;
+            double rightTicks = (rightFrontDrive.getCurrentPosition() + rightBackDrive.getCurrentPosition()) / 2.0;
 
-            SparkFunOTOS.Pose2D vecPos = odoDrive.getPose();
+            double distFromStart = ticksToInches((int) ((leftTicks + rightTicks) / 2.0));
+            distMag = distMax - distFromStart;
+
+            distNorm = ( (distMag - distMin) / (distMax - distMin) );
+            distNorm = Range.clip(distNorm, 0, 1); // extra safety layer
+
+            double quadCurve = a * distNorm * distNorm + b * distNorm + c;
+
+            outtakeCalcPower = minPow + (maxPow - minPow) * quadCurve;
+            outtakeCalcPower = Range.clip(outtakeCalcPower, 0, 1);
+
+
+            //begin otos power calculation
+
+            /*SparkFunOTOS.Pose2D vecPos = odoDrive.getPose();
+
 
             posMag = Math.sqrt( (Math.pow(vecPos.x,2) + Math.pow(vecPos.y,2)));
 
@@ -99,7 +144,7 @@ public class MotorPowerTest extends LinearOpMode {
             distNorm = Range.clip(distNorm, 0, 1); // extra safety layer
 
             outtakeCalcPower = minPow + (maxPow - minPow) * Math.sqrt(distNorm);
-            outtakeCalcPower = Range.clip(outtakeCalcPower, 0, 1); // extra safety layer
+            outtakeCalcPower = Range.clip(outtakeCalcPower, 0, 1); // extra safety layer*/
 
 
             //end power calculation
@@ -161,13 +206,17 @@ public class MotorPowerTest extends LinearOpMode {
 
              */
 
+            /*hb
+            max dist 0.80
+            min dist power 0.81, 33 inches from back*/
+
 
             telemetry.addData("MotorPower", "%4.2f", outtakeMotorPower);
             telemetry.addData("PresentVoltage", "%4.2f", presentVoltage);
 
-            telemetry.addData("x", vecPos.x);
+            /*telemetry.addData("x", vecPos.x);
             telemetry.addData("y", vecPos.y);
-            telemetry.addData("theta", vecPos.h);
+            telemetry.addData("theta", vecPos.h);*/
             telemetry.update();
 
             sleep(CYCLE_MS);
