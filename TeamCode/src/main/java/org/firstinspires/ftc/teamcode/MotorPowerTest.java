@@ -38,7 +38,9 @@ public class MotorPowerTest extends LinearOpMode {
     double presentVoltage;
 
     final static double TICKS_PER_REV = 537.7;
-    final static double WHEEL_RADIUS  = 1.88976; // inches
+
+    double powertoggle;
+    final static double WHEEL_RADIUS  = 1.88976; // inches //104 mm
     final static double GEAR_RATIO    = 1.0;
 
     public static double ticksToInches(int ticks) {
@@ -69,7 +71,7 @@ public class MotorPowerTest extends LinearOpMode {
 
         final double maxPow = 0.85;
 
-        final double a = 0;
+        final double a = 1;
         final double b = 0;
         final double c = 0;
 
@@ -188,6 +190,7 @@ public class MotorPowerTest extends LinearOpMode {
             }
 
             outtake_motor.setPower(outtakeMotorPower);
+            //outtake_motor.setPower(outtakeCalcPower);
             //end test mode
 
 
@@ -213,6 +216,9 @@ public class MotorPowerTest extends LinearOpMode {
 
             telemetry.addData("MotorPower", "%4.2f", outtakeMotorPower);
             telemetry.addData("PresentVoltage", "%4.2f", presentVoltage);
+            telemetry.addData("DistMag", "%4.2f", distMag);
+            telemetry.addData("DistFromStart", "%4.2f", distFromStart);
+            telemetry.addData("OuttakeCalcPower", "%4.2f", outtakeCalcPower);
 
             /*telemetry.addData("x", vecPos.x);
             telemetry.addData("y", vecPos.y);
