@@ -16,11 +16,11 @@ import org.firstinspires.ftc.teamcode.Vision.*;
 
 import org.firstinspires.ftc.teamcode.LEDlights;
 
-public class ShotPositioner {
+
 
     @TeleOp(name="Old Teleop with Positioner", group="Linear OpMode")
 //@Disabled
-    public class OLD_LASER_Teleop extends LinearOpMode {
+    public class ShotPositioner extends LinearOpMode {
 
         private ElapsedTime runtime = new ElapsedTime();
 
@@ -140,7 +140,7 @@ public class ShotPositioner {
             WebcamName cam1 = hardwareMap.get(WebcamName.class, "Camera1");
 
             camera.setTarget(Target.blue);
-            Vision.DevModeOn();
+
             waitForStart();
             camera.aprilTagSetUp(cam1);
 
@@ -238,15 +238,20 @@ public class ShotPositioner {
                         rightBackDrive.setPower(0);
 
                     };
-                    camera.scanForTarget();
-                    while (camera.getId()==20) {
-                        rightFrontDrive.setPower(1*invDir);
-                        rightBackDrive.setPower(1*invDir);
+
+                    while (camera.getId()!=20) {
+                        rightFrontDrive.setPower(1);
+                        rightBackDrive.setPower(1);
+                        camera.scanForTarget();
                         //MAKE ROBOT SPIN
                         if(gamepad1.b){
                             break;
                         }
+
                     }
+                    //turn to match yaw.
+                    //go until bearing =0;
+                    //go forward or backward to specifi range
 
                 }
             }
@@ -442,5 +447,5 @@ public class ShotPositioner {
             }
         }
         }
-    }
+
 

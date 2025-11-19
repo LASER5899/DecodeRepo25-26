@@ -41,22 +41,22 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
  *
  *
  *      These three are particularly useful in aiming:::
- *       centerDistanceReturn() returns how far away the goal is.
- *       horizAngleReturn() returns the angle left and right the goal is relative the the camera.
- *       vertAngleReturn() returns the angle to the top of the goal.
+ *       centerDistanceCM() returns how far away the goal is.
+ *       horizAngle() returns the angle left and right the goal is relative the the camera.
+ *       vertAngle() returns the angle to the top of the goal.
  *
  */
-public class Vision{
+public class Vision {
 
-   // public Vision(HardwareMap map) {
-   //     this.hardwareMap = map;
+    // public Vision(HardwareMap map) {
+    //     this.hardwareMap = map;
     //}
 
     //CHANGE STUFF HERE
-    static final double TAG_TO_CENTER = 8.75; //put the horizontal distance from tag to center of goal here
-    static final double TAG_TO_TOP= 23.5; //put the vertical distance from center of tag to top of goal here
+    static final double TAG_TO_CENTER = 22.5; //put the horizontal distance from tag to center of goal here
+    static final double TAG_TO_TOP = 23.5; //put the vertical distance from center of tag to top of goal here
 
-    static boolean devModeOn=false; //change default mode of devMode here. Can be changed in code using Vision.toggleDevMode();
+    static boolean devModeOn = false; //change default mode of devMode here. Can be changed in code using Vision.toggleDevMode();
 
     //String webCamName="Camera1";//put the webCamName here.
     //HardwareMap hardwareMap;
@@ -64,7 +64,7 @@ public class Vision{
 
     WebcamName theWebCam;
     //Assign the web cam used here.
-    AprilTagProcessor  tagProcessor;
+    AprilTagProcessor tagProcessor;
     AprilTagProcessor.Builder myAprilTagProcessorBuilder;
     AprilTagGameDatabase aprilTagGameDatabase;
     private int AprilTagId;
@@ -85,11 +85,12 @@ public class Vision{
     //public void setCamera(String wcn){
     //    webCamName =wcn;
     //}
-    public enum Target{
+    public enum Target {
         red,
         blue
 
     }
+
     public enum Pattern {
         GPP,
         PGP,
@@ -97,7 +98,7 @@ public class Vision{
         none
     }
 
-    public void aprilTagSetUp(WebcamName camera){
+    public void aprilTagSetUp(WebcamName camera) {
         //telemetry.addLine("aprilTagSetUp");
 
         tagProcessor = new AprilTagProcessor.Builder()
@@ -107,7 +108,6 @@ public class Vision{
                 .setDrawTagOutline(true)
                 .setTagLibrary(AprilTagGameDatabase.getDecodeTagLibrary())
                 .build();
-
         VisionPortal visionPortal = new VisionPortal.Builder()
                 .addProcessor(tagProcessor)
                 .setCamera(camera)  // uncomment once it exists
@@ -115,40 +115,40 @@ public class Vision{
                 .build();
 
     }
-    public void scanForTarget(){
+
+    public void scanForTarget() {
         //telemetry.addLine("scanny scan scan");
-        if (!tagProcessor.getDetections().isEmpty()){
+        if (!tagProcessor.getDetections().isEmpty()) {
             //telemetry.addLine("Not empty yo :)")
 
-                tag = tagProcessor.getDetections().get(0);
-                if(TargetId==(int)tag.id) {
-                    xDistance = tag.ftcPose.x;
-                    yDistance = tag.ftcPose.y;
-                    zDistance = tag.ftcPose.z;
-                    range = tag.ftcPose.range;
+            tag = tagProcessor.getDetections().get(0);
+            if (TargetId == (int) tag.id) {
+                xDistance = tag.ftcPose.x * 2.54;
+                yDistance = tag.ftcPose.y * 2.54;
+                zDistance = tag.ftcPose.z * 2.54;
+                range = tag.ftcPose.range * 2.54;
 
-                    pitch = tag.ftcPose.pitch;
-                    roll = tag.ftcPose.roll;
-                    yaw = tag.ftcPose.yaw;
+                pitch = tag.ftcPose.pitch;
+                roll = tag.ftcPose.roll;
+                yaw = tag.ftcPose.yaw;
 
-                    elevation = tag.ftcPose.elevation;
-                    bearing = tag.ftcPose.bearing;
-                }
-                else{
+                elevation = tag.ftcPose.elevation;
+                bearing = tag.ftcPose.bearing;
+            } else {
 
-                    xDistance = -1;
-                    yDistance = -1;
-                    zDistance = -1;
-                    range = -1;
+                xDistance = -1;
+                yDistance = -1;
+                zDistance = -1;
+                range = -1;
 
-                    pitch = 0;
-                    roll = 0 ;
-                    yaw = 0;
+                pitch = 0;
+                roll = 0;
+                yaw = 0;
 
-                    elevation = 0;
-                    bearing = 0;
+                elevation = 0;
+                bearing = 0;
 
-                }
+            }
 
 
             /*if (devModeOn){
@@ -162,117 +162,134 @@ public class Vision{
                 telemetry.addData("xDistance",xDistance);
                 telemetry.addData("xDistance",xDistance);
                 telemetry.addData("xDistance",xDistance);
-                telemetry.addData("horizontal Angle",horizAngleReturn());
-                telemetry.addData("center Distance",centerDistanceReturn());
-                telemetry.addData("Vertical angle ",vertAngleReturn());
+                telemetry.addData("horizontal Angle",horizAngle());
+                telemetry.addData("center Distance",centerDistanceCM());
+                telemetry.addData("Vertical angle ",vertAngle());
                 telemetry.update();
 
             }*/
 
-        }
-        else{
-            xDistance=-1;
-            yDistance=-1;
-            zDistance=-1;
-            range=-1;
+        } else {
+            xDistance = -1;
+            yDistance = -1;
+            zDistance = -1;
+            range = -1;
 
-            pitch=0;
-            roll=0;
-            yaw=0;
+            pitch = 0;
+            roll = 0;
+            yaw = 0;
 
-            elevation=0;
-            bearing=0;
+            elevation = 0;
+            bearing = 0;
             AprilTagId = -1;
 
         }
     }
-    public double centerDistanceReturn(){
+
+    public double centerDistanceCM() {
 
         scanForTarget();
         double centerDistance;
-        if (range==-1.0){
-            centerDistance=-1;
-        }
-        else {
-            centerDistance = Math.sqrt(TAG_TO_CENTER * TAG_TO_CENTER + range * range - 2 * TAG_TO_CENTER * TAG_TO_CENTER * Math.cos(Math.toRadians(180 - yaw)));
+        if (range == -1.0) {
+            centerDistance = -1;
+        } else {
+            centerDistance = Math.sqrt(TAG_TO_CENTER * TAG_TO_CENTER + range * range - 2 * TAG_TO_CENTER * range * Math.cos(Math.toRadians(180 - yaw)));
         }
 
         return centerDistance;
     }
 
-    public double horizAngleReturn(){
+    public double horizAngle() {
         scanForTarget();
         double horizAngle;
-        if(range==-1) {
-            horizAngle=-100.0;
-        }
-        else{
-            horizAngle = Math.asin(TAG_TO_CENTER*Math.sin(Math.toRadians(180-yaw))/centerDistanceReturn());
-            //distance = the distance of target from base of robot
+        if (range == -1) {
+            horizAngle = -1;
+        } else if (yaw >= 0) {
 
+            horizAngle = Math.toDegrees(Math.asin(TAG_TO_CENTER * Math.sin(Math.toRadians(180 - yaw)) / centerDistanceCM()));
+            //distance = the distance of target from base of robot
+        } else {
+            horizAngle = Math.toDegrees(Math.asin(TAG_TO_CENTER * Math.sin(Math.toRadians(180 + yaw)) / centerDistanceCM()));
         }
         return horizAngle;
     }
-    public double vertAngleReturn(){
+
+    public double vertAngle() {
         double angle;
-        angle = Math.tan((zDistance+TAG_TO_TOP)/range); //distance = the distance of target from base of robot
+        scanForTarget();
+        if (range == -1) {
+            angle = -1;
+        } else {
+            angle = Math.toDegrees(Math.atan((zDistance + TAG_TO_TOP) / range)); //distance = the distance of target from base of robot
+        }
         return angle;
     }
 
 
-    public void setTarget(Target target){
-        if(target == Target.red){
-            TargetId=24;
+    public void setTarget(Target target) {
+        if (target == Target.red) {
+            TargetId = 24;
         }
-        if(target == Target.blue){
-            TargetId=20;
+        if (target == Target.blue) {
+            TargetId = 20;
 
         }
-
-
-
-
-
-
-
-
-
-
 
 
     }
-    static public void DevModeOn(){
+
+    /*static public void DevModeOn(){
         devModeOn= true;
-    }
+    }*/
     //               ---------RETURN FUNCTIONS---------
-    public double getyDistance(){
+    public double getyDistance() {
+        scanForTarget();
         return yDistance;
     }
-    public double getzDistance(){
+
+    public double getzDistance() {
+        scanForTarget();
         return zDistance;
     }
-    public double getxDistance(){
+
+    public double getxDistance() {
+        scanForTarget();
         return xDistance;
     }
-    public double getRange(){
+
+    public double getRange() {
+        scanForTarget();
         return range;
     }
-    public double getPitch(){
+
+    public double getPitch() {
+        scanForTarget();
         return pitch;
     }
-    public double getRoll(){
+
+    public double getRoll() {
+        scanForTarget();
         return roll;
     }
-    public double getYaw(){
+
+    public double getYaw() {
+        scanForTarget();
         return yaw;
     }
-    public double getElevation(){
-        return yDistance;
+
+    public double getElevation() {
+        scanForTarget();
+        return elevation;
     }
-    public double getBearing(){
+
+    public double getBearing() {
+        scanForTarget();
         return bearing;
     }
-    public int getId(){return tag.id;}
+
+    public int getId() {
+        return tag.id;
+    }
 
     /*        xDistance=-1;
     yDistance=-1;
@@ -288,18 +305,18 @@ public class Vision{
     AprilTagId = -1;*/
 
 
-
     Pattern gamePattern = Pattern.none;
     int scanForPatternRun = 0;
+
     public Vision.Pattern scanForPattern() {
 
 
-        if (gamePattern==Pattern.none&&!tagProcessor.getDetections().isEmpty()) {
+        if (gamePattern == Pattern.none && !tagProcessor.getDetections().isEmpty()) {
             //telemetry.addLine("Not empty yo :)")
 
             tag = tagProcessor.getDetections().get(0);
             if (23 == (int) tag.id) {
-                gamePattern= Pattern.PPG;
+                gamePattern = Pattern.PPG;
                 scanForPatternRun++;
             }
             if (22 == (int) tag.id) {
@@ -313,5 +330,25 @@ public class Vision{
 
         }
         return gamePattern;
+
     }
+
+    public int align() {
+        scanForTarget();
+        if (range != -1) {
+            double degrees_to_center = Math.toDegrees(Math.asin(TAG_TO_CENTER * Math.sin(180 - yaw) / centerDistanceCM()));
+            double bearing = getBearing();
+            if (degrees_to_center < bearing) {
+                return -1;
+            }
+            if (degrees_to_center > bearing) {
+                return 1;
+            } else {
+                return 3;
+            }
+        } return 0;
+    }
+
+
+
 }
