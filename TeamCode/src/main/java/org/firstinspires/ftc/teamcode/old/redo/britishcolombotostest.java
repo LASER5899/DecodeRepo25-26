@@ -53,9 +53,9 @@ public class britishcolombotostest extends LinearOpMode {
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
     //  applied to the drive motors to correct the error.
     //  Drive = Error * Gain    Make these values smaller for smoother control, or larger for a more aggressive response.
-    final double SPEED_GAIN  =  0.03;   // 0.02 Forward Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
+    final double SPEED_GAIN  =  0.02;   // 0.02 Forward Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
     final double STRAFE_GAIN =  0.15;   // 0.015 Strafe Speed Control "Gain".  eg: Ramp up to 25% power at a 25 degree Yaw error.   (0.25 / 25.0)
-    final double TURN_GAIN   =  0.03;   // 0.01 Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
+    final double TURN_GAIN   =  0.01;   // 0.01 Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
 
     final double MAX_AUTO_SPEED = 0.4;   //  Clip the approach speed to this max value (adjust for your robot)
     final double MAX_AUTO_STRAFE= 0.4;   //  Clip the approach speed to this max value (adjust for your robot)
@@ -106,7 +106,7 @@ public class britishcolombotostest extends LinearOpMode {
         telemetry.addData("Status", "Running");
         telemetry.update();
 
-        otosDrive(2, 2, 0, 2);      // small moveforward and right away from wall
+        otosDrive(0, 0, 0, 100000000);      // small moveforward and right away from wall
         //otosDrive(18, 2, 0, 2);     // forward and push sample into net zone
 
         //otosDrive(0, 24, 0, 2);     // backup and move away from wall
@@ -141,7 +141,7 @@ public class britishcolombotostest extends LinearOpMode {
         // clockwise (negative rotation) from the robot's orientation, the offset
         // would be {-5, 10, -90}. These can be any value, even the angle can be
         // tweaked slightly to compensate for imperfect mounting (eg. 1.3 degrees).
-        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(7, 0, 270); // should be -3.75 & -7.5 and 90
+        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(0, -6.625, 0); // should be -3.75 & -7.5 and 90
         myOtos.setOffset(offset);
 
         // Here we can set the linear and angular scalars, which can compensate for
@@ -160,8 +160,8 @@ public class britishcolombotostest extends LinearOpMode {
         // multiple speeds to get an average, then set the linear scalar to the
         // inverse of the error. For example, if you move the robot 100 inches and
         // the sensor reports 103 inches, set the linear scalar to 100/103 = 0.971
-        myOtos.setLinearScalar(1.008);
-        myOtos.setAngularScalar(0.992);
+        myOtos.setLinearScalar(1.000);
+        myOtos.setAngularScalar(1.000);
 
         // The IMU on the OTOS includes a gyroscope and accelerometer, which could
         // have an offset. Note that as of firmware version 1.0, the calibration
@@ -214,8 +214,8 @@ public class britishcolombotostest extends LinearOpMode {
 
         runtime.reset();
 
-        while(opModeIsActive() && (runtime.milliseconds() < maxTime*1000) &&
-                ((Math.abs(xError) > 1.5) || (Math.abs(yError) > 1.5) || (Math.abs(yawError) > 4)) ) {
+        while(opModeIsActive()) {/* &&
+                ((Math.abs(xError) > 1.5) || (Math.abs(yError) > 1.5) || (Math.abs(yawError) > 4)) ) {*/
             // Use the speed and turn "gains" to calculate how we want the robot to move.
             drive  = Range.clip(xError * SPEED_GAIN, -MAX_AUTO_SPEED, MAX_AUTO_SPEED);
             strafe = Range.clip(yError * STRAFE_GAIN, -MAX_AUTO_STRAFE, MAX_AUTO_STRAFE);
@@ -235,7 +235,7 @@ public class britishcolombotostest extends LinearOpMode {
             telemetry.update();
 
             // Apply desired axes motions to the drivetrain.
-            moveRobot(drive, strafe, turn);
+            //moveRobot(drive, strafe, turn);
 
             // then recalc error
             currentPos = myPosition();
