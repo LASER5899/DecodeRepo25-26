@@ -115,9 +115,9 @@ public class newRedSideAuto extends LinearOpMode {
             sequence = camera.scanForPattern();
         }
 
-        leftBackDrive.setPower(0.3);
-        leftFrontDrive.setPower(0.3);
-        sleep(2000);
+        leftBackDrive.setPower(-0.3);
+        leftFrontDrive.setPower(-0.3);
+        sleep(4000);
         leftBackDrive.setPower(0.3);
         leftFrontDrive.setPower(-0.3);
         rightBackDrive.setPower(-0.3);
