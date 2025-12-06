@@ -21,11 +21,11 @@ public class VisionTestEnvironment2 extends LinearOpMode {
     @Override
     public void runOpMode() {
         WebcamName cam1 = hardwareMap.get(WebcamName.class, "Camera1");
-        //camera.setCamera("Camera1");
-        camera.setTarget(Target.blue);
-        //Vision.DevModeOn();
-        waitForStart();
+
         camera.aprilTagSetUp(cam1);
+        camera.setTarget(Target.blue);
+        waitForStart();
+
         while(opModeIsActive()) {
             telemetry.addData("Pattern", camera.scanForPattern());
             telemetry.update();

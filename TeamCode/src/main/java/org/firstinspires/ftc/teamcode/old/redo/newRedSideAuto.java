@@ -1,61 +1,36 @@
 package org.firstinspires.ftc.teamcode.old.redo;
-/* Copyright (c) 2021 FIRST. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without modification,
- * are permitted (subject to the limitations in the disclaimer below) provided that
- * the following conditions are met:
- *
- * Redistributions of source code must retain the above copyright notice, this list
- * of conditions and the following disclaimer.
- *
- * Redistributions in binary form must reproduce the above copyright notice, this
- * list of conditions and the following disclaimer in the documentation and/or
- * other materials provided with the distribution.
- *
- * Neither the name of FIRST nor the names of its contributors may be used to endorse or
- * promote products derived from this software without specific prior written permission.
- *
- * NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE GRANTED BY THIS
- * LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE
- * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
- * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
 
 /* this is an autonomous program for red. Start centered on tile F2 along wall.
     It uses the SparkFun OTOS sensor to control driving.
     It drives forward to push a sample into the net zone,
-    then moves to tile E2, then backs up to E6 before parking in the 
-    red observation zone. 
+    then moves to tile E2, then backs up to E6 before parking in the
+    red observation zone.
 */
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
-import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
-@Autonomous(name="A naturaaaal", group="auto")
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Vision;
+
+import java.util.Scanner;
+
+@Autonomous(name="new red side auto", group="auto")
 //@Disabled
-public class britishcolombotostest extends LinearOpMode {
+public class newRedSideAuto extends LinearOpMode {
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
     //  applied to the drive motors to correct the error.
     //  Drive = Error * Gain    Make these values smaller for smoother control, or larger for a more aggressive response.
-    final double SPEED_GAIN  =  0.02;   // 0.02 Forward Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
+    final double SPEED_GAIN  =  0.03;   // 0.02 Forward Speed Control "Gain". eg: Ramp up to 50% power at a 25 inch error.   (0.50 / 25.0)
     final double STRAFE_GAIN =  0.15;   // 0.015 Strafe Speed Control "Gain".  eg: Ramp up to 25% power at a 25 degree Yaw error.   (0.25 / 25.0)
-    final double TURN_GAIN   =  0.01;   // 0.01 Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
+    final double TURN_GAIN   =  0.03;   // 0.01 Turn Control "Gain".  eg: Ramp up to 25% power at a 25 degree error. (0.25 / 25.0)
 
     final double MAX_AUTO_SPEED = 0.4;   //  Clip the approach speed to this max value (adjust for your robot)
     final double MAX_AUTO_STRAFE= 0.4;   //  Clip the approach speed to this max value (adjust for your robot)
@@ -64,14 +39,22 @@ public class britishcolombotostest extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
     // Declare OpMode members for each of the 4 drive motors.
-    private DcMotor leftFrontDrive = null;
-    private DcMotor leftBackDrive = null;
-    private DcMotor rightFrontDrive = null;
-    private DcMotor rightBackDrive = null;
+    private DcMotor leftFrontDrive;
+    private DcMotor leftBackDrive;
+    private DcMotor rightFrontDrive;
+    private DcMotor rightBackDrive;
+
+    private DcMotor outtake_motor;
+
+    private Servo intakeServo;
+    private Servo transferServo;
+    private Servo flickServo;
 
     // Sensors
     private SparkFunOTOS myOtos;        // Optical tracking odometry sensor
     SparkFunOTOS.Pose2D pos;
+
+    public Vision camera = new Vision();
 
     @Override
     public void runOpMode() {
@@ -87,6 +70,29 @@ public class britishcolombotostest extends LinearOpMode {
         leftBackDrive.setDirection(DcMotor.Direction.FORWARD);
         rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         rightBackDrive.setDirection(DcMotor.Direction.REVERSE);
+
+        leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        outtake_motor = hardwareMap.get(DcMotor.class, "outtake_drive");
+        outtake_motor.setPower(-0.80);
+
+        intakeServo   = hardwareMap.get(Servo.class, "intake_servo");
+        transferServo = hardwareMap.get(Servo.class, "transfer_servo");
+        flickServo    = hardwareMap.get(Servo.class, "flick_servo");
+        flickServo.setPosition(0.3);
+        double tranferPosA = 0.68;
+        double tranferPosB = 0.61;
+        double tranferPosC = 0.535;
+        double tranferPosCOut = 0.647;
+        double tranferPosAOut = 0.575;
+        double tranferPosBOut = 0.497;
+
+        WebcamName cam1 = hardwareMap.get(WebcamName.class, "Camera1");
+        camera.aprilTagSetUp(cam1);
+        camera.setTarget(Vision.Target.blue);
 
         // Get a reference to the sensor
         myOtos = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
@@ -106,9 +112,64 @@ public class britishcolombotostest extends LinearOpMode {
         telemetry.addData("Status", "Running");
         telemetry.update();
 
-        otosDrive(0, 0, 0, 100000000);      // small moveforward and right away from wall
-        //otosDrive(18, 2, 0, 2);     // forward and push sample into net zone
+        String sequence = camera.scanForPattern();
+        while (sequence.equals("none")) {
+            sequence = camera.scanForPattern();
+        }
 
+        leftBackDrive.setPower(-0.3);
+        leftFrontDrive.setPower(-0.3);
+        sleep(3300);
+        leftBackDrive.setPower(0.3);
+        leftFrontDrive.setPower(-0.3);
+        rightBackDrive.setPower(-0.3);
+        rightFrontDrive.setPower(0.3);
+        sleep(2000);
+        leftBackDrive.setPower(0.0);
+        leftFrontDrive.setPower(0.0);
+        rightBackDrive.setPower(0.0);
+        rightFrontDrive.setPower(0.0);
+        if (sequence.equals("GPP")) {
+            transferServo.setPosition(tranferPosAOut);
+        } else if (sequence.equals("PGP")){
+            transferServo.setPosition(tranferPosBOut);
+        } else {
+            transferServo.setPosition(tranferPosBOut);
+        }
+        sleep(1500);
+        flickServo.setPosition(0.0);
+        sleep(500);
+        flickServo.setPosition(0.3);
+        outtake_motor.setPower(-0.78);
+        sleep(4000);
+        if (sequence.equals("GPP")) {
+            transferServo.setPosition(tranferPosBOut);
+        } else if (sequence.equals("PGP")){
+            transferServo.setPosition(tranferPosAOut);
+        } else {
+            transferServo.setPosition(tranferPosCOut);
+        }
+        sleep(1500);
+        flickServo.setPosition(0.0);
+        sleep(500);
+        flickServo.setPosition(0.3);
+        sleep(4000);
+        if (sequence.equals("GPP")) {
+            transferServo.setPosition(tranferPosCOut);
+        } else if (sequence.equals("PGP")){
+            transferServo.setPosition(tranferPosCOut);
+        } else {
+            transferServo.setPosition(tranferPosAOut);
+        }
+        sleep(1500);
+        flickServo.setPosition(0.0);
+        sleep(500);
+        flickServo.setPosition(0.3);
+        sleep(500);
+
+        otosDrive(2, 2, 0, 2);      // small move forward and right away from wall
+
+        //otosDrive(18, 2, 0, 2);     // forward and push sample into net zone
         //otosDrive(0, 24, 0, 2);     // backup and move away from wall
         //otosDrive(-87, 24, 0, 4);   // backup straight
         //otosDrive(-87, 4, 0, 2);    // park in observation zone
@@ -141,7 +202,7 @@ public class britishcolombotostest extends LinearOpMode {
         // clockwise (negative rotation) from the robot's orientation, the offset
         // would be {-5, 10, -90}. These can be any value, even the angle can be
         // tweaked slightly to compensate for imperfect mounting (eg. 1.3 degrees).
-        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(0, -6.625, 0); // should be -3.75 & -7.5 and 90
+        SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(7, 0, 270); // should be -3.75 & -7.5 and 90
         myOtos.setOffset(offset);
 
         // Here we can set the linear and angular scalars, which can compensate for
@@ -160,8 +221,8 @@ public class britishcolombotostest extends LinearOpMode {
         // multiple speeds to get an average, then set the linear scalar to the
         // inverse of the error. For example, if you move the robot 100 inches and
         // the sensor reports 103 inches, set the linear scalar to 100/103 = 0.971
-        myOtos.setLinearScalar(1.000);
-        myOtos.setAngularScalar(1.000);
+        myOtos.setLinearScalar(1.008);
+        myOtos.setAngularScalar(0.992);
 
         // The IMU on the OTOS includes a gyroscope and accelerometer, which could
         // have an offset. Note that as of firmware version 1.0, the calibration
@@ -214,8 +275,8 @@ public class britishcolombotostest extends LinearOpMode {
 
         runtime.reset();
 
-        while(opModeIsActive()) {/* &&
-                ((Math.abs(xError) > 1.5) || (Math.abs(yError) > 1.5) || (Math.abs(yawError) > 4)) ) {*/
+        while(opModeIsActive() && (runtime.milliseconds() < maxTime*1000) &&
+                ((Math.abs(xError) > 1.5) || (Math.abs(yError) > 1.5) || (Math.abs(yawError) > 4)) ) {
             // Use the speed and turn "gains" to calculate how we want the robot to move.
             drive  = Range.clip(xError * SPEED_GAIN, -MAX_AUTO_SPEED, MAX_AUTO_SPEED);
             strafe = Range.clip(yError * STRAFE_GAIN, -MAX_AUTO_STRAFE, MAX_AUTO_STRAFE);
@@ -235,7 +296,7 @@ public class britishcolombotostest extends LinearOpMode {
             telemetry.update();
 
             // Apply desired axes motions to the drivetrain.
-            //moveRobot(drive, strafe, turn);
+            moveRobot(drive, strafe, turn);
 
             // then recalc error
             currentPos = myPosition();

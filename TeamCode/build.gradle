@@ -26,14 +26,22 @@ android {
 repositories {
     maven {
         url = 'https://maven.brott.dev/'
+        // url = "https://repo.dairy.foundation/releases" //TODO: remove this if it doesn't work lol
     }
 }
 
 dependencies {
     implementation project(':FtcRobotController')
-
+    // implementation("com.acmerobotics.slothboard:dashboard:0.2.4+0.4.17") //TODO: remove this if it doesn't work
     implementation "com.acmerobotics.roadrunner:ftc:0.1.25"
     implementation "com.acmerobotics.roadrunner:core:1.0.1"
     implementation "com.acmerobotics.roadrunner:actions:1.0.1"
     implementation "com.acmerobotics.dashboard:dashboard:0.5.0"
+    //TODO: remove everything below if it doesn't work
+    /*implementation("com.acmerobotics.roadrunner:ftc:0.1.25") {
+        exclude group: "com.acmerobotics.dashboard"
+    }
+    implementation ("com.acmerobotics.roadrunner:actions:1.0.1"){
+        exclude group: "com.acmerobotics.dashboard"
+    }*/
 }
