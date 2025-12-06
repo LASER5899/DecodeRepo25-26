@@ -38,7 +38,7 @@ public class Decode_Teleop2 extends LinearOpMode {
         double position6 = 0.497;
 
         boolean isEnter = false;
-        double setFlickPos = 0;
+        double setFlickPos = 1;
 
         double C_LATERAL, C_AXIAL, C_YAW;
         boolean C_HALF_SPEED, C_INV_DIR, C_INTAKE, C_TRANSFER_PA, C_TRANSFER_PB, C_TRANSFER_PC, C_FLICK = false, C_MOVE_LEFT, C_MOVE_RIGHT;
@@ -191,17 +191,16 @@ public class Decode_Teleop2 extends LinearOpMode {
                 keyB = false;
             }
 
-            if (C_INTAKE) {
+            if (gamepad2.x) {
                 intakeServo.setPosition(0.0);
                 isEnter = true;
-
             } else {
                 intakeServo.setPosition(0.5);
             }
 
-            if (flickServo.getPosition() >= 3.5) {
+            /*if (flickServo.getPosition() >= 2) {
                 transferServo.setPosition(tranferPosAIn);
-            } else if (C_MOVE_LEFT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
+            } else*/ if (C_MOVE_LEFT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
                 transferServo.setPosition(tranferPosAIn);
             } else if (C_MOVE_RIGHT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
                 transferServo.setPosition(tranferPosAOut);
@@ -213,6 +212,7 @@ public class Decode_Teleop2 extends LinearOpMode {
                 transferServo.setPosition(tranferPosCIn);
             } else if (C_MOVE_RIGHT && !gamepad2.left_bumper && gamepad2.right_bumper) {
                 transferServo.setPosition(tranferPosCOut);
+            }
 
 
        /*     }  if (C_MOVE_RIGHT && position1 == tranferPosAIn) {
@@ -235,18 +235,25 @@ public class Decode_Teleop2 extends LinearOpMode {
                 transferServo.setPosition(tranferPosCOut);
             } else if (C_MOVE_LEFT && position1 == tranferPosCOut) {
                 transferServo.setPosition(tranferPosAIn);
-        */    }
+        */
             //if (flickServo.getPosition() >= 2.5)
 
-                if (C_FLICK) { //TODO: we switched the 0.0 and 0.3 to debug and also changed it from 0.3
-                    //flickServo.setPosition(0.0);
-                    setFlickPos = setFlickPos + 0.00005;
+            if (gamepad2.y) {
+                flickServo.setPosition(0.0);
+                isEnter = true;
+            } else {
+                flickServo.setPosition(0.3);
+            }
+
+             /*   if (C_FLICK) { //TODO: we switched the 0.0 and 0.3 to debug and also changed it from 0.3
+                   // flickServo.setPosition(0.3);
+                    setFlickPos = setFlickPos + 1;
                     flickServo.setPosition(setFlickPos);
                 } else {
-                    //flickServo.setPosition(0.3);
+                    //flickServo.setPosition(0.0);
                     flickServo.setPosition(setFlickPos);
                 }
-
+*/
             if (gamepad2.a && !prevG2A) {
                 outtakeMotorPower -= 0.05;
             } else if (gamepad2.b && !prevG2B) {
