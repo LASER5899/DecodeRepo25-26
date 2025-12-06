@@ -20,6 +20,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Vision;
 
+import java.util.Scanner;
+
 @Autonomous(name="new red side auto", group="auto")
 //@Disabled
 public class newRedSideAuto extends LinearOpMode {
@@ -117,7 +119,7 @@ public class newRedSideAuto extends LinearOpMode {
 
         leftBackDrive.setPower(-0.3);
         leftFrontDrive.setPower(-0.3);
-        sleep(4000);
+        sleep(3300);
         leftBackDrive.setPower(0.3);
         leftFrontDrive.setPower(-0.3);
         rightBackDrive.setPower(-0.3);
@@ -127,20 +129,38 @@ public class newRedSideAuto extends LinearOpMode {
         leftFrontDrive.setPower(0.0);
         rightBackDrive.setPower(0.0);
         rightFrontDrive.setPower(0.0);
-        transferServo.setPosition(tranferPosAOut);
+        if (sequence.equals("GPP")) {
+            transferServo.setPosition(tranferPosAOut);
+        } else if (sequence.equals("PGP")){
+            transferServo.setPosition(tranferPosBOut);
+        } else {
+            transferServo.setPosition(tranferPosBOut);
+        }
         sleep(1500);
         flickServo.setPosition(0.0);
         sleep(500);
         flickServo.setPosition(0.3);
         outtake_motor.setPower(-0.78);
         sleep(4000);
-        transferServo.setPosition(tranferPosBOut);
+        if (sequence.equals("GPP")) {
+            transferServo.setPosition(tranferPosBOut);
+        } else if (sequence.equals("PGP")){
+            transferServo.setPosition(tranferPosAOut);
+        } else {
+            transferServo.setPosition(tranferPosCOut);
+        }
         sleep(1500);
         flickServo.setPosition(0.0);
         sleep(500);
         flickServo.setPosition(0.3);
         sleep(4000);
-        transferServo.setPosition(tranferPosCOut);
+        if (sequence.equals("GPP")) {
+            transferServo.setPosition(tranferPosCOut);
+        } else if (sequence.equals("PGP")){
+            transferServo.setPosition(tranferPosCOut);
+        } else {
+            transferServo.setPosition(tranferPosAOut);
+        }
         sleep(1500);
         flickServo.setPosition(0.0);
         sleep(500);
