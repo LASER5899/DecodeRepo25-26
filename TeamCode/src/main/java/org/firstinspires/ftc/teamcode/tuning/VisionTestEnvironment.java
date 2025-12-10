@@ -11,7 +11,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
 import org.firstinspires.ftc.teamcode.Vision;
 import org.firstinspires.ftc.teamcode.Vision.*;
-@Autonomous(name="Vision Test Environment", group="Linear OpMode")
+@TeleOp(name="Vision Test Environment", group="Linear OpMode")
 public class VisionTestEnvironment extends LinearOpMode {
 
     public Vision camera = new Vision();
@@ -26,10 +26,12 @@ public class VisionTestEnvironment extends LinearOpMode {
     private Servo intakeServo;
     private Servo transferServo;
     private Servo flickServo;
-
+    double alignVal;
     @Override
     public void runOpMode() {
         WebcamName cam1 = hardwareMap.get(WebcamName.class, "Camera1");
+        Boolean alignValue=false;
+        double turnSpeed =0.1;
         //camera.setCamera("Camera1");
         camera.setTarget(Target.blue);
         //Vision.DevModeOn();
@@ -54,7 +56,7 @@ public class VisionTestEnvironment extends LinearOpMode {
         rightBackDrive  = hardwareMap.get(DcMotor.class, "right_back_drive");
 
         outtake_motor   = hardwareMap.get(DcMotor.class, "outtake_drive");
-        outtake_motor.setPower(-1.0);
+        //outtake_motor.setPower(-1.0);
 
         intakeServo   = hardwareMap.get(Servo.class, "intake_servo");
         transferServo = hardwareMap.get(Servo.class, "transfer_servo");
@@ -86,6 +88,7 @@ public class VisionTestEnvironment extends LinearOpMode {
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
+
         telemetry.update();
 
         waitForStart();
@@ -200,22 +203,41 @@ public class VisionTestEnvironment extends LinearOpMode {
                 }
             }
             if (C_FLICK) {
-                flickServo.setPosition(0.0);
+               // flickServo.setPosition(0.0);
             } else {
-                flickServo.setPosition(0.3);
+              //  flickServo.setPosition(0.3);
             }
-            if(gamepad1.x){
-                if(!(camera.align()==0)) {
-                    int turn = camera.align();
+            if(alignValue=false){//&&gamepad1.x){
+                alignValue=true;
+            }
+            if(alignValue){//!gamepad1.x&&alignValue){
+                alignVal=camera.alignmentValue();
+                if(!(alignVal==0.0)&&!gamepad1.x){
+                    alignVal =camera.alignmentValue();
+                    if(alignVal==-10000){
 
-                    while (turn != 3) {
+                    }else if(alignVal<0){
+                        //turn left
+                        leftFrontDrive.setPower(-1*turnSpeed);
+                        leftBackDrive.setPower(-1*turnSpeed);
+                        rightFrontDrive.setPower(1*turnSpeed);
+                        rightFrontDrive.setPower(1*turnSpeed);
 
-                        if (turn == 1) {
-                            // turn left
-                        } else if (turn ==-1) {
-                            // turn right
-                        }
+                    } else if(alignVal>0){
+                        //turnright
+                        leftFrontDrive.setPower(1*turnSpeed);
+                        leftBackDrive.setPower(1*turnSpeed);
+                        rightFrontDrive.setPower(-1*turnSpeed);
+                        rightFrontDrive.setPower(-1*turnSpeed);
                     }
+
+
+                }else {
+                    alignValue=false;
+                    leftFrontDrive.setPower(0);
+                    leftBackDrive.setPower(0);
+                    rightFrontDrive.setPower(0);
+                    rightFrontDrive.setPower(0);
                 }
             }
             // if some button and pA empty

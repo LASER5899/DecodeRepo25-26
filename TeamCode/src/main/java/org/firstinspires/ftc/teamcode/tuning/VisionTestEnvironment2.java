@@ -11,11 +11,14 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
 import org.firstinspires.ftc.teamcode.Vision;
 import org.firstinspires.ftc.teamcode.Vision.*;
-@Autonomous(name="Vision Test Environment", group="Linear OpMode")
+@TeleOp(name="2nd Vision Test Environment", group="Linear OpMode")
 public class VisionTestEnvironment2 extends LinearOpMode {
 
     public Vision camera = new Vision();
-
+    private DcMotor leftFrontDrive;
+    private DcMotor leftBackDrive;
+    private DcMotor rightFrontDrive;
+    private DcMotor rightBackDrive;
 
 
     @Override
@@ -26,8 +29,63 @@ public class VisionTestEnvironment2 extends LinearOpMode {
         //Vision.DevModeOn();
         waitForStart();
         camera.aprilTagSetUp(cam1);
-        while(opModeIsActive()) {
-            telemetry.addData("Pattern", camera.scanForPattern());
+        boolean alignValue = false;
+        double alignVal=10000;
+        leftFrontDrive = hardwareMap.get(DcMotor.class, "left_front_drive");
+        leftBackDrive = hardwareMap.get(DcMotor.class, "left_back_drive");
+        rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
+        rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
+        leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
+        leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
+        rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
+        rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
+        double turnSpeed = 0.2;
+        while (opModeIsActive()) {
+            ///.addData("Pattern", camera.scanForPattern());
+            ///Lots of Telemetry :)
+            telemetry.addData("AlignVal",alignVal);
+            telemetry.addData("x button: ",gamepad1.x);
+
+            //Actual Code
+            if (alignValue == false && gamepad1.x) {
+                alignValue = true;
+            }
+            if (!gamepad1.x && alignValue) {
+                alignVal = camera.alignmentValue();
+                if (!(alignVal == 0.0) && !gamepad1.x) {
+                    alignVal = camera.alignmentValue();
+                    if (!(alignVal == -10000)) {
+
+                        if (alignVal < 0) {
+                            //turn left
+                            leftFrontDrive.setPower(-1 * turnSpeed);
+                            leftBackDrive.setPower(-1 * turnSpeed);
+                            rightFrontDrive.setPower(1 * turnSpeed);
+                            rightFrontDrive.setPower(1 * turnSpeed);
+
+                            telemetry.addData("turning: ","left");
+
+                        } else if (alignVal > 0) {
+                            //turnright
+                            leftFrontDrive.setPower(1 * turnSpeed);
+                            leftBackDrive.setPower(1 * turnSpeed);
+                            rightFrontDrive.setPower(-1 * turnSpeed);
+                            rightFrontDrive.setPower(-1 * turnSpeed);
+                            telemetry.addData("turning: ","right");
+
+                        }
+                    }
+                }else {
+                    alignValue = false;
+                    leftFrontDrive.setPower(0);
+                    leftBackDrive.setPower(0);
+                    rightFrontDrive.setPower(0);
+                    rightFrontDrive.setPower(0);
+                    telemetry.addData("turning: ","none");
+
+                }
+
+            }
             telemetry.update();
         }
     }

@@ -187,7 +187,16 @@ public class Vision {
     }
 
     public double centerDistanceCM() {
-        return 0.0;
+
+        scanForTarget();
+        double centerDistance;
+        if (range == -1.0) {
+            centerDistance = -1;
+        } else {
+            centerDistance = Math.sqrt(TAG_TO_CENTER * TAG_TO_CENTER + range * range - 2 * TAG_TO_CENTER * range * Math.cos(Math.toRadians(180 - yaw)));
+        }
+
+        return centerDistance;
     }
 
     public double horizAngle() {
@@ -296,26 +305,26 @@ public class Vision {
     AprilTagId = -1;*/
 
 
-    String gamePattern = "none";
+    Pattern gamePattern = Pattern.none;
     int scanForPatternRun = 0;
 
-    public String scanForPattern() {
+    public Vision.Pattern scanForPattern() {
 
 
-        if (gamePattern == "none" && !tagProcessor.getDetections().isEmpty()) {
+        if (gamePattern == Pattern.none && !tagProcessor.getDetections().isEmpty()) {
             //telemetry.addLine("Not empty yo :)")
 
             tag = tagProcessor.getDetections().get(0);
             if (23 == (int) tag.id) {
-                gamePattern = "PPG";
+                gamePattern = Pattern.PPG;
                 scanForPatternRun++;
             }
             if (22 == (int) tag.id) {
-                gamePattern = "PGP";
+                gamePattern = Pattern.PGP;
                 scanForPatternRun++;
             }
             if (21 == (int) tag.id) {
-                gamePattern = "GPP";
+                gamePattern = Pattern.GPP;
                 scanForPatternRun++;
             }
 
@@ -324,20 +333,13 @@ public class Vision {
 
     }
 
-    public int align() {
+    public double alignmentValue() {
         scanForTarget();
         if (range != -1) {
             double degrees_to_center = Math.toDegrees(Math.asin(TAG_TO_CENTER * Math.sin(180 - yaw) / centerDistanceCM()));
             double bearing = getBearing();
-            if (degrees_to_center < bearing) {
-                return -1;
-            }
-            if (degrees_to_center > bearing) {
-                return 1;
-            } else {
-                return 3;
-            }
-        } return 0;
+            return degrees_to_center - bearing;
+        } return -10000;
     }
 
 
