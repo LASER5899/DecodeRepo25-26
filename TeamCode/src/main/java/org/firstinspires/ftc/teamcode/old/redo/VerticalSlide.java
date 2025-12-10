@@ -27,9 +27,10 @@ public class VerticalSlide {
     public void setMode(DcMotor.RunMode mode) { slide.setMode(mode);}
     public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior behavior) { slide.setZeroPowerBehavior(behavior);}
     public void setDirection(DcMotor.Direction direction) { slide.setDirection(direction);}
-    public boolean isBusy() { return slide.isBusy();}
+    //public boolean isBusy() { return slide.isBusy();}
     public void setPower(double p) { slide.setPower(p); }
     public int getCurrentPosition() { return slide.getCurrentPosition(); }
+    public boolean isBusy() { return slide.isBusy(); }
 
 
     public void update(boolean upPressed, boolean downPressed, boolean resetPressed) {
