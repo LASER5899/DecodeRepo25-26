@@ -20,6 +20,8 @@ public class VisionTestEnvironment2 extends LinearOpMode {
     private DcMotor rightFrontDrive;
     private DcMotor rightBackDrive;
 
+    double graceMargin = 0.1;
+
 
 
     @Override
@@ -40,7 +42,7 @@ public class VisionTestEnvironment2 extends LinearOpMode {
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
-        double turnSpeed = 0.2;
+        double turnSpeed = 0.1;
         while (opModeIsActive()) {
             ///.addData("Pattern", camera.scanForPattern());
             ///Lots of Telemetry :)
@@ -53,7 +55,7 @@ public class VisionTestEnvironment2 extends LinearOpMode {
             }
             if (!gamepad1.x && alignValue) {
                 alignVal = camera.alignmentValue();
-                if (!(alignVal == 0.0) && !gamepad1.x) {
+                if (!(alignVal < graceMargin&& alignVal > -graceMargin) && !gamepad1.x) {
                     alignVal = camera.alignmentValue();
                     if (!(alignVal == -10000)) {
 
