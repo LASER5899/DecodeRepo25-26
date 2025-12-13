@@ -119,13 +119,72 @@ public class newBlueSideAutoFar extends LinearOpMode {
             sequence = "GPP";
         }
 
-        leftBackDrive.setPower(0.3);
-        leftFrontDrive.setPower(0.3);
-        rightBackDrive.setPower(0.0);
-        rightFrontDrive.setPower(0.0);
-        sleep(750);
-        leftFrontDrive.setPower(0.0);
-        leftBackDrive.setPower(0.0);
+        //Vision.DevModeOn();
+        waitForStart();
+        boolean alignValue = false;
+        double alignVal=10000;
+        double turnSpeed = 0.1;
+        double graceMargin = 0.1;
+        /*
+        *  Hi this is Juliette speaking.
+        *   We could potentially fix this bug if we turn to the left a little bit
+        * and stop till we detect the april tag
+        * before we run the align value counter
+        * that way it will be able to see it.
+        *
+        * i also turned speed down so it should be more acurate.
+        *
+        * Good luck!!!ds
+        *
+        * */
+        int counter = 0;
+        while (counter < 1000) {
+
+            telemetry.addData("AlignVal",alignVal);
+            //telemetry.addData("x button: ",gamepad1.x);
+
+            alignVal = camera.alignmentValue();
+            if (!(alignVal < graceMargin && alignVal > -graceMargin)) {
+                alignVal = camera.alignmentValue();
+                if (!(alignVal == -10000)) {
+
+                    if (alignVal < 0) {
+                        //turn left
+                        leftFrontDrive.setPower(1 * turnSpeed);
+                        leftBackDrive.setPower(1 * turnSpeed);
+                        rightFrontDrive.setPower(-1 * turnSpeed);
+                        rightFrontDrive.setPower(-1 * turnSpeed);
+
+                        telemetry.addData("turning: ","left");
+
+                    } else if (alignVal > 0) {
+                        //turn right
+                        leftFrontDrive.setPower(-1 * turnSpeed);
+                        leftBackDrive.setPower(-1 * turnSpeed);
+                        rightFrontDrive.setPower(1 * turnSpeed);
+                        rightFrontDrive.setPower(1 * turnSpeed);
+                        telemetry.addData("turning: ","right");
+
+                    }
+                }
+            } else {
+                leftFrontDrive.setPower(0);
+                leftBackDrive.setPower(0);
+                rightFrontDrive.setPower(0);
+                rightFrontDrive.setPower(0);
+                telemetry.addData("turning: ","none");
+            }
+
+            sleep(5);
+            counter++;
+            telemetry.update();
+        }
+
+        leftFrontDrive.setPower(0);
+        leftBackDrive.setPower(0);
+        rightFrontDrive.setPower(0);
+        rightFrontDrive.setPower(0);
+
         if (sequence.equals("GPP")) {
             transferServo.setPosition(tranferPosAOut);
         } else if (sequence.equals("PGP")){
