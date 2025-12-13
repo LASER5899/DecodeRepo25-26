@@ -305,26 +305,26 @@ public class Vision {
     AprilTagId = -1;*/
 
 
-    Pattern gamePattern = Pattern.none;
+    String gamePattern = "none";
     int scanForPatternRun = 0;
 
-    public Vision.Pattern scanForPattern() {
+    public String scanForPattern() {
 
 
-        if (gamePattern == Pattern.none && !tagProcessor.getDetections().isEmpty()) {
+        if (gamePattern.equals("none") && !tagProcessor.getDetections().isEmpty()) {
             //telemetry.addLine("Not empty yo :)")
 
             tag = tagProcessor.getDetections().get(0);
             if (23 == (int) tag.id) {
-                gamePattern = Pattern.PPG;
+                gamePattern = "PPG";
                 scanForPatternRun++;
             }
             if (22 == (int) tag.id) {
-                gamePattern = Pattern.PGP;
+                gamePattern = "PGP";
                 scanForPatternRun++;
             }
             if (21 == (int) tag.id) {
-                gamePattern = Pattern.GPP;
+                gamePattern = "GPP";
                 scanForPatternRun++;
             }
 
