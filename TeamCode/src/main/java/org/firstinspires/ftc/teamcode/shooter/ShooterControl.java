@@ -7,6 +7,21 @@ import com.qualcomm.robotcore.util.Range;
 
 public class ShooterControl {
 
+
+
+    public void setTargetRPM(double rpm) { this.targetRPM = rpm; }
+    public double getTargetRPM() { return targetRPM; }
+    public double getRampingRPM() { return rampingRPM; }
+    public double getActualRPM() { return smoothedRPM; }
+    public double getRawRPM() { return currentRPM; }
+    public double getPower() { return correctPow; }
+
+    public void setKp(double kp) { this.Kp = kp; }
+    public void setKf(double kf) { this.Kf = kf; }
+    public double getKp() { return Kp; }
+    public double getKf() { return Kf; }
+
+
     private DcMotorEx flywheel;
     final double TICKS_PER_REV = 537.7;
 
@@ -26,14 +41,12 @@ public class ShooterControl {
     double error, lastError;
 
     boolean firstLoop = true;
-    public ShooterControl(HardwareMap hwMap) {
+   public ShooterControl(HardwareMap hwMap) {
         // map motors and servos
         flywheel = hwMap.get(DcMotorEx.class, "outtake_drive");
         flywheel.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         timer.reset();
     }
-
-
     public double rpmToPower(double targetRPM) {
 
         // obtain the encoder position
