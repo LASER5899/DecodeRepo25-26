@@ -7,14 +7,14 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.dashboard.config.Config;
-@Config
+//@Config
 @TeleOp(name="Shooter Tuning", group="Linear OpMode")
 //@Disabled
 public class ShooterTuning extends LinearOpMode {
 
-    public static double TARGET_RPM =  2500;
-    public static double kP = 0; //tune kF frist
-    public static double kF = 0.00016;
+   // public static double TARGET_RPM =  2500;
+    //public static double kP = 0; //tune kF frist
+    //public static double kF = 0.00016;
     //public static PIDCoefficients TURNING_PID = new PIDCoefficients();
 
     private ElapsedTime runtime = new ElapsedTime();
@@ -41,10 +41,10 @@ public class ShooterTuning extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            shooter.setTargetRPM(TARGET_RPM);
-            shooter.setKf(kF);
-            shooter.setKp(kP);
-
+            shooter.setTargetRPM(RobotConstants.TARGET_RPM);
+            shooter.setKf(RobotConstants.kF);
+            shooter.setKp(RobotConstants.kP);
+            shooter.setMaxAccel(RobotConstants.maxAccel);
             shooter.flywheelUpdate();
 
 
@@ -60,6 +60,7 @@ public class ShooterTuning extends LinearOpMode {
             telemetry.addData("targetRPM", shooter.getTargetRPM());  // what you command
             telemetry.addData("rampingRPM", shooter.getRampingRPM());
             telemetry.addData("power", shooter.getPower());
+            //telemetry.addData("rampingRPM", ShooterControl.rToggle());
             telemetry.update();
 
             //sleep(CYCLE_MS);

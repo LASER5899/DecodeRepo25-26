@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.shooter;
 
+import static java.lang.Math.ceil;
+
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -10,30 +12,47 @@ public class ShooterControl {
 
 
     public void setTargetRPM(double rpm) { this.targetRPM = rpm; }
+
+    public void setMaxAccel(double maxAccel) { this.maxAccel = maxAccel; }
+
+    public void setHoldSeconds(double holdSeconds) { this.holdSeconds = holdSeconds; }
     public double getTargetRPM() { return targetRPM; }
     public double getRampingRPM() { return rampingRPM; }
     public double getActualRPM() { return smoothedRPM; }
     public double getRawRPM() { return currentRPM; }
     public double getPower() { return correctPow; }
 
+
     public void setKp(double kp) { this.Kp = kp; }
     public void setKf(double kf) { this.Kf = kf; }
     public double getKp() { return Kp; }
     public double getKf() { return Kf; }
+
+    enum FlywheelState {RAMP, HOLD, DOWN};
+
+    FlywheelState state = FlywheelState.RAMP;
+
 
 
     private DcMotorEx flywheel;
     final double TICKS_PER_REV = 537.7;
 
     ElapsedTime timer = new ElapsedTime();
-    double dt;
+
+    ElapsedTime timerTop = new ElapsedTime();
+    //double dt;
+
+    //double holdTop;
+
+    double holdSeconds;
 
     double targetRPM; // don't set an initial value here, this should be passed from teleop
     double rampingRPM = 0;
+    public boolean rToggle = false;
     double maxRPM = 5000; //TODO: find a value
     double currentRPM, smoothedRPM; // currentRPM from getVelocity will always have noise, so smoothedRPM will make it a little more steady
     double correctPow;
-    double maxAccel = 2000; //TODO: find a value
+    double maxAccel; //= 1000; //TODO: find a value
 
     double Kp = 0;
     double Kf = 1.0 / maxRPM;
@@ -57,7 +76,7 @@ public class ShooterControl {
             firstLoop = false;
         }
 
-        smoothedRPM = 0.9 * smoothedRPM + 0.1 * currentRPM;
+        smoothedRPM = ceil(0.9 * smoothedRPM + 0.1 * currentRPM);
 
         error = targetRPM - smoothedRPM;
 
@@ -70,17 +89,63 @@ public class ShooterControl {
 
     public void flywheelUpdate() {
 
-        dt = timer.seconds();
+       double dt = timer.seconds();
 
-        if (rampingRPM < targetRPM) {
-            rampingRPM += maxAccel * dt;
-            rampingRPM = Range.clip(rampingRPM,0,targetRPM);
+       double holdTop = timerTop.seconds();
+
+        switch(state) {
+
+            case RAMP:
+                if (rampingRPM < targetRPM) {
+                    rampingRPM += maxAccel * dt;
+                    rampingRPM = Range.clip(rampingRPM,0,targetRPM);
+                    //if ((rampingRPM == targetRPM) && smoothedRPM > (targetRPM-10)){rToggle = true;}
+                    if (rampingRPM == targetRPM){
+                        timerTop.reset();
+                        state = FlywheelState.HOLD;
+                    }
+
+                }
+                break;
+
+            case HOLD:
+                rampingRPM = targetRPM;
+                if (timerTop.seconds() >= holdSeconds) {
+                    state = FlywheelState.DOWN;
+                }
+                break;
+
+
+            case DOWN:
+                rampingRPM -= maxAccel * dt;
+                if (rampingRPM > 500){
+                    rampingRPM -= maxAccel * dt;
+                    rampingRPM = Range.clip(rampingRPM,0,targetRPM);
+
+                }
+                if (rampingRPM < 500) {
+                    rampingRPM = 500;
+                    state = FlywheelState.RAMP;
+                }
+
+                //rampingRPM = Range.clip(rampingRPM,targetRPM,maxRPM);
+                rampingRPM = Range.clip(rampingRPM,0,targetRPM);
+                //if (rampingRPM <= 400){rToggle = false;}
+                //if (rampingRPM < 150 ){rToggle = false;}
+                break;
+
+
         }
 
-        else if (rampingRPM > targetRPM) {
+
+
+        /*else if (rampingRPM > 0 && rToggle) { //targetRPM
             rampingRPM -= maxAccel * dt;
-            rampingRPM = Range.clip(rampingRPM,targetRPM,maxRPM);
-        }
+            //rampingRPM = Range.clip(rampingRPM,targetRPM,maxRPM);
+            rampingRPM = Range.clip(rampingRPM,0,targetRPM);
+            if (rampingRPM <= 400){rToggle = false;}
+            //if (rampingRPM < 150 ){rToggle = false;}
+        }*/
 
         correctPow = rpmToPower(rampingRPM);
         flywheel.setPower(correctPow);
