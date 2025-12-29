@@ -5,9 +5,12 @@ import com.qualcomm.robotcore.hardware.PIDCoefficients;
 
 @Config
 public class RobotConstants {
-    public static double TARGET_RPM =  1000;
-    public static double kP = 0.0005;
-    public static double kF = 0.0005;
+    public static double TARGET_RPM =  940;
+    public static double kP = 0.015;
+    public static double kF = 0.00988;
+    public static double kI = 0.0000;
+
+    public static double kD = 0.01;
 
     public static double holdSeconds = 5;
 
