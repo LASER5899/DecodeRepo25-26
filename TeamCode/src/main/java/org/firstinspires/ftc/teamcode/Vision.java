@@ -26,7 +26,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 
 
-
+//                   VISION CLASS
 
 /*
  *      This class is made to give the position of the goal relative to the robot.
@@ -34,7 +34,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
  *
  *       aprilTagSetUp(WebcamName camera) sets up the april tag runner with the camera needed. Please use this function to initialize before running the opMode
  *       scanForPattern() returns the game pattern as one of the options below. If the Pattern is currently none, it will scan for the tag and change it to
- *          Possible Patterns: Vision.Pattern.none, Vision.Pattern.PPG, Vision.Pattern.PGP, Vision.Pattern.GPP
+ *          Possible Patterns: "none" , "PPG" , "PGP" , "GPP".
  *       scanForTarget() Updates all values on the goal target.
  *
  *

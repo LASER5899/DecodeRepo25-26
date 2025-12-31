@@ -73,7 +73,7 @@ public class VisionTestEnvironment2 extends LinearOpMode {
                             leftFrontDrive.setPower(-1 * turnSpeed);
                             leftBackDrive.setPower(-1 * turnSpeed);
                             rightFrontDrive.setPower(1 * turnSpeed);
-                            rightFrontDrive.setPower(1 * turnSpeed);
+                            rightBackDrive.setPower(1 * turnSpeed);
 
                             telemetry.addData("turning: ","left");
 
@@ -82,7 +82,7 @@ public class VisionTestEnvironment2 extends LinearOpMode {
                             leftFrontDrive.setPower(1 * turnSpeed);
                             leftBackDrive.setPower(1 * turnSpeed);
                             rightFrontDrive.setPower(-1 * turnSpeed);
-                            rightFrontDrive.setPower(-1 * turnSpeed);
+                            rightBackDrive.setPower(-1 * turnSpeed);
                             telemetry.addData("turning: ","right");
 
                         }
