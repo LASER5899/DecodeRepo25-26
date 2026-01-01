@@ -59,6 +59,7 @@ public class VisionTestEnvironment extends LinearOpMode {
                 notStop= true;
 
             }
+
             if (!gamepad1.x && alignValue) {
                 telemetry.addData("notStop",notStop);
                 telemetry.addData("originValue", originValue);

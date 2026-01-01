@@ -97,6 +97,8 @@ public class VisionTestEnvironment2 extends LinearOpMode {
 
                 }
 
+            }else{
+
             }
             telemetry.update();
         }

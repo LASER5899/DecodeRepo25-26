@@ -5,9 +5,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
-@TeleOp(name="Decode_Teleop", group="Linear OpMode")
-public class Decode_Teleop2_with_alignment extends LinearOpMode {
+
+@TeleOp(name="BLUE_Decode_Teleop_with_alignment", group="Linear OpMode")
+public class RED_Decode_Teleop2_with_alignment extends LinearOpMode {
 
 
 
@@ -88,9 +90,15 @@ public class Decode_Teleop2_with_alignment extends LinearOpMode {
         leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        Vision camera = new Vision();
 
-        double graceMargin = 0.15;
+        Vision camera = new Vision();
+        WebcamName cam1 = hardwareMap.get(WebcamName.class, "Camera1");
+        //camera.setCamera("Camera1");
+        camera.setTarget(Vision.Target.red);
+        //Vision.DevModeOn();
+        camera.aprilTagSetUp(cam1);
+
+        double graceMargin = 0.2;
         boolean alignValue = false;
         double alignVal=10000;
         double turnSpeed = 0.1;
@@ -271,7 +279,15 @@ public class Decode_Teleop2_with_alignment extends LinearOpMode {
             }
             outtake_motor.setPower(outtakeMotorPower);
             prevG2A = gamepad2.a;
-            prevG2B = gamepad2.b;  if (!gamepad1.x && alignValue) {
+            prevG2B = gamepad2.b;
+
+            if (alignValue == false && gamepad1.x&& !(camera.alignmentValue() == -10000)) {
+                alignValue = true;
+
+                originValue=0;
+
+            }
+            if (!gamepad1.x && alignValue) {
 
                 alignVal = camera.alignmentValue();
                 if (!(alignVal < graceMargin&& alignVal > -graceMargin) && !gamepad1.x) {
@@ -362,10 +378,12 @@ public class Decode_Teleop2_with_alignment extends LinearOpMode {
 
             // Send calculated power to wheels
 
-            leftFrontDrive.setPower(leftFrontPower * speed * invDir);
-            rightFrontDrive.setPower(rightFrontPower * speed * invDir);
-            leftBackDrive.setPower(leftBackPower * speed * invDir);
-            rightBackDrive.setPower(rightBackPower * speed * invDir);
+            if(!alignValue) {
+                leftFrontDrive.setPower(leftFrontPower * speed * invDir);
+                rightFrontDrive.setPower(rightFrontPower * speed * invDir);
+                leftBackDrive.setPower(leftBackPower * speed * invDir);
+                rightBackDrive.setPower(rightBackPower * speed * invDir);
+            }
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower * speed * invDir, rightFrontPower * speed * invDir);
@@ -376,6 +394,9 @@ public class Decode_Teleop2_with_alignment extends LinearOpMode {
             telemetry.addData("outtakePower", outtakeMotorPower);
             telemetry.addData("isEnter", isEnter);
             telemetry.addData("gamepad 2 x", gamepad2.x);
+            telemetry.addData("gamepad 1 x",gamepad1.x);
+            telemetry.addData("alignVal",alignVal);
+            telemetry.addData("alignValue",alignValue);
             telemetry.update();
 
             sleep(CYCLE_MS);
