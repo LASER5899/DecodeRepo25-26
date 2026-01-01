@@ -81,16 +81,16 @@ public class newRedSideAutoFar extends LinearOpMode {
         transferServo = hardwareMap.get(Servo.class, "transfer_servo");
         flickServo    = hardwareMap.get(Servo.class, "flick_servo");
         flickServo.setPosition(0.3);
-        double tranferPosA = 0.68;
-        double tranferPosB = 0.61;
-        double tranferPosC = 0.535;
-        double tranferPosCOut = 0.647;
-        double tranferPosAOut = 0.575;
-        double tranferPosBOut = 0.497;
+        double transferPosAOut = 0.68;
+        double transferPosBOut = 0.61;
+        double transferPosCOut = 0.535;
+        double transferPosC = 0.647;
+        double transferPosA = 0.575;
+        double transferPosB = 0.497;
 
         WebcamName cam1 = hardwareMap.get(WebcamName.class, "Camera1");
         camera.aprilTagSetUp(cam1);
-        camera.setTarget(Vision.Target.blue);
+        camera.setTarget(Vision.Target.red);
 
         // Get a reference to the sensor
         myOtos = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
@@ -119,19 +119,84 @@ public class newRedSideAutoFar extends LinearOpMode {
             sequence = "GPP";
         }
 
-        leftBackDrive.setPower(0.0);
-        leftFrontDrive.setPower(0.0);
-        rightBackDrive.setPower(0.3);
-        rightFrontDrive.setPower(0.3);
-        sleep(750);
-        rightFrontDrive.setPower(0.0);
-        rightBackDrive.setPower(0.0);
+        //Vision.DevModeOn();
+        waitForStart();
+        boolean alignValue = false;
+        double alignVal=10000;
+        double turnSpeed = 0.1;
+        double graceMargin = 0.1;
+        /*
+         *  Hi this is Juliette speaking.
+         *   We could potentially fix this bug if we turn to the left a little bit
+         * and stop till we detect the april tag
+         * before we run the align value counter
+         * that way it will be able to see it.
+         *
+         * i also turned speed down so it should be more acurate.
+         *
+         * Good luck!!!ds
+         *
+         * */
+        int counter = 0;
+        while (counter < 2500) {
+
+            telemetry.addData("AlignVal",alignVal);
+            //telemetry.addData("x button: ",gamepad1.x);
+
+            alignVal = camera.alignmentValue();
+            if (!(alignVal < graceMargin && alignVal > -graceMargin)) {
+                alignVal = camera.alignmentValue();
+                if (!(alignVal == -10000)) {
+
+                    if (alignVal < 0) {
+                        //turn left
+                        leftFrontDrive.setPower(1 * turnSpeed);
+                        leftBackDrive.setPower(1 * turnSpeed);
+                        rightFrontDrive.setPower(-1 * turnSpeed);
+                        rightBackDrive.setPower(-1 * turnSpeed);
+
+                        telemetry.addData("turning: ","left");
+
+                    } else if (alignVal > 0) {
+                        //turn right
+                        leftFrontDrive.setPower(-1 * turnSpeed);
+                        leftBackDrive.setPower(-1 * turnSpeed);
+                        rightFrontDrive.setPower(1 * turnSpeed);
+                        rightBackDrive.setPower(1 * turnSpeed);
+                        telemetry.addData("turning: ","right");
+
+                    }
+                } else {
+                    leftFrontDrive.setPower(-1 * turnSpeed);
+                    leftBackDrive.setPower(-1 * turnSpeed);
+                    rightFrontDrive.setPower(1 * turnSpeed);
+                    rightBackDrive.setPower(1 * turnSpeed);
+                }
+            } else {
+                leftFrontDrive.setPower(0);
+                leftBackDrive.setPower(0);
+                rightFrontDrive.setPower(0);
+                rightBackDrive.setPower(0);
+                telemetry.addData("turning: ","none");
+                break;
+            }
+
+            sleep(1);
+            counter++;
+            telemetry.update();
+        }
+
+        leftFrontDrive.setPower(0);
+        leftBackDrive.setPower(0);
+        rightFrontDrive.setPower(0);
+        rightBackDrive.setPower(0);
+
         if (sequence.equals("GPP")) {
-            transferServo.setPosition(tranferPosAOut);
+            transferServo.setPosition(transferPosAOut);
         } else if (sequence.equals("PGP")){
-            transferServo.setPosition(tranferPosBOut);
+            transferServo.setPosition(transferPosBOut);
         } else {
-            transferServo.setPosition(tranferPosBOut);
+            transferServo.setPosition(transferPosBOut);
         }
         sleep(1500);
         flickServo.setPosition(0.0);
@@ -142,11 +207,11 @@ public class newRedSideAutoFar extends LinearOpMode {
         outtake_motor.setPower(-0.85);
         sleep(2000);
         if (sequence.equals("GPP")) {
-            transferServo.setPosition(tranferPosBOut);
+            transferServo.setPosition(transferPosBOut);
         } else if (sequence.equals("PGP")){
-            transferServo.setPosition(tranferPosAOut);
+            transferServo.setPosition(transferPosAOut);
         } else {
-            transferServo.setPosition(tranferPosCOut);
+            transferServo.setPosition(transferPosCOut);
         }
         sleep(1500);
         flickServo.setPosition(0.0);
@@ -157,16 +222,20 @@ public class newRedSideAutoFar extends LinearOpMode {
         outtake_motor.setPower(-0.85);
         sleep(2000);
         if (sequence.equals("GPP")) {
-            transferServo.setPosition(tranferPosCOut);
+            transferServo.setPosition(transferPosCOut);
         } else if (sequence.equals("PGP")){
-            transferServo.setPosition(tranferPosCOut);
+            transferServo.setPosition(transferPosCOut);
         } else {
-            transferServo.setPosition(tranferPosAOut);
+            transferServo.setPosition(transferPosAOut);
         }
         sleep(1500);
         flickServo.setPosition(0.0);
         sleep(500);
         flickServo.setPosition(0.3);
+        leftFrontDrive.setPower(0.2);
+        leftBackDrive.setPower(0.2);
+        rightFrontDrive.setPower(0.2);
+        rightBackDrive.setPower(0.2);
         sleep(500);
 
         //otosDrive(2, 2, 0, 2);      // small move forward and right away from wall
@@ -177,6 +246,11 @@ public class newRedSideAutoFar extends LinearOpMode {
         //otosDrive(-87, 4, 0, 2);    // park in observation zone
 
         sleep(1000);
+        leftFrontDrive.setPower(0);
+        leftBackDrive.setPower(0);
+        rightFrontDrive.setPower(0);
+        rightBackDrive.setPower(0);
+
     }
 
     private void configureOtos() {

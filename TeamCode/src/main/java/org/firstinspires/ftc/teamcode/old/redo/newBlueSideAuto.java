@@ -81,12 +81,12 @@ public class newBlueSideAuto extends LinearOpMode {
         transferServo = hardwareMap.get(Servo.class, "transfer_servo");
         flickServo    = hardwareMap.get(Servo.class, "flick_servo");
         flickServo.setPosition(0.3);
-        double tranferPosA = 0.68;
-        double tranferPosB = 0.61;
-        double tranferPosC = 0.535;
-        double tranferPosCOut = 0.647;
-        double tranferPosAOut = 0.575;
-        double tranferPosBOut = 0.497;
+        double transferPosA = 0.68;
+        double transferPosB = 0.61;
+        double transferPosC = 0.535;
+        double transferPosCOut = 0.647;
+        double transferPosAOut = 0.575;
+        double transferPosBOut = 0.497;
 
         WebcamName cam1 = hardwareMap.get(WebcamName.class, "Camera1");
         camera.aprilTagSetUp(cam1);
@@ -138,11 +138,11 @@ public class newBlueSideAuto extends LinearOpMode {
         leftBackDrive.setPower(0.0);
         rightBackDrive.setPower(0.0);
         if (sequence.equals("GPP")) {
-            transferServo.setPosition(tranferPosAOut);
+            transferServo.setPosition(transferPosAOut);
         } else if (sequence.equals("PGP")){
-            transferServo.setPosition(tranferPosBOut);
+            transferServo.setPosition(transferPosBOut);
         } else {
-            transferServo.setPosition(tranferPosBOut);
+            transferServo.setPosition(transferPosBOut);
         }
         sleep(1500);
         flickServo.setPosition(0.0);
@@ -151,11 +151,11 @@ public class newBlueSideAuto extends LinearOpMode {
         outtake_motor.setPower(-0.83);
         sleep(4000);
         if (sequence.equals("GPP")) {
-            transferServo.setPosition(tranferPosBOut);
+            transferServo.setPosition(transferPosBOut);
         } else if (sequence.equals("PGP")){
-            transferServo.setPosition(tranferPosAOut);
+            transferServo.setPosition(transferPosAOut);
         } else {
-            transferServo.setPosition(tranferPosCOut);
+            transferServo.setPosition(transferPosCOut);
         }
         sleep(1500);
         flickServo.setPosition(0.0);
@@ -164,11 +164,11 @@ public class newBlueSideAuto extends LinearOpMode {
         outtake_motor.setPower(-0.85);
         sleep(4000);
         if (sequence.equals("GPP")) {
-            transferServo.setPosition(tranferPosCOut);
+            transferServo.setPosition(transferPosCOut);
         } else if (sequence.equals("PGP")){
-            transferServo.setPosition(tranferPosCOut);
+            transferServo.setPosition(transferPosCOut);
         } else {
-            transferServo.setPosition(tranferPosAOut);
+            transferServo.setPosition(transferPosAOut);
         }
         sleep(1500);
         flickServo.setPosition(0.0);
