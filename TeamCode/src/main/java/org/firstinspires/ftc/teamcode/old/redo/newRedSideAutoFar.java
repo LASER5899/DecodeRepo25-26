@@ -75,18 +75,18 @@ public class newRedSideAutoFar extends LinearOpMode {
         rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         outtake_motor = hardwareMap.get(DcMotor.class, "outtake_drive");
-        outtake_motor.setPower(-0.85);
+        outtake_motor.setPower(-0.75);
 
         intakeServo   = hardwareMap.get(Servo.class, "intake_servo");
         transferServo = hardwareMap.get(Servo.class, "transfer_servo");
         flickServo    = hardwareMap.get(Servo.class, "flick_servo");
         flickServo.setPosition(0.3);
-        double transferPosAOut = 0.68;
-        double transferPosBOut = 0.61;
-        double transferPosCOut = 0.535;
-        double transferPosC = 0.647;
-        double transferPosA = 0.575;
-        double transferPosB = 0.497;
+        double transferPosA = 0.68;
+        double transferPosB = 0.61;
+        double transferPosC = 0.535;
+        double transferPosCOut = 0.647;
+        double transferPosAOut = 0.575;
+        double transferPosBOut = 0.497;
 
         WebcamName cam1 = hardwareMap.get(WebcamName.class, "Camera1");
         camera.aprilTagSetUp(cam1);
@@ -148,7 +148,7 @@ public class newRedSideAutoFar extends LinearOpMode {
                 alignVal = camera.alignmentValue();
                 if (!(alignVal == -10000)) {
 
-                    if (alignVal < 0) {
+                    if (alignVal + 9 < 0) {
                         //turn left
                         leftFrontDrive.setPower(1 * turnSpeed);
                         leftBackDrive.setPower(1 * turnSpeed);
@@ -157,7 +157,7 @@ public class newRedSideAutoFar extends LinearOpMode {
 
                         telemetry.addData("turning: ","left");
 
-                    } else if (alignVal > 0) {
+                    } else if (alignVal + 9 > 0) {
                         //turn right
                         leftFrontDrive.setPower(-1 * turnSpeed);
                         leftBackDrive.setPower(-1 * turnSpeed);
@@ -203,9 +203,10 @@ public class newRedSideAutoFar extends LinearOpMode {
         sleep(500);
         flickServo.setPosition(0.3);
         outtake_motor.setPower(-1.0);
+        sleep(1000);
+        outtake_motor.setPower(-0.77);
         sleep(2000);
-        outtake_motor.setPower(-0.85);
-        sleep(2000);
+
         if (sequence.equals("GPP")) {
             transferServo.setPosition(transferPosBOut);
         } else if (sequence.equals("PGP")){
@@ -218,9 +219,10 @@ public class newRedSideAutoFar extends LinearOpMode {
         sleep(500);
         flickServo.setPosition(0.3);
         outtake_motor.setPower(-1.0);
+        sleep(1000);
+        outtake_motor.setPower(-0.77);
         sleep(2000);
-        outtake_motor.setPower(-0.85);
-        sleep(2000);
+
         if (sequence.equals("GPP")) {
             transferServo.setPosition(transferPosCOut);
         } else if (sequence.equals("PGP")){

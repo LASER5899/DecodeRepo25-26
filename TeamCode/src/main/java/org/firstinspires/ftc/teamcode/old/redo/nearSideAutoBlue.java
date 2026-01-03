@@ -20,9 +20,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Vision;
 
-@Autonomous(name="new blue side auto", group="auto")
+@Autonomous(name="near side auto blue", group="auto")
 //@Disabled
-public class newBlueSideAuto extends LinearOpMode {
+public class nearSideAutoBlue extends LinearOpMode {
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
     //  applied to the drive motors to correct the error.
     //  Drive = Error * Gain    Make these values smaller for smoother control, or larger for a more aggressive response.
@@ -75,7 +75,7 @@ public class newBlueSideAuto extends LinearOpMode {
         rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         outtake_motor = hardwareMap.get(DcMotor.class, "outtake_drive");
-        outtake_motor.setPower(-0.81);
+        outtake_motor.setPower(-0.615);
 
         intakeServo   = hardwareMap.get(Servo.class, "intake_servo");
         transferServo = hardwareMap.get(Servo.class, "transfer_servo");
@@ -110,33 +110,112 @@ public class newBlueSideAuto extends LinearOpMode {
         telemetry.addData("Status", "Running");
         telemetry.update();
 
-        leftBackDrive.setPower(-0.4);
-        leftFrontDrive.setPower(0.5);
-        rightBackDrive.setPower(0.5);
-        rightFrontDrive.setPower(-0.4);
+        leftFrontDrive.setPower(-0.5);
+        leftBackDrive.setPower(-0.5);
+        rightFrontDrive.setPower(-0.5);
+        rightBackDrive.setPower(-0.5);
+        sleep(1300);
+        leftFrontDrive.setPower(0);
+        leftBackDrive.setPower(0);
+        rightFrontDrive.setPower(0);
+        rightBackDrive.setPower(0);
+        sleep(500);
+
+        leftFrontDrive.setPower(-0.3);
+        leftBackDrive.setPower(-0.3);
+        rightFrontDrive.setPower(0.3);
+        rightBackDrive.setPower(0.3);
+        sleep(1150);
+        leftFrontDrive.setPower(0);
+        leftBackDrive.setPower(0);
+        rightFrontDrive.setPower(0);
+        rightBackDrive.setPower(0);
 
         String sequence = camera.scanForPattern();
-        while (sequence.equals("none")) {
+        while (sequence.equals("none") && runtime.milliseconds() < 5000) {
             sequence = camera.scanForPattern();
         }
+        if (sequence.equals("none")) {
+            sequence = "GPP";
+        }
 
-        leftBackDrive.setPower(0.0);
-        leftFrontDrive.setPower(0.0);
-        rightBackDrive.setPower(-0.3);
-        rightFrontDrive.setPower(-0.3);
-        sleep(3300);
-        leftBackDrive.setPower(-0.3);
         leftFrontDrive.setPower(0.3);
-        rightBackDrive.setPower(0.3);
+        leftBackDrive.setPower(0.3);
         rightFrontDrive.setPower(-0.3);
-        sleep(2000);
-        leftBackDrive.setPower(0.0);
-        leftFrontDrive.setPower(-0.2);
-        rightBackDrive.setPower(0.0);
-        rightFrontDrive.setPower(0.2);
-        sleep(150);
-        leftBackDrive.setPower(0.0);
-        rightBackDrive.setPower(0.0);
+        rightBackDrive.setPower(-0.3);
+        sleep(1150);
+        leftFrontDrive.setPower(0);
+        leftBackDrive.setPower(0);
+        rightFrontDrive.setPower(0);
+        rightBackDrive.setPower(0);
+
+        //Vision.DevModeOn();
+        waitForStart();
+        boolean alignValue = false;
+        double alignVal = 10000;
+        double turnSpeed = 0.1;
+        double graceMargin = 0.1;
+        /*
+         *  Hi this is Juliette speaking.
+         *   We could potentially fix this bug if we turn to the left a little bit
+         * and stop till we detect the april tag
+         * before we run the align value counter
+         * that way it will be able to see it.
+         *
+         * i also turned speed down so it should be more acurate.
+         *
+         * Good luck!!!ds
+         *
+         * */
+        int counter = 0;
+        while (counter < 1500) {
+
+            telemetry.addData("AlignVal",alignVal);
+            //telemetry.addData("x button: ",gamepad1.x);
+
+            alignVal = camera.alignmentValue();
+            if (!(alignVal < graceMargin && alignVal > -graceMargin)) {
+                alignVal = camera.alignmentValue();
+                if (!(alignVal == -10000)) {
+
+                    if (alignVal - 5 < 0) {
+                        //turn left
+                        leftFrontDrive.setPower(1 * turnSpeed);
+                        leftBackDrive.setPower(1 * turnSpeed);
+                        rightFrontDrive.setPower(-1 * turnSpeed);
+                        rightBackDrive.setPower(-1 * turnSpeed);
+
+                        telemetry.addData("turning: ","left");
+
+                    } else if (alignVal - 5 > 0) {
+                        //turn right
+                        leftFrontDrive.setPower(-1 * turnSpeed);
+                        leftBackDrive.setPower(-1 * turnSpeed);
+                        rightFrontDrive.setPower(1 * turnSpeed);
+                        rightBackDrive.setPower(1 * turnSpeed);
+                        telemetry.addData("turning: ","right");
+
+                    }
+                }
+            } else {
+                leftFrontDrive.setPower(0);
+                leftBackDrive.setPower(0);
+                rightFrontDrive.setPower(0);
+                rightBackDrive.setPower(0);
+                telemetry.addData("turning: ","none");
+                break;
+            }
+
+            sleep(1);
+            counter++;
+            telemetry.update();
+        }
+
+        leftFrontDrive.setPower(0);
+        leftBackDrive.setPower(0);
+        rightFrontDrive.setPower(0);
+        rightBackDrive.setPower(0);
+
         if (sequence.equals("GPP")) {
             transferServo.setPosition(transferPosAOut);
         } else if (sequence.equals("PGP")){
@@ -148,8 +227,8 @@ public class newBlueSideAuto extends LinearOpMode {
         flickServo.setPosition(0.0);
         sleep(500);
         flickServo.setPosition(0.3);
-        outtake_motor.setPower(-0.83);
-        sleep(4000);
+        sleep(2000);
+
         if (sequence.equals("GPP")) {
             transferServo.setPosition(transferPosBOut);
         } else if (sequence.equals("PGP")){
@@ -161,8 +240,8 @@ public class newBlueSideAuto extends LinearOpMode {
         flickServo.setPosition(0.0);
         sleep(500);
         flickServo.setPosition(0.3);
-        outtake_motor.setPower(-0.85);
-        sleep(4000);
+        sleep(2000);
+
         if (sequence.equals("GPP")) {
             transferServo.setPosition(transferPosCOut);
         } else if (sequence.equals("PGP")){
@@ -183,7 +262,6 @@ public class newBlueSideAuto extends LinearOpMode {
         //otosDrive(-87, 24, 0, 4);   // backup straight
         //otosDrive(-87, 4, 0, 2);    // park in observation zone
 
-        sleep(1000);
     }
 
     private void configureOtos() {
