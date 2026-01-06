@@ -20,9 +20,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Vision;
 
-@Autonomous(name="new red side auto far", group="auto")
+@Autonomous(name="red side auto far to center", group="auto")
 //@Disabled
-public class newRedSideAutoFar extends LinearOpMode {
+public class farCenterAutoRed extends LinearOpMode {
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
     //  applied to the drive motors to correct the error.
     //  Drive = Error * Gain    Make these values smaller for smoother control, or larger for a more aggressive response.
@@ -75,7 +75,7 @@ public class newRedSideAutoFar extends LinearOpMode {
         rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         outtake_motor = hardwareMap.get(DcMotor.class, "outtake_drive");
-        outtake_motor.setPower(-0.75);
+        outtake_motor.setPower(-0.615);
 
         intakeServo   = hardwareMap.get(Servo.class, "intake_servo");
         transferServo = hardwareMap.get(Servo.class, "transfer_servo");
@@ -110,6 +110,16 @@ public class newRedSideAutoFar extends LinearOpMode {
         telemetry.addData("Status", "Running");
         telemetry.update();
 
+        leftFrontDrive.setPower(0.5);
+        leftBackDrive.setPower(0.5);
+        rightFrontDrive.setPower(0.5);
+        rightBackDrive.setPower(0.5);
+        sleep(2100);
+        leftFrontDrive.setPower(0);
+        leftBackDrive.setPower(0);
+        rightFrontDrive.setPower(0);
+        rightBackDrive.setPower(0);
+        sleep(500);
 
         String sequence = camera.scanForPattern();
         while (sequence.equals("none") && runtime.milliseconds() < 5000) {
@@ -138,7 +148,7 @@ public class newRedSideAutoFar extends LinearOpMode {
          *
          * */
         int counter = 0;
-        while (counter < 2500) {
+        while (counter < 5000) {
 
             telemetry.addData("AlignVal",alignVal);
             //telemetry.addData("x button: ",gamepad1.x);
@@ -148,7 +158,7 @@ public class newRedSideAutoFar extends LinearOpMode {
                 alignVal = camera.alignmentValue();
                 if (!(alignVal == -10000)) {
 
-                    if (alignVal + 9 < 0) {
+                    if (alignVal - 4 < 0) {
                         //turn left
                         leftFrontDrive.setPower(1 * turnSpeed);
                         leftBackDrive.setPower(1 * turnSpeed);
@@ -157,7 +167,7 @@ public class newRedSideAutoFar extends LinearOpMode {
 
                         telemetry.addData("turning: ","left");
 
-                    } else if (alignVal + 9 > 0) {
+                    } else if (alignVal - 4 > 0) {
                         //turn right
                         leftFrontDrive.setPower(-1 * turnSpeed);
                         leftBackDrive.setPower(-1 * turnSpeed);
@@ -166,7 +176,7 @@ public class newRedSideAutoFar extends LinearOpMode {
                         telemetry.addData("turning: ","right");
 
                     }
-                } else {
+                } else if (counter < 1500) {
                     leftFrontDrive.setPower(-1 * turnSpeed);
                     leftBackDrive.setPower(-1 * turnSpeed);
                     rightFrontDrive.setPower(1 * turnSpeed);
@@ -202,9 +212,6 @@ public class newRedSideAutoFar extends LinearOpMode {
         flickServo.setPosition(0.0);
         sleep(500);
         flickServo.setPosition(0.3);
-        outtake_motor.setPower(-1.0);
-        sleep(1000);
-        outtake_motor.setPower(-0.77);
         sleep(2000);
 
         if (sequence.equals("GPP")) {
@@ -218,9 +225,6 @@ public class newRedSideAutoFar extends LinearOpMode {
         flickServo.setPosition(0.0);
         sleep(500);
         flickServo.setPosition(0.3);
-        outtake_motor.setPower(-1.0);
-        sleep(1000);
-        outtake_motor.setPower(-0.77);
         sleep(2000);
 
         if (sequence.equals("GPP")) {
@@ -234,11 +238,16 @@ public class newRedSideAutoFar extends LinearOpMode {
         flickServo.setPosition(0.0);
         sleep(500);
         flickServo.setPosition(0.3);
-        leftFrontDrive.setPower(0.2);
-        leftBackDrive.setPower(0.2);
-        rightFrontDrive.setPower(0.2);
-        rightBackDrive.setPower(0.2);
         sleep(500);
+        leftFrontDrive.setPower(0.5);
+        leftBackDrive.setPower(-0.5);
+        rightFrontDrive.setPower(-0.5);
+        rightBackDrive.setPower(0.5);
+        sleep(500);
+        leftFrontDrive.setPower(0);
+        leftBackDrive.setPower(0);
+        rightFrontDrive.setPower(0);
+        rightBackDrive.setPower(0);
 
         //otosDrive(2, 2, 0, 2);      // small move forward and right away from wall
 
@@ -246,12 +255,6 @@ public class newRedSideAutoFar extends LinearOpMode {
         //otosDrive(0, 24, 0, 2);     // backup and move away from wall
         //otosDrive(-87, 24, 0, 4);   // backup straight
         //otosDrive(-87, 4, 0, 2);    // park in observation zone
-
-        sleep(1000);
-        leftFrontDrive.setPower(0);
-        leftBackDrive.setPower(0);
-        rightFrontDrive.setPower(0);
-        rightBackDrive.setPower(0);
 
     }
 

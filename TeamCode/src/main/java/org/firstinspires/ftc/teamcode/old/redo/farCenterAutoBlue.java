@@ -20,9 +20,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Vision;
 
-@Autonomous(name="near side auto red", group="auto")
+@Autonomous(name="blue side auto far to center", group="auto")
 //@Disabled
-public class nearSideAutoRed extends LinearOpMode {
+public class farCenterAutoBlue extends LinearOpMode {
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
     //  applied to the drive motors to correct the error.
     //  Drive = Error * Gain    Make these values smaller for smoother control, or larger for a more aggressive response.
@@ -75,7 +75,7 @@ public class nearSideAutoRed extends LinearOpMode {
         rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         outtake_motor = hardwareMap.get(DcMotor.class, "outtake_drive");
-        outtake_motor.setPower(-0.605);
+        outtake_motor.setPower(-0.615);
 
         intakeServo   = hardwareMap.get(Servo.class, "intake_servo");
         transferServo = hardwareMap.get(Servo.class, "transfer_servo");
@@ -90,7 +90,7 @@ public class nearSideAutoRed extends LinearOpMode {
 
         WebcamName cam1 = hardwareMap.get(WebcamName.class, "Camera1");
         camera.aprilTagSetUp(cam1);
-        camera.setTarget(Vision.Target.red);
+        camera.setTarget(Vision.Target.blue);
 
         // Get a reference to the sensor
         myOtos = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
@@ -110,26 +110,16 @@ public class nearSideAutoRed extends LinearOpMode {
         telemetry.addData("Status", "Running");
         telemetry.update();
 
-        leftFrontDrive.setPower(-0.5);
-        leftBackDrive.setPower(-0.5);
-        rightFrontDrive.setPower(-0.5);
-        rightBackDrive.setPower(-0.5);
-        sleep(1300);
+        leftFrontDrive.setPower(0.5);
+        leftBackDrive.setPower(0.5);
+        rightFrontDrive.setPower(0.5);
+        rightBackDrive.setPower(0.5);
+        sleep(2100);
         leftFrontDrive.setPower(0);
         leftBackDrive.setPower(0);
         rightFrontDrive.setPower(0);
         rightBackDrive.setPower(0);
         sleep(500);
-
-        leftFrontDrive.setPower(0.3);
-        leftBackDrive.setPower(0.3);
-        rightFrontDrive.setPower(-0.3);
-        rightBackDrive.setPower(-0.3);
-        sleep(1150);
-        leftFrontDrive.setPower(0);
-        leftBackDrive.setPower(0);
-        rightFrontDrive.setPower(0);
-        rightBackDrive.setPower(0);
 
         String sequence = camera.scanForPattern();
         while (sequence.equals("none") && runtime.milliseconds() < 5000) {
@@ -139,20 +129,10 @@ public class nearSideAutoRed extends LinearOpMode {
             sequence = "GPP";
         }
 
-        leftFrontDrive.setPower(-0.3);
-        leftBackDrive.setPower(-0.3);
-        rightFrontDrive.setPower(0.3);
-        rightBackDrive.setPower(0.3);
-        sleep(1150);
-        leftFrontDrive.setPower(0);
-        leftBackDrive.setPower(0);
-        rightFrontDrive.setPower(0);
-        rightBackDrive.setPower(0);
-
         //Vision.DevModeOn();
         waitForStart();
         boolean alignValue = false;
-        double alignVal = 10000;
+        double alignVal=10000;
         double turnSpeed = 0.1;
         double graceMargin = 0.1;
         /*
@@ -168,7 +148,7 @@ public class nearSideAutoRed extends LinearOpMode {
          *
          * */
         int counter = 0;
-        while (counter < 1500) {
+        while (counter < 5000) {
 
             telemetry.addData("AlignVal",alignVal);
             //telemetry.addData("x button: ",gamepad1.x);
@@ -196,6 +176,11 @@ public class nearSideAutoRed extends LinearOpMode {
                         telemetry.addData("turning: ","right");
 
                     }
+                } else if (counter < 1500) {
+                    leftFrontDrive.setPower(1 * turnSpeed);
+                    leftBackDrive.setPower(1 * turnSpeed);
+                    rightFrontDrive.setPower(-1 * turnSpeed);
+                    rightBackDrive.setPower(-1 * turnSpeed);
                 }
             } else {
                 leftFrontDrive.setPower(0);
@@ -254,6 +239,15 @@ public class nearSideAutoRed extends LinearOpMode {
         sleep(500);
         flickServo.setPosition(0.3);
         sleep(500);
+        leftFrontDrive.setPower(-0.5);
+        leftBackDrive.setPower(0.5);
+        rightFrontDrive.setPower(0.5);
+        rightBackDrive.setPower(-0.5);
+        sleep(500);
+        leftFrontDrive.setPower(0);
+        leftBackDrive.setPower(0);
+        rightFrontDrive.setPower(0);
+        rightBackDrive.setPower(0);
 
         //otosDrive(2, 2, 0, 2);      // small move forward and right away from wall
 

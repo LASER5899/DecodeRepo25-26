@@ -20,9 +20,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Vision;
 
-@Autonomous(name="new blue side auto far", group="auto")
+@Autonomous(name="far blue side auto", group="auto")
 //@Disabled
-public class newBlueSideAutoFar extends LinearOpMode {
+public class farSideAutoBlue extends LinearOpMode {
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
     //  applied to the drive motors to correct the error.
     //  Drive = Error * Gain    Make these values smaller for smoother control, or larger for a more aggressive response.
@@ -148,7 +148,7 @@ public class newBlueSideAutoFar extends LinearOpMode {
                 alignVal = camera.alignmentValue();
                 if (!(alignVal == -10000)) {
 
-                    if (alignVal + 9 < 0) {
+                    if (alignVal - 3 < 0) {
                         //turn left
                         leftFrontDrive.setPower(1 * turnSpeed);
                         leftBackDrive.setPower(1 * turnSpeed);
@@ -157,7 +157,7 @@ public class newBlueSideAutoFar extends LinearOpMode {
 
                         telemetry.addData("turning: ","left");
 
-                    } else if (alignVal + 9 > 0) {
+                    } else if (alignVal - 3 > 0) {
                         //turn right
                         leftFrontDrive.setPower(-1 * turnSpeed);
                         leftBackDrive.setPower(-1 * turnSpeed);
@@ -166,12 +166,12 @@ public class newBlueSideAutoFar extends LinearOpMode {
                         telemetry.addData("turning: ","right");
 
                     }
-                } else {
+                } /*else {
                     leftFrontDrive.setPower(1 * turnSpeed);
                     leftBackDrive.setPower(1 * turnSpeed);
                     rightFrontDrive.setPower(-1 * turnSpeed);
                     rightBackDrive.setPower(-1 * turnSpeed);
-                }
+                }*/
             } else {
                 leftFrontDrive.setPower(0);
                 leftBackDrive.setPower(0);
