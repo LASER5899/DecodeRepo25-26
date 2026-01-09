@@ -254,6 +254,15 @@ public class nearSideAutoBlue extends LinearOpMode {
         sleep(500);
         flickServo.setPosition(0.3);
         sleep(500);
+        leftFrontDrive.setPower(-0.5);
+        leftBackDrive.setPower(0.5);
+        rightFrontDrive.setPower(0.5);
+        rightBackDrive.setPower(-0.5);
+        sleep(500);
+        leftFrontDrive.setPower(0);
+        leftBackDrive.setPower(0);
+        rightFrontDrive.setPower(0);
+        rightBackDrive.setPower(0);
 
         //otosDrive(2, 2, 0, 2);      // small move forward and right away from wall
 

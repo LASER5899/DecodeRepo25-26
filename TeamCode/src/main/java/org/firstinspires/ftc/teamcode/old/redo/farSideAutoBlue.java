@@ -75,7 +75,7 @@ public class farSideAutoBlue extends LinearOpMode {
         rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         outtake_motor = hardwareMap.get(DcMotor.class, "outtake_drive");
-        outtake_motor.setPower(-0.75);
+        outtake_motor.setPower(-0.7);
 
         intakeServo   = hardwareMap.get(Servo.class, "intake_servo");
         transferServo = hardwareMap.get(Servo.class, "transfer_servo");
@@ -166,12 +166,12 @@ public class farSideAutoBlue extends LinearOpMode {
                         telemetry.addData("turning: ","right");
 
                     }
-                } /*else {
-                    leftFrontDrive.setPower(1 * turnSpeed);
-                    leftBackDrive.setPower(1 * turnSpeed);
-                    rightFrontDrive.setPower(-1 * turnSpeed);
-                    rightBackDrive.setPower(-1 * turnSpeed);
-                }*/
+                } else if (counter < 1000) {
+                    leftFrontDrive.setPower(0.5 * turnSpeed);
+                    leftBackDrive.setPower(0.5 * turnSpeed);
+                    rightFrontDrive.setPower(-0.5 * turnSpeed);
+                    rightBackDrive.setPower(-0.5 * turnSpeed);
+                }
             } else {
                 leftFrontDrive.setPower(0);
                 leftBackDrive.setPower(0);
@@ -181,7 +181,7 @@ public class farSideAutoBlue extends LinearOpMode {
                 break;
             }
 
-            sleep(1);
+            sleep(2);
             counter++;
             telemetry.update();
         }
@@ -202,10 +202,7 @@ public class farSideAutoBlue extends LinearOpMode {
         flickServo.setPosition(0.0);
         sleep(500);
         flickServo.setPosition(0.3);
-        outtake_motor.setPower(-1.0);
         sleep(1000);
-        outtake_motor.setPower(-0.77);
-        sleep(2000);
         if (sequence.equals("GPP")) {
             transferServo.setPosition(transferPosBOut);
         } else if (sequence.equals("PGP")){
@@ -213,14 +210,11 @@ public class farSideAutoBlue extends LinearOpMode {
         } else {
             transferServo.setPosition(transferPosCOut);
         }
-        sleep(1500);
+        sleep(2000);
         flickServo.setPosition(0.0);
         sleep(500);
         flickServo.setPosition(0.3);
-        outtake_motor.setPower(-1.0);
         sleep(1000);
-        outtake_motor.setPower(-0.77);
-        sleep(2000);
         if (sequence.equals("GPP")) {
             transferServo.setPosition(transferPosCOut);
         } else if (sequence.equals("PGP")){
@@ -228,7 +222,7 @@ public class farSideAutoBlue extends LinearOpMode {
         } else {
             transferServo.setPosition(transferPosAOut);
         }
-        sleep(1500);
+        sleep(2000);
         flickServo.setPosition(0.0);
         sleep(500);
         flickServo.setPosition(0.3);
@@ -236,7 +230,11 @@ public class farSideAutoBlue extends LinearOpMode {
         leftBackDrive.setPower(0.2);
         rightFrontDrive.setPower(0.2);
         rightBackDrive.setPower(0.2);
-        sleep(500);
+        sleep(1500);
+        leftFrontDrive.setPower(0);
+        leftBackDrive.setPower(0);
+        rightFrontDrive.setPower(0);
+        rightBackDrive.setPower(0);
 
         //otosDrive(2, 2, 0, 2);      // small move forward and right away from wall
 
@@ -244,12 +242,6 @@ public class farSideAutoBlue extends LinearOpMode {
         //otosDrive(0, 24, 0, 2);     // backup and move away from wall
         //otosDrive(-87, 24, 0, 4);   // backup straight
         //otosDrive(-87, 4, 0, 2);    // park in observation zone
-
-        sleep(1000);
-        leftFrontDrive.setPower(0);
-        leftBackDrive.setPower(0);
-        rightFrontDrive.setPower(0);
-        rightBackDrive.setPower(0);
 
     }
 
