@@ -75,7 +75,6 @@ public class nearSideAutoBlue extends LinearOpMode {
         rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         outtake_motor = hardwareMap.get(DcMotor.class, "outtake_drive");
-        outtake_motor.setPower(-0.605);
 
         intakeServo   = hardwareMap.get(Servo.class, "intake_servo");
         transferServo = hardwareMap.get(Servo.class, "transfer_servo");
@@ -109,6 +108,8 @@ public class nearSideAutoBlue extends LinearOpMode {
 
         telemetry.addData("Status", "Running");
         telemetry.update();
+
+        outtake_motor.setPower(-0.605);
 
         leftFrontDrive.setPower(-0.5);
         leftBackDrive.setPower(-0.5);
