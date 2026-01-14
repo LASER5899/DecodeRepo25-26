@@ -299,7 +299,7 @@ public class BLUE_Decode_Teleop2_with_alignment extends LinearOpMode {
                     }
                     if (!(alignVal == -10000)) {
 
-                        if (alignVal < 0) {
+                        if (originValue<0&&alignVal < 0) {
                             //turn left
                             leftFrontDrive.setPower(-1 * turnSpeed);
                             leftBackDrive.setPower(-1 * turnSpeed);
@@ -308,7 +308,7 @@ public class BLUE_Decode_Teleop2_with_alignment extends LinearOpMode {
 
                             telemetry.addData("turning: ","left");
 
-                        } else if (alignVal > 0) {
+                        } else if (originValue>0&&alignVal > 0) {
                             //turnright
                             leftFrontDrive.setPower(1 * turnSpeed);
                             leftBackDrive.setPower(1 * turnSpeed);

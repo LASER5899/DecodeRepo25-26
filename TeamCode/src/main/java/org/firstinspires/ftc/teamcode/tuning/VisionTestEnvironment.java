@@ -27,9 +27,9 @@ public class VisionTestEnvironment extends LinearOpMode {
     @Override
     public void runOpMode() {
         WebcamName cam1 = hardwareMap.get(WebcamName.class, "Camera1");
-        //camera.setCamera("Camera1");
+
         camera.setTarget(Target.red);
-        //Vision.DevModeOn();
+
         waitForStart();
         camera.aprilTagSetUp(cam1);
         boolean alignValue = false;
@@ -42,9 +42,10 @@ public class VisionTestEnvironment extends LinearOpMode {
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
-        double turnSpeed = 0.2;
+        double turnSpeed = 1;
         double originValue=0;
-        boolean notStop= true;
+        boolean notStop= false;
+
 
         while (opModeIsActive()) {
             ///.addData("Pattern", camera.scanForPattern());
@@ -53,72 +54,50 @@ public class VisionTestEnvironment extends LinearOpMode {
             telemetry.addData("x button: ",gamepad1.x);
 
             //Actual Code
-            if (!alignValue && gamepad1.x) {
+            if (!alignValue && gamepad1.x&& !(camera.alignmentValue() == -10000)) {
                 alignValue = true;
                 originValue=0;
-                notStop= true;
 
             }
-
             if (!gamepad1.x && alignValue) {
-                telemetry.addData("notStop",notStop);
-                telemetry.addData("originValue", originValue);
-                telemetry.addData("alignVal",alignVal);
 
                 alignVal = camera.alignmentValue();
-                if (!(alignVal < graceMargin&& alignVal > -graceMargin) && !gamepad1.x&& notStop) {
-
+                if(Math.abs(alignVal)>70){
+                    turnSpeed = 1;
+                }else{
+                    turnSpeed = 0.8/67*(Math.abs(alignVal)-70)+1;
+                }
+                //below here we need to add when its ok.
+                if (!(originValue*alignVal<0) && !gamepad1.x) {
 
                     alignVal = camera.alignmentValue();
                     if(originValue==0){
-                        originValue=alignVal;
+                        if(alignVal>0) {
+                            originValue = 1;
+                        }else if(alignVal<0){
+                            originValue = -1;
+                        }
                     }
                     if (!(alignVal == -10000)) {
-                        if(originValue<0){
-                            //turn left
-                            if(alignVal>0){
-                                notStop = false;
-                            }else {
-                                leftFrontDrive.setPower(-1 * turnSpeed);
-                                leftBackDrive.setPower(-1 * turnSpeed);
-                                rightFrontDrive.setPower(1 * turnSpeed);
-                                rightFrontDrive.setPower(1 * turnSpeed);
-                                telemetry.addData("turning: ","left");
 
-                            }
-                        }else if(originValue>0){
-                            //turn left
-                            if(alignVal<0){
-                                notStop = false;
-                            }else {
-                                leftFrontDrive.setPower(1 * turnSpeed);
-                                leftBackDrive.setPower(1 * turnSpeed);
-                                rightFrontDrive.setPower(-1 * turnSpeed);
-                                rightFrontDrive.setPower(-1 * turnSpeed);
-                                telemetry.addData("turning: ","right");
-                            }
-                        }else{
-                            notStop=false;
-                        }
-
-                       /* if (alignVal < 0) {
+                        if (originValue<0&&alignVal < 0) {
                             //turn left
                             leftFrontDrive.setPower(-1 * turnSpeed);
                             leftBackDrive.setPower(-1 * turnSpeed);
                             rightFrontDrive.setPower(1 * turnSpeed);
-                            rightFrontDrive.setPower(1 * turnSpeed);
+                            rightBackDrive.setPower(1 * turnSpeed);
 
                             telemetry.addData("turning: ","left");
 
-                        } else if (alignVal > 0) {
+                        } else if (originValue>0&&alignVal > 0) {
                             //turnright
                             leftFrontDrive.setPower(1 * turnSpeed);
                             leftBackDrive.setPower(1 * turnSpeed);
                             rightFrontDrive.setPower(-1 * turnSpeed);
-                            rightFrontDrive.setPower(-1 * turnSpeed);
+                            rightBackDrive.setPower(-1 * turnSpeed);
                             telemetry.addData("turning: ","right");
 
-                        }*/
+                        }
                     }
                 }else {
                     alignValue = false;
@@ -131,8 +110,6 @@ public class VisionTestEnvironment extends LinearOpMode {
                 }
 
             }
-            telemetry.update();
         }
-
     }
 }
