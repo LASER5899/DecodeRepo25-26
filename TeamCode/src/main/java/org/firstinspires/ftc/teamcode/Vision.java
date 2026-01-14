@@ -23,6 +23,7 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 
 
@@ -342,6 +343,14 @@ public class Vision {
         } return -10000;
     }
 
+    // PLEASE REMOVE THIS FUNCTION AND PUT IT IN A DIFFERENT CLASS
+    public static void softStart(DcMotor dcMotor){
+        for(double i = 0; i<1;i=i+1){
+
+        }
+
+
+    }
 
 
 }
