@@ -272,6 +272,7 @@ public class close_red_6 extends LinearOpMode {
         Actions.runBlocking(
                 new SequentialAction(
                         shooter.fireUp(),
+                        shooter.hold(),
                         one.build(),
 
                         transfer.toA(),
