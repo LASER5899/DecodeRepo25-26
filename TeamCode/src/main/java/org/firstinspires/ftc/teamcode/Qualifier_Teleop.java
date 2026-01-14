@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
 
-@TeleOp(name="Qualifier TeleOp", group="Linear OpMode")
+@TeleOp(name="Qualifier Teleop", group="Linear OpMode")
 public class Qualifier_Teleop extends LinearOpMode {
 
 
