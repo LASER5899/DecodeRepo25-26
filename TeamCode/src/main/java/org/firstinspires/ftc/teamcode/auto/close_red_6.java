@@ -28,7 +28,7 @@ import org.firstinspires.ftc.teamcode.MecanumDrive;
 //this is theoretical if everything is perfectly tuned, but using 90 degrees and 24 inches
 @Config
 @Autonomous(name = "close red 6", group = "Autonomous")
-@Disabled
+//@Disabled
 //psuedocode
 /*
 55 in fwd
@@ -244,7 +244,7 @@ public class close_red_6 extends LinearOpMode {
 
         TrajectoryActionBuilder one = drive.actionBuilder(initPose)
                 .strafeToConstantHeading(new Vector2d(0, 55), new TranslationalVelConstraint(10))
-            .turn(Math.toRadians(-45)); //counterclockwise by default
+                .turn(Math.toRadians(-45)); //counterclockwise by default
 
         TrajectoryActionBuilder two = drive.actionBuilder(initPose)
                 .turn(Math.toRadians(135)) //counterclockwise by default
@@ -289,11 +289,13 @@ public class close_red_6 extends LinearOpMode {
                         new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
                             intake.intaking(),
                             three.build(),
+                            new SequentialAction(
                             transfer.toA(),
                             transfer.toB(),
-                            transfer.toC(),
-                            intake.stopIntaking()
+                            transfer.toC()
+                            )
                         ),
+                        intake.stopIntaking(),
                         four.build(),
 
                         transfer.toA(),
