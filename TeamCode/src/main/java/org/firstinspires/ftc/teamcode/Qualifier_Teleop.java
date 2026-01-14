@@ -4,8 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
 
-@TeleOp(name="Decode_Teleop", group="Linear OpMode")
-public class Decode_Teleop2 extends LinearOpMode {
+@TeleOp(name="Qualifier Teleop", group="Linear OpMode")
+public class Qualifier_Teleop extends LinearOpMode {
 
 
     private DcMotor leftFrontDrive;
@@ -121,6 +121,7 @@ public class Decode_Teleop2 extends LinearOpMode {
             double axial = -C_AXIAL;  // Note: pushing stick axial gives negative value
             double lateral = C_LATERAL;
             double yaw = C_YAW;
+            
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
@@ -198,9 +199,7 @@ public class Decode_Teleop2 extends LinearOpMode {
                 intakeServo.setPosition(0.5);
             }
 
-            /*if (flickServo.getPosition() >= 2) {
-                transferServo.setPosition(tranferPosAIn);
-            } else*/ if (C_MOVE_LEFT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
+           if (C_MOVE_LEFT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
                 transferServo.setPosition(tranferPosAIn);
             } else if (C_MOVE_RIGHT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
                 transferServo.setPosition(tranferPosAOut);
