@@ -32,7 +32,7 @@ public class VisionTestEnvironment2 extends LinearOpMode {
         //Vision.DevModeOn();
         waitForStart();
         camera.aprilTagSetUp(cam1);
-        boolean alignValue = false;
+        boolean turnCodeOn = false;
         double alignVal=10000;
         leftFrontDrive = hardwareMap.get(DcMotor.class, "left_front_drive");
         leftBackDrive = hardwareMap.get(DcMotor.class, "left_back_drive");
@@ -51,12 +51,18 @@ public class VisionTestEnvironment2 extends LinearOpMode {
             telemetry.addData("x button: ",gamepad1.x);
 
             //Actual Code
-            if (alignValue == false && gamepad1.x) {
-                alignValue = true;
+            if (turnCodeOn == false && gamepad1.x) {
+                turnCodeOn = true;
                 originValue=0;
 
             }
-            if (!gamepad1.x && alignValue) {
+            if (turnCodeOn == false && gamepad1.x&& !(camera.alignmentValue() == -10000)) {
+                turnCodeOn = true;
+
+                originValue=0;
+
+            }
+            if (!gamepad1.x && turnCodeOn) {
 
                 alignVal = camera.alignmentValue();
                 if (!(alignVal < graceMargin&& alignVal > -graceMargin) && !gamepad1.x) {
@@ -68,7 +74,7 @@ public class VisionTestEnvironment2 extends LinearOpMode {
                     }
                     if (!(alignVal == -10000)) {
 
-                        if (alignVal < 0) {
+                        if (originValue<0&&alignVal < 0) {
                             //turn left
                             leftFrontDrive.setPower(-1 * turnSpeed);
                             leftBackDrive.setPower(-1 * turnSpeed);
@@ -77,7 +83,7 @@ public class VisionTestEnvironment2 extends LinearOpMode {
 
                             telemetry.addData("turning: ","left");
 
-                        } else if (alignVal > 0) {
+                        } else if (originValue>0&&alignVal > 0) {
                             //turnright
                             leftFrontDrive.setPower(1 * turnSpeed);
                             leftBackDrive.setPower(1 * turnSpeed);
@@ -88,7 +94,7 @@ public class VisionTestEnvironment2 extends LinearOpMode {
                         }
                     }
                 }else {
-                    alignValue = false;
+                    turnCodeOn = false;
                     leftFrontDrive.setPower(0);
                     leftBackDrive.setPower(0);
                     rightFrontDrive.setPower(0);
@@ -96,8 +102,6 @@ public class VisionTestEnvironment2 extends LinearOpMode {
                     telemetry.addData("turning: ","none");
 
                 }
-
-            }else{
 
             }
             telemetry.update();
