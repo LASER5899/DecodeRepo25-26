@@ -101,7 +101,7 @@ public class BLUE_Decode_Teleop2_with_alignment extends LinearOpMode {
         double graceMargin = 0.2;
         boolean alignValue = false;
         double alignVal=10000;
-        double turnSpeed = 0.1;
+        double turnSpeed = 0.3;
         double originValue=0;
 
         // Wait for the game to start (driver presses PLAY)

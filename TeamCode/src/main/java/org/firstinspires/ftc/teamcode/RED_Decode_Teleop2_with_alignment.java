@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
 
-@TeleOp(name="BLUE_Decode_Teleop_with_alignment", group="Linear OpMode")
+@TeleOp(name="RED_Decode_Teleop_with_alignment", group="Linear OpMode")
 public class RED_Decode_Teleop2_with_alignment extends LinearOpMode {
 
 
@@ -101,7 +101,7 @@ public class RED_Decode_Teleop2_with_alignment extends LinearOpMode {
         double graceMargin = 0.2;
         boolean alignValue = false;
         double alignVal=10000;
-        double turnSpeed = 0.1;
+        double turnSpeed = 0.3;
         double originValue=0;
 
         // Wait for the game to start (driver presses PLAY)
