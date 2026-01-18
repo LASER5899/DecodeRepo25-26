@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.acmerobotics.dashboard.FtcDashboard;
@@ -15,19 +16,12 @@ import com.acmerobotics.dashboard.config.Config;
 //@Disabled
 public class ShooterTuning extends LinearOpMode {
 
-   // public static double TARGET_RPM =  2500;
-    //public static double kP = 0; //tune kF frist
-    //public static double kF = 0.00016;
-    //public static PIDCoefficients TURNING_PID = new PIDCoefficients();
-
     private ElapsedTime runtime = new ElapsedTime();
 
     private ShooterControl shooter;
 
     private DcMotorEx flywheel;
-
-
-
+    private Servo flickServo;
 
     @Override
 
@@ -36,19 +30,18 @@ public class ShooterTuning extends LinearOpMode {
 
         final int CYCLE_MS = 10;
 
-
-        flywheel = hardwareMap.get(DcMotorEx.class, "outtake_drive");
-        flywheel.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-
         shooter = new ShooterControl(hardwareMap);
+        flickServo = hardwareMap.get(Servo.class, "flick_servo");
 
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-        VoltageSensor myControlHubVoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
+        //VoltageSensor myControlHubVoltageSensor = hardwareMap.get(VoltageSensor.class, "Control Hub");
 
-        flywheel.setDirection(DcMotor.Direction.REVERSE);
+        VoltageSensor battery = hardwareMap.voltageSensor.iterator().next();
 
-        //VoltageSensor battery = hardwareMap.voltageSensor.iterator().next();
+        //TODO: in the tested code, hardwareMap.get voltagesensor was being used, but it's changed. test again
+
+
 
         double presentVoltage;
 
@@ -58,21 +51,28 @@ public class ShooterTuning extends LinearOpMode {
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            presentVoltage = myControlHubVoltageSensor.getVoltage();
+
+            presentVoltage = battery.getVoltage();
             shooter.setBatteryVoltage(presentVoltage);
 
             shooter.setTargetRPM(RobotConstants.TARGET_RPM);
+
             shooter.setKf(RobotConstants.kF);
             shooter.setKp(RobotConstants.kP);
             shooter.setKi(RobotConstants.kI);
             shooter.setKd(RobotConstants.kD);
+
             shooter.setMaxAccel(RobotConstants.maxAccel);
+
             //shooter.flywheelUpdate();
             shooter.flywheelHold();
 
+            if (gamepad2.y) {
+                flickServo.setPosition(0.0);
 
-
-
+            } else {
+                flickServo.setPosition(0.3);
+            }
 
 
             telemetry.addData("Status", "Run Time:" + runtime.toString());
@@ -84,7 +84,7 @@ public class ShooterTuning extends LinearOpMode {
 
             telemetry.update();
 
-            //sleep(CYCLE_MS);
+            sleep(CYCLE_MS);
 
             if (!opModeIsActive()) {
 

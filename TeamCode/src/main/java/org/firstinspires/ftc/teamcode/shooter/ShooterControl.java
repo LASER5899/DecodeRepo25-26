@@ -71,6 +71,8 @@ public class ShooterControl {
 
         flywheel = hwMap.get(DcMotorEx.class, "outtake_drive");
         flywheel.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        flywheel.setDirection(DcMotorEx.Direction.REVERSE); // pick the correct one
+
         timer.reset();
     }
     public double rpmToPower(double targetRPM, double dt)  {
@@ -104,7 +106,9 @@ public class ShooterControl {
 
     public void flywheelUpdate() {
 
-       double dt = Range.clip(timer.seconds(), 0, 0.05);
+        double dt = timer.seconds();
+        dt = Range.clip(dt, 0.005, 0.05);
+       //double dt = Math.max(dt, 0.005);
 
        double holdTop = timerTop.seconds();
 
@@ -156,8 +160,9 @@ public class ShooterControl {
 
     public void flywheelHold(){
 
-        double dt = Range.clip(timer.seconds(), 0, 0.05);
-
+        //double dt = Range.clip(timer.seconds(), 0, 0.05);
+        double dt = timer.seconds();
+        dt = Range.clip(dt, 0.005, 0.05);
         double holdTop = timerTop.seconds();
 
         correctPow = rpmToPower(targetRPM, dt);

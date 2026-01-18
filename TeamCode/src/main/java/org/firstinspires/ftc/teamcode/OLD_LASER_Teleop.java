@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name="LASER Main Teleop", group="Linear OpMode")
+@TeleOp(name="LASER Old Teleop 1", group="Linear OpMode")
 @Disabled
 public class OLD_LASER_Teleop extends LinearOpMode {
 

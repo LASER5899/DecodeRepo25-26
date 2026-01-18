@@ -1,11 +1,18 @@
 package org.firstinspires.ftc.teamcode;
+import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
+import org.firstinspires.ftc.teamcode.tuning.shooter.RobotConstants;
+
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
 
-@TeleOp(name="Qualifier Teleop", group="Linear OpMode")
-public class Qualifier_Teleop extends LinearOpMode {
+@TeleOp(name="Teleop w Flywheel", group="Linear OpMode")
+public class Teleop_Flywheel_Control extends LinearOpMode {
+
+
 
 
     private DcMotor leftFrontDrive;
@@ -19,8 +26,21 @@ public class Qualifier_Teleop extends LinearOpMode {
     private Servo transferServo;
     private Servo flickServo;
 
+    private DcMotorEx flywheel;
+    VoltageSensor battery;
+    private ShooterControl shooter;
+
     @Override
     public void runOpMode() {
+
+        double presentVoltage;
+
+        VoltageSensor battery = hardwareMap.voltageSensor.iterator().next();
+
+        shooter = new ShooterControl(hardwareMap);
+        flywheel = hardwareMap.get(DcMotorEx.class, "outtake_drive");
+        flywheel.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        flywheel.setDirection(DcMotorEx.Direction.REVERSE);
 
         final int CYCLE_MS = 50;
 
@@ -100,6 +120,20 @@ public class Qualifier_Teleop extends LinearOpMode {
         double rightBackPower = 0;
         while (opModeIsActive()) {
 
+            presentVoltage = battery.getVoltage();
+            shooter.setBatteryVoltage(presentVoltage);
+
+            shooter.setTargetRPM(RobotConstants.TARGET_RPM);
+
+            shooter.setKf(RobotConstants.kF);
+            shooter.setKp(RobotConstants.kP);
+            shooter.setKi(RobotConstants.kI);
+            shooter.setKd(RobotConstants.kD);
+
+            shooter.setMaxAccel(RobotConstants.maxAccel);
+
+            shooter.flywheelHold();
+
             // KEYBINDS
             /*
              * 1) Axial:    Driving axial and backward               Left-joystick axial/Backward
@@ -122,7 +156,7 @@ public class Qualifier_Teleop extends LinearOpMode {
             double axial = -C_AXIAL;  // Note: pushing stick axial gives negative value
             double lateral = C_LATERAL;
             double yaw = C_YAW;
-            
+
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
@@ -201,7 +235,7 @@ public class Qualifier_Teleop extends LinearOpMode {
                 intakeServo.setPosition(0.5);
             }
 
-           if (C_MOVE_LEFT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
+            if (C_MOVE_LEFT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
                 transferServo.setPosition(tranferPosAIn);
             } else if (C_MOVE_RIGHT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
                 transferServo.setPosition(tranferPosAOut);
@@ -255,12 +289,12 @@ public class Qualifier_Teleop extends LinearOpMode {
                     flickServo.setPosition(setFlickPos);
                 }
 */
-            if (gamepad2.a && !prevG2A) {
+            /*if (gamepad2.a && !prevG2A) {
                 outtakeMotorPower -= 0.05;
             } else if (gamepad2.b && !prevG2B) {
                 outtakeMotorPower += 0.05;
             }
-            outtake_motor.setPower(outtakeMotorPower);
+            outtake_motor.setPower(outtakeMotorPower);*/
             prevG2A = gamepad2.a;
             prevG2B = gamepad2.b;
 
