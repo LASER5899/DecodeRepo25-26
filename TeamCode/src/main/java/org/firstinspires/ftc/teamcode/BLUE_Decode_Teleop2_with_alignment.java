@@ -81,11 +81,15 @@ public class BLUE_Decode_Teleop2_with_alignment extends LinearOpMode {
         // when you first test your robot, push the left joystick axial and observe the direction the wheels turn.
         // Reverse the direction (flip axial <-> REVERSE ) of any wheel that runs backward
         // Keep testing until ALL the wheels move the robot axial when you push the left joystick axial.
+
+
+        //this sets the motor directions
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
+        //this makes them brake WAIT IS THIS THE BUG
         leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
