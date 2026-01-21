@@ -23,10 +23,11 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 
 
-
+//                   VISION CLASS
 
 /*
  *      This class is made to give the position of the goal relative to the robot.
@@ -34,7 +35,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
  *
  *       aprilTagSetUp(WebcamName camera) sets up the april tag runner with the camera needed. Please use this function to initialize before running the opMode
  *       scanForPattern() returns the game pattern as one of the options below. If the Pattern is currently none, it will scan for the tag and change it to
- *          Possible Patterns: Vision.Pattern.none, Vision.Pattern.PPG, Vision.Pattern.PGP, Vision.Pattern.GPP
+ *          Possible Patterns: "none" , "PPG" , "PGP" , "GPP".
  *       scanForTarget() Updates all values on the goal target.
  *
  *
@@ -342,6 +343,14 @@ public class Vision {
         } return -10000;
     }
 
+    // PLEASE REMOVE THIS FUNCTION AND PUT IT IN A DIFFERENT CLASS
+    public static void softStart(DcMotor dcMotor){
+        for(double i = 0; i<1;i=i+1){
+
+        }
+
+
+    }
 
 
 }

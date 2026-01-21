@@ -2,10 +2,15 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.*;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 
-@TeleOp(name="Qualifier Teleop", group="Linear OpMode")
-public class Qualifier_Teleop extends LinearOpMode {
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+
+
+@TeleOp(name="BLUE_Decode_Teleop_with_alignment", group="Linear OpMode")
+public class BLUE_Decode_Teleop2_with_alignment extends LinearOpMode {
+
 
 
     private DcMotor leftFrontDrive;
@@ -65,7 +70,6 @@ public class Qualifier_Teleop extends LinearOpMode {
         double tranferPosCOut = 0.647;
         double tranferPosAOut = 0.575;
         double tranferPosBOut = 0.497;
-        double i = 0;
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -77,15 +81,32 @@ public class Qualifier_Teleop extends LinearOpMode {
         // when you first test your robot, push the left joystick axial and observe the direction the wheels turn.
         // Reverse the direction (flip axial <-> REVERSE ) of any wheel that runs backward
         // Keep testing until ALL the wheels move the robot axial when you push the left joystick axial.
+
+
+        //this sets the motor directions
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
+        //this makes them brake WAIT IS THIS THE BUG
         leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        Vision camera = new Vision();
+        WebcamName cam1 = hardwareMap.get(WebcamName.class, "Camera1");
+        //camera.setCamera("Camera1");
+        camera.setTarget(Vision.Target.blue);
+        //Vision.DevModeOn();
+        camera.aprilTagSetUp(cam1);
+
+        double graceMargin = 0.2;
+        boolean alignValue = false;
+        double alignVal=10000;
+        double turnSpeed = 0.3;
+        double originValue=0;
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
@@ -122,7 +143,6 @@ public class Qualifier_Teleop extends LinearOpMode {
             double axial = -C_AXIAL;  // Note: pushing stick axial gives negative value
             double lateral = C_LATERAL;
             double yaw = C_YAW;
-            
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
@@ -143,7 +163,6 @@ public class Qualifier_Teleop extends LinearOpMode {
                 leftBackPower /= max;
                 rightBackPower /= max;
             }
-
 
             // This is test code:
             //
@@ -201,7 +220,9 @@ public class Qualifier_Teleop extends LinearOpMode {
                 intakeServo.setPosition(0.5);
             }
 
-           if (C_MOVE_LEFT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
+            /*if (flickServo.getPosition() >= 2) {
+                transferServo.setPosition(tranferPosAIn);
+            } else*/ if (C_MOVE_LEFT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
                 transferServo.setPosition(tranferPosAIn);
             } else if (C_MOVE_RIGHT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
                 transferServo.setPosition(tranferPosAOut);
@@ -264,6 +285,58 @@ public class Qualifier_Teleop extends LinearOpMode {
             prevG2A = gamepad2.a;
             prevG2B = gamepad2.b;
 
+            if (alignValue == false && gamepad1.x&& !(camera.alignmentValue() == -10000)) {
+                alignValue = true;
+
+                originValue=0;
+
+            }
+            if (!gamepad1.x && alignValue) {
+
+                alignVal = camera.alignmentValue();
+                if (!(alignVal < graceMargin&& alignVal > -graceMargin) && !gamepad1.x) {
+
+
+                    alignVal = camera.alignmentValue();
+                    if(originValue==0){
+                        originValue=alignVal;
+                    }
+                    if (!(alignVal == -10000)) {
+
+                        if (originValue<0&&alignVal < 0) {
+                            //turn left
+                            leftFrontDrive.setPower(-1 * turnSpeed);
+                            leftBackDrive.setPower(-1 * turnSpeed);
+                            rightFrontDrive.setPower(1 * turnSpeed);
+                            rightBackDrive.setPower(1 * turnSpeed);
+
+                            telemetry.addData("turning: ","left");
+
+                        } else if (originValue>0&&alignVal > 0) {
+                            //turnright
+                            leftFrontDrive.setPower(1 * turnSpeed);
+                            leftBackDrive.setPower(1 * turnSpeed);
+                            rightFrontDrive.setPower(-1 * turnSpeed);
+                            rightBackDrive.setPower(-1 * turnSpeed);
+                            telemetry.addData("turning: ","right");
+
+                        }
+                    }
+                }else {
+                    alignValue = false;
+                    leftFrontDrive.setPower(0);
+                    leftBackDrive.setPower(0);
+                    rightFrontDrive.setPower(0);
+                    rightFrontDrive.setPower(0);
+                    telemetry.addData("turning: ","none");
+
+                }
+
+            }
+
+
+
+
             // if some button and pA empty
             // move servo to pA
             // do we want it?
@@ -309,10 +382,12 @@ public class Qualifier_Teleop extends LinearOpMode {
 
             // Send calculated power to wheels
 
-            leftFrontDrive.setPower(leftFrontPower * speed * invDir);
-            rightFrontDrive.setPower(rightFrontPower * speed * invDir);
-            leftBackDrive.setPower(leftBackPower * speed * invDir);
-            rightBackDrive.setPower(rightBackPower * speed * invDir);
+            if(!alignValue) {
+                leftFrontDrive.setPower(leftFrontPower * speed * invDir);
+                rightFrontDrive.setPower(rightFrontPower * speed * invDir);
+                leftBackDrive.setPower(leftBackPower * speed * invDir);
+                rightBackDrive.setPower(rightBackPower * speed * invDir);
+            }
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower * speed * invDir, rightFrontPower * speed * invDir);
@@ -323,6 +398,9 @@ public class Qualifier_Teleop extends LinearOpMode {
             telemetry.addData("outtakePower", outtakeMotorPower);
             telemetry.addData("isEnter", isEnter);
             telemetry.addData("gamepad 2 x", gamepad2.x);
+            telemetry.addData("gamepad 1 x",gamepad1.x);
+            telemetry.addData("alignVal",alignVal);
+            telemetry.addData("alignValue",alignValue);
             telemetry.update();
 
             sleep(CYCLE_MS);

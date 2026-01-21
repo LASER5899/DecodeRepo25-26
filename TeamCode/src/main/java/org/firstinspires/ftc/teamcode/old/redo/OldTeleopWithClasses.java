@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@TeleOp(name="LASER Main Teleop", group="Linear OpMode")
+@TeleOp(name="Old LASER Main Teleop w classes", group="Linear OpMode")
 public class OldTeleopWithClasses extends LinearOpMode {
 
     private ElapsedTime runtime = new ElapsedTime();
