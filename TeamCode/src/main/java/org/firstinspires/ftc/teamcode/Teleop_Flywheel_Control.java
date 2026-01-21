@@ -9,6 +9,9 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
+
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
 @TeleOp(name="Teleop w Flywheel", group="Linear OpMode")
@@ -43,6 +46,8 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
         double presentVoltage;
 
         VoltageSensor battery = hardwareMap.voltageSensor.iterator().next();
+
+        ElapsedTime timer = new ElapsedTime();
 
         shooter = new ShooterControl(hardwareMap);
         flywheel = hardwareMap.get(DcMotorEx.class, "outtake_drive");
@@ -101,6 +106,10 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
         double tranferPosBOut = 0.497;
         double i = 0;
 
+        boolean spinningUp = true;
+        double flywheelAccel = 180;
+        double targRPM = 0;
+
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
         // ########################################################################################
@@ -134,12 +143,40 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
         double rightBackPower = 0;
         while (opModeIsActive()) {
 
+            distFromGoal = camera.centerDistanceCM();
+
             presentVoltage = battery.getVoltage();
             shooter.setBatteryVoltage(presentVoltage);
-            if (distFromGoal >= 75 && distFromGoal <= 85){shooter.setTargetRPM(900);}
-            if (distFromGoal >= 65 && distFromGoal < 75){shooter.setTargetRPM(880);}
-            if (distFromGoal >= 55 && distFromGoal < 65){shooter.setTargetRPM(860);}
-            if (distFromGoal >= 40 && distFromGoal < 54){shooter.setTargetRPM(840);}
+
+            if(targRPM < 920){
+                double dt = timer.seconds();
+                targRPM += dt * flywheelAccel;
+                Range.clip(targRPM, 0, 920);
+            }
+            else{
+                spinningUp = false;
+            }
+
+            if (!spinningUp) {
+                if (distFromGoal >= 90) {
+                    shooter.setTargetRPM(920);
+                } //lowkenuinely the rpm for >= 90 is a total guess
+                if (distFromGoal >= 75 && distFromGoal <= 85) {
+                    shooter.setTargetRPM(900);
+                }
+                if (distFromGoal >= 65 && distFromGoal < 75) {
+                    shooter.setTargetRPM(880);
+                }
+                if (distFromGoal >= 55 && distFromGoal < 65) {
+                    shooter.setTargetRPM(860);
+                }
+                if (distFromGoal >= 40 && distFromGoal < 54) {
+                    shooter.setTargetRPM(840);
+                }
+            }
+
+            shooter.setTargetRPM(targRPM);
+
             // total line 80
             // front wheels @ edge - 900 rpm / distance 80
             // front wheels @ 10, 880 rpm / distance 70
