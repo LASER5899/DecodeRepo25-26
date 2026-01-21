@@ -20,11 +20,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Vision;
 
-import java.util.Scanner;
-
-@Autonomous(name="new red side auto", group="auto")
+@Autonomous(name="new red side auto far", group="auto")
 //@Disabled
-public class newRedSideAuto extends LinearOpMode {
+public class newRedSideAutoFar extends LinearOpMode {
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
     //  applied to the drive motors to correct the error.
     //  Drive = Error * Gain    Make these values smaller for smoother control, or larger for a more aggressive response.
@@ -77,7 +75,7 @@ public class newRedSideAuto extends LinearOpMode {
         rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         outtake_motor = hardwareMap.get(DcMotor.class, "outtake_drive");
-        outtake_motor.setPower(-0.81);
+        outtake_motor.setPower(-0.85);
 
         intakeServo   = hardwareMap.get(Servo.class, "intake_servo");
         transferServo = hardwareMap.get(Servo.class, "transfer_servo");
@@ -112,32 +110,21 @@ public class newRedSideAuto extends LinearOpMode {
         telemetry.addData("Status", "Running");
         telemetry.update();
 
-        leftBackDrive.setPower(0.5);
-        leftFrontDrive.setPower(-0.4);
-        rightBackDrive.setPower(-0.4);
-        rightFrontDrive.setPower(0.5);
 
         String sequence = camera.scanForPattern();
-        while (sequence.equals("none")) {
+        while (sequence.equals("none") && runtime.milliseconds() < 5000) {
             sequence = camera.scanForPattern();
         }
+        if (sequence.equals("none")) {
+            sequence = "GPP";
+        }
 
-        leftBackDrive.setPower(-0.3);
-        leftFrontDrive.setPower(-0.3);
-        rightBackDrive.setPower(0.0);
-        rightFrontDrive.setPower(0.0);
-        sleep(3300);
-        leftBackDrive.setPower(0.3);
-        leftFrontDrive.setPower(-0.3);
-        rightBackDrive.setPower(-0.3);
+        leftBackDrive.setPower(0.0);
+        leftFrontDrive.setPower(0.0);
+        rightBackDrive.setPower(0.3);
         rightFrontDrive.setPower(0.3);
-        sleep(2000);
-        leftBackDrive.setPower(0.0);
-        leftFrontDrive.setPower(-0.2);
-        rightBackDrive.setPower(0.0);
-        rightFrontDrive.setPower(0.2);
-        sleep(150);
-        leftBackDrive.setPower(0.0);
+        sleep(750);
+        rightFrontDrive.setPower(0.0);
         rightBackDrive.setPower(0.0);
         if (sequence.equals("GPP")) {
             transferServo.setPosition(tranferPosAOut);
@@ -150,8 +137,10 @@ public class newRedSideAuto extends LinearOpMode {
         flickServo.setPosition(0.0);
         sleep(500);
         flickServo.setPosition(0.3);
-        outtake_motor.setPower(-0.83);
-        sleep(4000);
+        outtake_motor.setPower(-1.0);
+        sleep(2000);
+        outtake_motor.setPower(-0.85);
+        sleep(2000);
         if (sequence.equals("GPP")) {
             transferServo.setPosition(tranferPosBOut);
         } else if (sequence.equals("PGP")){
@@ -163,8 +152,10 @@ public class newRedSideAuto extends LinearOpMode {
         flickServo.setPosition(0.0);
         sleep(500);
         flickServo.setPosition(0.3);
+        outtake_motor.setPower(-1.0);
+        sleep(2000);
         outtake_motor.setPower(-0.85);
-        sleep(4000);
+        sleep(2000);
         if (sequence.equals("GPP")) {
             transferServo.setPosition(tranferPosCOut);
         } else if (sequence.equals("PGP")){

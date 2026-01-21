@@ -23,10 +23,11 @@ import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 
 
-
+//                   VISION CLASS
 
 /*
  *      This class is made to give the position of the goal relative to the robot.
@@ -34,7 +35,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
  *
  *       aprilTagSetUp(WebcamName camera) sets up the april tag runner with the camera needed. Please use this function to initialize before running the opMode
  *       scanForPattern() returns the game pattern as one of the options below. If the Pattern is currently none, it will scan for the tag and change it to
- *          Possible Patterns: Vision.Pattern.none, Vision.Pattern.PPG, Vision.Pattern.PGP, Vision.Pattern.GPP
+ *          Possible Patterns: "none" , "PPG" , "PGP" , "GPP".
  *       scanForTarget() Updates all values on the goal target.
  *
  *
@@ -187,7 +188,16 @@ public class Vision {
     }
 
     public double centerDistanceCM() {
-        return 0.0;
+
+        scanForTarget();
+        double centerDistance;
+        if (range == -1.0) {
+            centerDistance = -1;
+        } else {
+            centerDistance = Math.sqrt(TAG_TO_CENTER * TAG_TO_CENTER + range * range - 2 * TAG_TO_CENTER * range * Math.cos(Math.toRadians(180 - yaw)));
+        }
+
+        return centerDistance;
     }
 
     public double horizAngle() {
@@ -302,7 +312,7 @@ public class Vision {
     public String scanForPattern() {
 
 
-        if (gamePattern == "none" && !tagProcessor.getDetections().isEmpty()) {
+        if (gamePattern.equals("none") && !tagProcessor.getDetections().isEmpty()) {
             //telemetry.addLine("Not empty yo :)")
 
             tag = tagProcessor.getDetections().get(0);
@@ -324,22 +334,23 @@ public class Vision {
 
     }
 
-    public int align() {
+    public double alignmentValue() {
         scanForTarget();
         if (range != -1) {
             double degrees_to_center = Math.toDegrees(Math.asin(TAG_TO_CENTER * Math.sin(180 - yaw) / centerDistanceCM()));
             double bearing = getBearing();
-            if (degrees_to_center < bearing) {
-                return -1;
-            }
-            if (degrees_to_center > bearing) {
-                return 1;
-            } else {
-                return 3;
-            }
-        } return 0;
+            return degrees_to_center - bearing;
+        } return -10000;
     }
 
+    // PLEASE REMOVE THIS FUNCTION AND PUT IT IN A DIFFERENT CLASS
+    public static void softStart(DcMotor dcMotor){
+        for(double i = 0; i<1;i=i+1){
+
+        }
+
+
+    }
 
 
 }

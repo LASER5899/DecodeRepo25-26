@@ -20,9 +20,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Vision;
 
-@Autonomous(name="new blue side auto far", group="auto")
+@Autonomous(name="red side auto far to center", group="auto")
 //@Disabled
-public class newBlueSideAutoFar extends LinearOpMode {
+public class farCenterAutoRed extends LinearOpMode {
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
     //  applied to the drive motors to correct the error.
     //  Drive = Error * Gain    Make these values smaller for smoother control, or larger for a more aggressive response.
@@ -75,22 +75,22 @@ public class newBlueSideAutoFar extends LinearOpMode {
         rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         outtake_motor = hardwareMap.get(DcMotor.class, "outtake_drive");
-        outtake_motor.setPower(-0.85);
+        outtake_motor.setPower(-0.615);
 
         intakeServo   = hardwareMap.get(Servo.class, "intake_servo");
         transferServo = hardwareMap.get(Servo.class, "transfer_servo");
         flickServo    = hardwareMap.get(Servo.class, "flick_servo");
         flickServo.setPosition(0.3);
-        double tranferPosA = 0.68;
-        double tranferPosB = 0.61;
-        double tranferPosC = 0.535;
-        double tranferPosCOut = 0.647;
-        double tranferPosAOut = 0.575;
-        double tranferPosBOut = 0.497;
+        double transferPosA = 0.68;
+        double transferPosB = 0.61;
+        double transferPosC = 0.535;
+        double transferPosCOut = 0.647;
+        double transferPosAOut = 0.575;
+        double transferPosBOut = 0.497;
 
         WebcamName cam1 = hardwareMap.get(WebcamName.class, "Camera1");
         camera.aprilTagSetUp(cam1);
-        camera.setTarget(Vision.Target.blue);
+        camera.setTarget(Vision.Target.red);
 
         // Get a reference to the sensor
         myOtos = hardwareMap.get(SparkFunOTOS.class, "sensor_otos");
@@ -110,6 +110,16 @@ public class newBlueSideAutoFar extends LinearOpMode {
         telemetry.addData("Status", "Running");
         telemetry.update();
 
+        leftFrontDrive.setPower(0.5);
+        leftBackDrive.setPower(0.5);
+        rightFrontDrive.setPower(0.5);
+        rightBackDrive.setPower(0.5);
+        sleep(2100);
+        leftFrontDrive.setPower(0);
+        leftBackDrive.setPower(0);
+        rightFrontDrive.setPower(0);
+        rightBackDrive.setPower(0);
+        sleep(500);
 
         String sequence = camera.scanForPattern();
         while (sequence.equals("none") && runtime.milliseconds() < 5000) {
@@ -119,55 +129,125 @@ public class newBlueSideAutoFar extends LinearOpMode {
             sequence = "GPP";
         }
 
-        leftBackDrive.setPower(0.3);
-        leftFrontDrive.setPower(0.3);
-        rightBackDrive.setPower(0.0);
-        rightFrontDrive.setPower(0.0);
-        sleep(750);
-        leftFrontDrive.setPower(0.0);
-        leftBackDrive.setPower(0.0);
+        //Vision.DevModeOn();
+        waitForStart();
+        boolean alignValue = false;
+        double alignVal=10000;
+        double turnSpeed = 0.1;
+        double graceMargin = 0.1;
+        /*
+         *  Hi this is Juliette speaking.
+         *   We could potentially fix this bug if we turn to the left a little bit
+         * and stop till we detect the april tag
+         * before we run the align value counter
+         * that way it will be able to see it.
+         *
+         * i also turned speed down so it should be more acurate.
+         *
+         * Good luck!!!ds
+         *
+         * */
+        int counter = 0;
+        while (counter < 5000) {
+
+            telemetry.addData("AlignVal",alignVal);
+            //telemetry.addData("x button: ",gamepad1.x);
+
+            alignVal = camera.alignmentValue();
+            if (!(alignVal < graceMargin && alignVal > -graceMargin)) {
+                alignVal = camera.alignmentValue();
+                if (!(alignVal == -10000)) {
+
+                    if (alignVal - 4 < 0) {
+                        //turn left
+                        leftFrontDrive.setPower(1 * turnSpeed);
+                        leftBackDrive.setPower(1 * turnSpeed);
+                        rightFrontDrive.setPower(-1 * turnSpeed);
+                        rightBackDrive.setPower(-1 * turnSpeed);
+
+                        telemetry.addData("turning: ","left");
+
+                    } else if (alignVal - 4 > 0) {
+                        //turn right
+                        leftFrontDrive.setPower(-1 * turnSpeed);
+                        leftBackDrive.setPower(-1 * turnSpeed);
+                        rightFrontDrive.setPower(1 * turnSpeed);
+                        rightBackDrive.setPower(1 * turnSpeed);
+                        telemetry.addData("turning: ","right");
+
+                    }
+                } else if (counter < 1500) {
+                    leftFrontDrive.setPower(-1 * turnSpeed);
+                    leftBackDrive.setPower(-1 * turnSpeed);
+                    rightFrontDrive.setPower(1 * turnSpeed);
+                    rightBackDrive.setPower(1 * turnSpeed);
+                }
+            } else {
+                leftFrontDrive.setPower(0);
+                leftBackDrive.setPower(0);
+                rightFrontDrive.setPower(0);
+                rightBackDrive.setPower(0);
+                telemetry.addData("turning: ","none");
+                break;
+            }
+
+            sleep(1);
+            counter++;
+            telemetry.update();
+        }
+
+        leftFrontDrive.setPower(0);
+        leftBackDrive.setPower(0);
+        rightFrontDrive.setPower(0);
+        rightBackDrive.setPower(0);
+
         if (sequence.equals("GPP")) {
-            transferServo.setPosition(tranferPosAOut);
+            transferServo.setPosition(transferPosAOut);
         } else if (sequence.equals("PGP")){
-            transferServo.setPosition(tranferPosBOut);
+            transferServo.setPosition(transferPosBOut);
         } else {
-            transferServo.setPosition(tranferPosBOut);
+            transferServo.setPosition(transferPosBOut);
         }
         sleep(1500);
         flickServo.setPosition(0.0);
         sleep(500);
         flickServo.setPosition(0.3);
-        outtake_motor.setPower(-1.0);
         sleep(2000);
-        outtake_motor.setPower(-0.85);
-        sleep(2000);
+
         if (sequence.equals("GPP")) {
-            transferServo.setPosition(tranferPosBOut);
+            transferServo.setPosition(transferPosBOut);
         } else if (sequence.equals("PGP")){
-            transferServo.setPosition(tranferPosAOut);
+            transferServo.setPosition(transferPosAOut);
         } else {
-            transferServo.setPosition(tranferPosCOut);
+            transferServo.setPosition(transferPosCOut);
         }
         sleep(1500);
         flickServo.setPosition(0.0);
         sleep(500);
         flickServo.setPosition(0.3);
-        outtake_motor.setPower(-1.0);
         sleep(2000);
-        outtake_motor.setPower(-0.85);
-        sleep(2000);
+
         if (sequence.equals("GPP")) {
-            transferServo.setPosition(tranferPosCOut);
+            transferServo.setPosition(transferPosCOut);
         } else if (sequence.equals("PGP")){
-            transferServo.setPosition(tranferPosCOut);
+            transferServo.setPosition(transferPosCOut);
         } else {
-            transferServo.setPosition(tranferPosAOut);
+            transferServo.setPosition(transferPosAOut);
         }
         sleep(1500);
         flickServo.setPosition(0.0);
         sleep(500);
         flickServo.setPosition(0.3);
         sleep(500);
+        leftFrontDrive.setPower(0.5);
+        leftBackDrive.setPower(-0.5);
+        rightFrontDrive.setPower(-0.5);
+        rightBackDrive.setPower(0.5);
+        sleep(500);
+        leftFrontDrive.setPower(0);
+        leftBackDrive.setPower(0);
+        rightFrontDrive.setPower(0);
+        rightBackDrive.setPower(0);
 
         //otosDrive(2, 2, 0, 2);      // small move forward and right away from wall
 
@@ -176,7 +256,6 @@ public class newBlueSideAutoFar extends LinearOpMode {
         //otosDrive(-87, 24, 0, 4);   // backup straight
         //otosDrive(-87, 4, 0, 2);    // park in observation zone
 
-        sleep(1000);
     }
 
     private void configureOtos() {
