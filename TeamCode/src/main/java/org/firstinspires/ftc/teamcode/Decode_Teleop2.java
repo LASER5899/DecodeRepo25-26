@@ -51,9 +51,12 @@ public class Decode_Teleop2 extends LinearOpMode {
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
 
         outtake_motor = hardwareMap.get(DcMotor.class, "outtake_drive");
-        double outtakeMotorPower = -0.75;
+        double outtakeMotorPower = 0.0;
         boolean prevG2A = false;
         boolean prevG2B = false;
+        double i = 0;
+
+
 
         intakeServo = hardwareMap.get(Servo.class, "intake_servo");
         transferServo = hardwareMap.get(Servo.class, "transfer_servo");
@@ -158,6 +161,10 @@ public class Decode_Teleop2 extends LinearOpMode {
             rightFrontPower = gamepad1.dpad_up ? 1.0 : 0.0;  // up gamepad
             rightBackPower  = gamepad1.dpad_right ? 1.0 : 0.0;  // right gamepad
             */
+            for (i = 0; i > -0.7; i = i - 0.01) {
+                outtake_motor.setPower(i);
+            }
+
 
             // HALF SPEED CONTROLS
             if (C_HALF_SPEED) {
@@ -198,9 +205,10 @@ public class Decode_Teleop2 extends LinearOpMode {
                 intakeServo.setPosition(0.5);
             }
 
-            /*if (flickServo.getPosition() >= 2) {
+            /*if (flickServo.getPosition() >= 2) { 
                 transferServo.setPosition(tranferPosAIn);
-            } else*/ if (C_MOVE_LEFT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
+            } else*/
+            if (C_MOVE_LEFT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
                 transferServo.setPosition(tranferPosAIn);
             } else if (C_MOVE_RIGHT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
                 transferServo.setPosition(tranferPosAOut);
@@ -239,7 +247,7 @@ public class Decode_Teleop2 extends LinearOpMode {
             //if (flickServo.getPosition() >= 2.5)
 
             if (gamepad2.y) {
-                flickServo.setPosition(0.0);
+                flickServo.setPosition(0.1);
                 isEnter = true;
             } else {
                 flickServo.setPosition(0.3);

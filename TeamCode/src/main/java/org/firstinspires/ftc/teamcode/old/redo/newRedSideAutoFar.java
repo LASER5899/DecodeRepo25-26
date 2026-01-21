@@ -133,14 +133,14 @@ public class newRedSideAutoFar extends LinearOpMode {
         } else {
             transferServo.setPosition(tranferPosBOut);
         }
-        sleep(1500);
+         sleep(500);
         flickServo.setPosition(0.0);
-        sleep(500);
+        sleep(250);
         flickServo.setPosition(0.3);
         outtake_motor.setPower(-1.0);
-        sleep(2000);
+        sleep(500);
         outtake_motor.setPower(-0.85);
-        sleep(2000);
+        sleep(500);
         if (sequence.equals("GPP")) {
             transferServo.setPosition(tranferPosBOut);
         } else if (sequence.equals("PGP")){
