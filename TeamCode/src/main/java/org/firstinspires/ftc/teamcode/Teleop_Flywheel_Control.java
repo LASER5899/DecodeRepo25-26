@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
 import org.firstinspires.ftc.teamcode.tuning.shooter.RobotConstants;
 
@@ -8,6 +9,7 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
 @TeleOp(name="Teleop w Flywheel", group="Linear OpMode")
 public class Teleop_Flywheel_Control extends LinearOpMode {
@@ -29,9 +31,14 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
     private DcMotorEx flywheel;
     VoltageSensor battery;
     private ShooterControl shooter;
+    public Vision camera = new Vision();
 
     @Override
     public void runOpMode() {
+
+        WebcamName cam1 = hardwareMap.get(WebcamName.class, "Camera1");
+        camera.setTarget(Vision.Target.red);
+        camera.aprilTagSetUp(cam1);
 
         double presentVoltage;
 
@@ -349,6 +356,7 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
             rightBackDrive.setPower(rightBackPower * speed * invDir);
 
             // Show the elapsed game time and wheel power.
+            telemetry.addData("CM from Center of Red Goal: ", camera.centerDistanceCM());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower * speed * invDir, rightFrontPower * speed * invDir);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower * speed * invDir, rightBackPower * speed * invDir);
             telemetry.addData("Speed", "%4.2f", speed);
