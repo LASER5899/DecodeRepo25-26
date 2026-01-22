@@ -80,7 +80,7 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
         double setFlickPos = 1;
 
         double C_LATERAL, C_AXIAL, C_YAW;
-        boolean C_HALF_SPEED, C_INV_DIR, C_INTAKE, C_TRANSFER_PA, C_TRANSFER_PB, C_TRANSFER_PC, C_FLICK = false, C_MOVE_LEFT, C_MOVE_RIGHT;
+        boolean C_HALF_SPEED, C_INV_DIR, SET_RPM, C_INTAKE, C_TRANSFER_PA, C_TRANSFER_PB, C_TRANSFER_PC, C_FLICK = false, C_MOVE_LEFT, C_MOVE_RIGHT;
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
@@ -143,54 +143,7 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
         double rightBackPower = 0;
         while (opModeIsActive()) {
 
-            distFromGoal = camera.centerDistanceCM();
 
-            presentVoltage = battery.getVoltage();
-            shooter.setBatteryVoltage(presentVoltage);
-
-            if(targRPM < 920){
-                double dt = timer.seconds();
-                targRPM += dt * flywheelAccel;
-                Range.clip(targRPM, 0, 920);
-            }
-            else{
-                spinningUp = false;
-            }
-
-            if (!spinningUp) {
-                if (distFromGoal >= 90) {
-                    shooter.setTargetRPM(920);
-                } //lowkenuinely the rpm for >= 90 is a total guess
-                if (distFromGoal >= 75 && distFromGoal <= 85) {
-                    shooter.setTargetRPM(900);
-                }
-                if (distFromGoal >= 65 && distFromGoal < 75) {
-                    shooter.setTargetRPM(880);
-                }
-                if (distFromGoal >= 55 && distFromGoal < 65) {
-                    shooter.setTargetRPM(860);
-                }
-                if (distFromGoal >= 40 && distFromGoal < 54) {
-                    shooter.setTargetRPM(840);
-                }
-            }
-
-            shooter.setTargetRPM(targRPM);
-
-            // total line 80
-            // front wheels @ edge - 900 rpm / distance 80
-            // front wheels @ 10, 880 rpm / distance 70
-            // front wheels @ 20, 860 rpm / distance 60
-            // front wheels @ 33, 840 rpm question mark / distance 47
-
-            shooter.setKf(RobotConstants.kF);
-            shooter.setKp(RobotConstants.kP);
-            shooter.setKi(RobotConstants.kI);
-            shooter.setKd(RobotConstants.kD);
-
-            shooter.setMaxAccel(RobotConstants.maxAccel);
-
-            shooter.flywheelHold();
 
             // KEYBINDS
             /*
@@ -207,6 +160,7 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
             C_FLICK = gamepad2.y;
             C_MOVE_LEFT = gamepad2.dpad_left;
             C_MOVE_RIGHT = gamepad2.dpad_right;
+            SET_RPM = gamepad2.dpad_up;
 
             double max;
 
@@ -286,6 +240,87 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
                 keyB = false;
             }
 
+
+
+
+
+            distFromGoal = camera.centerDistanceCM();
+
+            presentVoltage = battery.getVoltage();
+            shooter.setBatteryVoltage(presentVoltage);
+
+            if(spinningUp){
+                double dt = timer.seconds();
+                targRPM += dt * flywheelAccel;
+                targRPM = Range.clip(targRPM, 0, 940);
+                if (targRPM >= 920){spinningUp =false;}
+            }
+            //if(!spinningUp && (distFromGoal != -1)){targRPM = (0.560459*distFromGoal)+760.13857;}
+            if(!spinningUp && (distFromGoal != -1)){targRPM = (0.560459*distFromGoal)+750.13857;}
+
+            /*NEW DATA
+            lower ish end
+            865 / 263
+            860 / 243
+            850 / 225
+            830 / 213
+            830 / 202
+            825 / 188
+            820 / 174
+            810 / 162
+
+            805 / 147
+            825 / 134
+            815 / 123
+
+
+            NEW LINE
+            NEW KF
+            0.0105
+            384 - 1055
+            */
+
+            targRPM = Range.clip(targRPM, 0, 945);
+
+            shooter.setTargetRPM(targRPM);
+
+
+            /*if (!spinningUp && SET_RPM) {
+                if (distFromGoal >= (245)) { // ish
+                    targRPM = 940;
+                } //lowkenuinely the rpm for >= 90 is a total guess
+                if (distFromGoal >= (220) && distFromGoal < (245)) { //230
+                    targRPM = 900;
+                }
+                if (distFromGoal >= (200) && distFromGoal < (220)) { //212
+                    targRPM = 880;
+                }
+                if (distFromGoal >= (165) && distFromGoal < (200)) { //175
+                    targRPM = 860;
+                }
+                if (distFromGoal < (165) && distFromGoal != -1) { //158
+                    targRPM = 840;
+                }
+            }*/
+
+
+
+
+            // total line 80
+            // front wheels @ edge - 900 rpm / distance 80
+            // front wheels @ 10, 880 rpm / distance 70
+            // front wheels @ 20, 860 rpm / distance 60
+            // front wheels @ 33, 840 rpm question mark / distance 47
+
+            shooter.setKf(RobotConstants.kF);
+            shooter.setKp(RobotConstants.kP);
+            shooter.setKi(RobotConstants.kI);
+            shooter.setKd(RobotConstants.kD);
+
+            shooter.setMaxAccel(RobotConstants.maxAccel);
+
+            shooter.flywheelHold();
+
             if (gamepad2.x) {
                 intakeServo.setPosition(0.0);
                 isEnter = true;
@@ -324,15 +359,15 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
             rightBackDrive.setPower(rightBackPower * speed * invDir);
 
             // Show the elapsed game time and wheel power.
-            telemetry.addData("CM from Center of Red Goal: ", camera.centerDistanceCM());
+            telemetry.addData("Distance from Center of Red Goal (cm): ", camera.centerDistanceCM());
+            telemetry.addData("target RPM", targRPM);
+            telemetry.addData("flywheel measured velocity", flywheel.getVelocity());
+
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower * speed * invDir, rightFrontPower * speed * invDir);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower * speed * invDir, rightBackPower * speed * invDir);
             telemetry.addData("Speed", "%4.2f", speed);
             telemetry.addData("Invert Direction", "%1b", invertDir);
-            telemetry.addData("flickServo", flickServo.getPosition());
-            telemetry.addData("outtakePower", outtakeMotorPower);
-            telemetry.addData("isEnter", isEnter);
-            telemetry.addData("gamepad 2 x", gamepad2.x);
+
             telemetry.update();
 
             sleep(CYCLE_MS);
