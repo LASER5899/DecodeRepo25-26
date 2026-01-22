@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
 import org.firstinspires.ftc.teamcode.tuning.shooter.RobotConstants;
 
@@ -8,6 +9,10 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
 @TeleOp(name="Teleop w Flywheel", group="Linear OpMode")
 public class Teleop_Flywheel_Control extends LinearOpMode {
@@ -29,13 +34,20 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
     private DcMotorEx flywheel;
     VoltageSensor battery;
     private ShooterControl shooter;
+    public Vision camera = new Vision();
 
     @Override
     public void runOpMode() {
 
+        WebcamName cam1 = hardwareMap.get(WebcamName.class, "Camera1");
+        camera.setTarget(Vision.Target.red);
+        camera.aprilTagSetUp(cam1);
+
         double presentVoltage;
 
         VoltageSensor battery = hardwareMap.voltageSensor.iterator().next();
+
+        ElapsedTime timer = new ElapsedTime();
 
         shooter = new ShooterControl(hardwareMap);
         flywheel = hardwareMap.get(DcMotorEx.class, "outtake_drive");
@@ -56,6 +68,13 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
         double position4 = 0.575;
         double position5 = 0.535;
         double position6 = 0.497;
+
+        double distFromGoal = 0;
+        // total line 80
+        // front wheels @ edge - 900 rpm / distance 80
+        // front wheels @ 10, 880 rpm / distance 70
+        // front wheels @ 20, 860 rpm /
+        // front wheels @ 33, 840 rpm question mark
 
         boolean isEnter = false;
         double setFlickPos = 1;
@@ -86,6 +105,10 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
         double tranferPosAOut = 0.575;
         double tranferPosBOut = 0.497;
         double i = 0;
+
+        boolean spinningUp = true;
+        double flywheelAccel = 180;
+        double targRPM = 0;
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -120,10 +143,45 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
         double rightBackPower = 0;
         while (opModeIsActive()) {
 
+            distFromGoal = camera.centerDistanceCM();
+
             presentVoltage = battery.getVoltage();
             shooter.setBatteryVoltage(presentVoltage);
 
-            shooter.setTargetRPM(RobotConstants.TARGET_RPM);
+            if(targRPM < 920){
+                double dt = timer.seconds();
+                targRPM += dt * flywheelAccel;
+                Range.clip(targRPM, 0, 920);
+            }
+            else{
+                spinningUp = false;
+            }
+
+            if (!spinningUp) {
+                if (distFromGoal >= 90) {
+                    shooter.setTargetRPM(920);
+                } //lowkenuinely the rpm for >= 90 is a total guess
+                if (distFromGoal >= 75 && distFromGoal <= 85) {
+                    shooter.setTargetRPM(900);
+                }
+                if (distFromGoal >= 65 && distFromGoal < 75) {
+                    shooter.setTargetRPM(880);
+                }
+                if (distFromGoal >= 55 && distFromGoal < 65) {
+                    shooter.setTargetRPM(860);
+                }
+                if (distFromGoal >= 40 && distFromGoal < 54) {
+                    shooter.setTargetRPM(840);
+                }
+            }
+
+            shooter.setTargetRPM(targRPM);
+
+            // total line 80
+            // front wheels @ edge - 900 rpm / distance 80
+            // front wheels @ 10, 880 rpm / distance 70
+            // front wheels @ 20, 860 rpm / distance 60
+            // front wheels @ 33, 840 rpm question mark / distance 47
 
             shooter.setKf(RobotConstants.kF);
             shooter.setKp(RobotConstants.kP);
@@ -250,29 +308,6 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
             }
 
 
-       /*     }  if (C_MOVE_RIGHT && position1 == tranferPosAIn) {
-                transferServo.setPosition(tranferPosCOut);
-            } else if (C_MOVE_RIGHT && position2 == tranferPosCOut) {
-                transferServo.setPosition(tranferPosBIn);
-            } else if (C_MOVE_RIGHT && position3 == tranferPosBIn) {
-                transferServo.setPosition(tranferPosAOut);
-            } else if (C_MOVE_RIGHT && position4 == tranferPosAOut) {
-                transferServo.setPosition(tranferPosCIn);
-            } else if (C_MOVE_RIGHT && position5 == tranferPosCIn) {
-                transferServo.setPosition(tranferPosBOut);
-            } else if (C_MOVE_LEFT && position6 == tranferPosBOut) {
-                transferServo.setPosition(tranferPosCIn);
-            } else if (C_MOVE_LEFT && position1 == tranferPosCIn) {
-                transferServo.setPosition(tranferPosAOut);
-            } else if (C_MOVE_LEFT && position1 == tranferPosAOut) {
-                transferServo.setPosition(tranferPosBIn);
-            } else if (C_MOVE_LEFT && position1 == tranferPosBIn) {
-                transferServo.setPosition(tranferPosCOut);
-            } else if (C_MOVE_LEFT && position1 == tranferPosCOut) {
-                transferServo.setPosition(tranferPosAIn);
-        */
-            //if (flickServo.getPosition() >= 2.5)
-
             if (gamepad2.y) {
                 flickServo.setPosition(0.0);
                 isEnter = true;
@@ -280,66 +315,6 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
                 flickServo.setPosition(0.3);
             }
 
-             /*   if (C_FLICK) { //TODO: we switched the 0.0 and 0.3 to debug and also changed it from 0.3
-                   // flickServo.setPosition(0.3);
-                    setFlickPos = setFlickPos + 1;
-                    flickServo.setPosition(setFlickPos);
-                } else {
-                    //flickServo.setPosition(0.0);
-                    flickServo.setPosition(setFlickPos);
-                }
-*/
-            /*if (gamepad2.a && !prevG2A) {
-                outtakeMotorPower -= 0.05;
-            } else if (gamepad2.b && !prevG2B) {
-                outtakeMotorPower += 0.05;
-            }
-            outtake_motor.setPower(outtakeMotorPower);*/
-            prevG2A = gamepad2.a;
-            prevG2B = gamepad2.b;
-
-            // if some button and pA empty
-            // move servo to pA
-            // do we want it?
-            // set pA color to whatever color color sensor has
-            // intake
-            // move servo home
-            // no?
-            // spit it out
-            // if some other button and pB empty
-            // move servo to pB
-            // do we want it?
-            // set pA color to whatever color color sensor has
-            // intake
-            // move servo home
-            // no?
-            // spit it out
-            // if some other button and pC empty
-            // move servo to pC
-            // do we want it?
-            // set pA color to whatever color color sensor has
-            // intake
-            // move servo home
-            // no?
-            // spit it out
-
-            // if some other button
-            // find an empty slot
-            // move servo
-            // intake
-            // move servo home
-
-            // if outtake green button
-            // does A have green?
-            // outtake A
-            // does B have green?
-            // outtake B
-            // does C have green?
-            // outtake C
-            // else
-            // flash lights red
-            // if outtake purple button
-            // same sequence but for purple
 
             // Send calculated power to wheels
 
@@ -349,6 +324,7 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
             rightBackDrive.setPower(rightBackPower * speed * invDir);
 
             // Show the elapsed game time and wheel power.
+            telemetry.addData("CM from Center of Red Goal: ", camera.centerDistanceCM());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower * speed * invDir, rightFrontPower * speed * invDir);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower * speed * invDir, rightBackPower * speed * invDir);
             telemetry.addData("Speed", "%4.2f", speed);

@@ -28,24 +28,33 @@ public class VisionTestEnvironment extends LinearOpMode {
     public void runOpMode() {
         WebcamName cam1 = hardwareMap.get(WebcamName.class, "Camera1");
 
-        camera.setTarget(Target.red);
+        camera.setTarget(Target.blue);
 
         waitForStart();
         camera.aprilTagSetUp(cam1);
-        boolean turnCodeOn = false;
+
         double alignVal=10000;
         leftFrontDrive = hardwareMap.get(DcMotor.class, "left_front_drive");
         leftBackDrive = hardwareMap.get(DcMotor.class, "left_back_drive");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
+
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
-        double turnSpeed = 0.2;
+
+        leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        double turnSpeed = 0.1;
         double originValue=0;
-        boolean notStop= false;
+
         boolean reached = false;
+        boolean turnCodeOn = false;
+
 
 
         while (opModeIsActive()) {
@@ -58,9 +67,13 @@ public class VisionTestEnvironment extends LinearOpMode {
 
 
             //Actual Code
+            if(gamepad1.y){
+                reached = true;
+                turnCodeOn = false;
+            }
             if (!turnCodeOn && gamepad1.x&& !(camera.alignmentValue() == -10000)) {
                 turnCodeOn = true;
-                originValue=0;
+                originValue = 0;
                 reached = false;
 
             }
@@ -68,7 +81,7 @@ public class VisionTestEnvironment extends LinearOpMode {
                 leftFrontDrive.setPower(0);
                 leftBackDrive.setPower(0);
                 rightFrontDrive.setPower(0);
-                rightFrontDrive.setPower(0);
+                rightBackDrive.setPower(0);
                 telemetry.addData("turning: ","none");
 
             }
@@ -86,7 +99,7 @@ public class VisionTestEnvironment extends LinearOpMode {
                 leftFrontDrive.setPower(0);
                 leftBackDrive.setPower(0);
                 rightFrontDrive.setPower(0);
-                rightFrontDrive.setPower(0);
+                rightBackDrive.setPower(0);
                 telemetry.addData("turning: ","none");
             }
             if (!gamepad1.x && turnCodeOn&&!reached) {
@@ -129,7 +142,7 @@ public class VisionTestEnvironment extends LinearOpMode {
                             leftFrontDrive.setPower(0);
                             leftBackDrive.setPower(0);
                             rightFrontDrive.setPower(0);
-                            rightFrontDrive.setPower(0);
+                            rightBackDrive.setPower(0);
                             telemetry.addData("turning: ","none");
                         }
                     }
