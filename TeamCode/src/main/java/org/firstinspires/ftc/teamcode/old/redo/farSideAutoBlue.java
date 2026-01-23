@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.Vision;
 
 @Autonomous(name="new red side auto far", group="auto")
 //@Disabled
-public class newRedSideAutoFar extends LinearOpMode {
+public class farSideAutoBlue extends LinearOpMode {
     //  Set the GAIN constants to control the relationship between the measured position error, and how much power is
     //  applied to the drive motors to correct the error.
     //  Drive = Error * Gain    Make these values smaller for smoother control, or larger for a more aggressive response.

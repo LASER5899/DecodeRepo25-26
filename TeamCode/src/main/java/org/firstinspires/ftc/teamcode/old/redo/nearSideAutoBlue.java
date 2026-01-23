@@ -6,7 +6,6 @@ package org.firstinspires.ftc.teamcode.old.redo;
     then moves to tile E2, then backs up to E6 before parking in the
     red observation zone.
 */
-
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;

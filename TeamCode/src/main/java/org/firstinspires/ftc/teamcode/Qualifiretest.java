@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
 
 @TeleOp(name="Qualifier Teleop", group="Linear OpMode")
-public class Qualifier_Teleop extends LinearOpMode {
+public class Qualifiretest extends LinearOpMode {
 
 
     private DcMotor leftFrontDrive;
@@ -29,19 +29,20 @@ public class Qualifier_Teleop extends LinearOpMode {
         int invDir = 1;    // used to activate inverted direction
         boolean keyA = false, keyB = false;    // used for toggle keys
 
-        double postiion0 = 2.95;
+        double position0 = 2.95;
         double position1 = 0.68;
         double position2 = 0.647;
         double position3 = 0.61;
         double position4 = 0.575;
         double position5 = 0.535;
         double position6 = 0.497;
+        double position7 = 0.4;
 
         boolean isEnter = false;
         double setFlickPos = 1;
 
         double C_LATERAL, C_AXIAL, C_YAW;
-        boolean C_HALF_SPEED, C_INV_DIR, C_INTAKE, C_TRANSFER_PA, C_TRANSFER_PB, C_TRANSFER_PC, C_FLICK = false, C_MOVE_LEFT, C_MOVE_RIGHT;
+        boolean C_HALF_SPEED, C_INV_DIR, C_INTAKE, C_TRANSFER_PA, C_TRANSFER_PB, C_TRANSFER_PC, C_FLICK = false, C_MOVE_LEFT, C_MOVE_RIGHT, C_MOVE_REST;
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
@@ -62,9 +63,10 @@ public class Qualifier_Teleop extends LinearOpMode {
         double tranferPosAIn = 0.68;
         double tranferPosBIn = 0.61;
         double tranferPosCIn = 0.535;
+        double tranferPosAOut = 0.57;
+        double tranferPosBOut = 0.495;
         double tranferPosCOut = 0.647;
-        double tranferPosAOut = 0.575;
-        double tranferPosBOut = 0.497;
+        double tranferPosRest = 0.4;
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -114,6 +116,7 @@ public class Qualifier_Teleop extends LinearOpMode {
             C_FLICK = gamepad2.y;
             C_MOVE_LEFT = gamepad2.dpad_left;
             C_MOVE_RIGHT = gamepad2.dpad_right;
+            C_MOVE_REST =  gamepad2.dpad_up;
 
             double max;
 
@@ -198,9 +201,9 @@ public class Qualifier_Teleop extends LinearOpMode {
                 intakeServo.setPosition(0.5);
             }
 
-            /*if (flickServo.getPosition() >= 2) {
-                transferServo.setPosition(tranferPosAIn);
-            } else*/ if (C_MOVE_LEFT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
+           /* if (gamepad2.y = false) {
+                transferServo.setPosition(tranferPosRest);
+            } */if (C_MOVE_LEFT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
                 transferServo.setPosition(tranferPosAIn);
             } else if (C_MOVE_RIGHT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
                 transferServo.setPosition(tranferPosAOut);
@@ -212,6 +215,8 @@ public class Qualifier_Teleop extends LinearOpMode {
                 transferServo.setPosition(tranferPosCIn);
             } else if (C_MOVE_RIGHT && !gamepad2.left_bumper && gamepad2.right_bumper) {
                 transferServo.setPosition(tranferPosCOut);
+            } else if (C_MOVE_REST && !gamepad2.left_bumper && !gamepad2.right_bumper) {
+                transferServo.setPosition(tranferPosRest);
             }
 
 
@@ -243,6 +248,7 @@ public class Qualifier_Teleop extends LinearOpMode {
                 isEnter = true;
             } else {
                 flickServo.setPosition(0.3);
+                isEnter = false;
             }
 
              /*   if (C_FLICK) { //TODO: we switched the 0.0 and 0.3 to debug and also changed it from 0.3
