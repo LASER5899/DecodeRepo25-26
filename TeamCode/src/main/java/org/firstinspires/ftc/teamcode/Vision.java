@@ -194,7 +194,8 @@ public class Vision {
         if (range == -1.0) {
             centerDistance = -1;
         } else {
-            centerDistance = Math.sqrt(TAG_TO_CENTER * TAG_TO_CENTER + range * range - 2 * TAG_TO_CENTER * range * Math.cos(Math.toRadians(180 - yaw)));
+            double range1 = Math.sqrt(yDistance*yDistance+xDistance*xDistance);
+            centerDistance = Math.sqrt(TAG_TO_CENTER * TAG_TO_CENTER + range1 * range1 - 2 * TAG_TO_CENTER * range1 * Math.cos(Math.toRadians(180 - yaw)));
         }
 
         return centerDistance;
