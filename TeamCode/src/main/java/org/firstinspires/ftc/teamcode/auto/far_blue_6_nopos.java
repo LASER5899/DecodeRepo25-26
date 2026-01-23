@@ -6,14 +6,12 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -22,14 +20,28 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
+
+//this is theoretical if everything is perfectly tuned, but using 90 degrees and 24 inches
 @Config
-@Autonomous(name = "far blue 9", group = "Autonomous")
+@Autonomous(name = "far blue 6", group = "Autonomous")
 //@Disabled
 //psuedocode
 /*
-
+start against wall
+turn cc 30 deg (less?)
+shoot 3
+22 in fwd
+125 deg cc
+13 in fwd
+intake on
+10 in fwd + intake sequ (pos a,b,c)
+23 in back
+125 deg clockwise
+22 in back
+shoot 3
+12 in fwd
  */
-public class far_blue_9 extends LinearOpMode{
+public class far_blue_6_nopos extends LinearOpMode{
 
     // if odometry is not properly tuned or constantly being retuned:
     // you MIGHT find it useful to change these values and use multiples of them instead of direct number
@@ -254,48 +266,33 @@ public class far_blue_9 extends LinearOpMode{
 
         flywheel = new ShooterControl(hardwareMap);
 
-        Pose2d pose0 = new Pose2d(0, 0, Math.toRadians(0));
-        Pose2d pose2 = new Pose2d(-3, 0, Math.toRadians(30));
-        Pose2d pose3 = new Pose2d(-26, 15, Math.toRadians(270));
-        Pose2d pose4 = new Pose2d(-26, 40, Math.toRadians(270));
-        Pose2d pose5 = new Pose2d(-3, 0, Math.toRadians(30));
-        Pose2d pose6 = new Pose2d(-57, 15, Math.toRadians(270));
-        Pose2d pose7 = new Pose2d(-57, 40, Math.toRadians(270));
-        Pose2d pose8 = new Pose2d(-3, 0, Math.toRadians(30));
-        MecanumDrive drive = new MecanumDrive(hardwareMap, pose0);
+        Pose2d initPose = new Pose2d(0, 0, Math.toRadians(0));
+        MecanumDrive drive = new MecanumDrive(hardwareMap, initPose);
         outtakeMotor shooter = new outtakeMotor(hardwareMap);
         transferServo transfer = new transferServo(hardwareMap);
         intakeServo intake = new intakeServo(hardwareMap);
         flickServo flicker = new flickServo(hardwareMap);
 
-        TrajectoryActionBuilder one = drive.actionBuilder(pose0)
-                .strafeToSplineHeading(new Vector2d(-3, 0), Math.toRadians(-30), new TranslationalVelConstraint(10));
+        TrajectoryActionBuilder one = drive.actionBuilder(initPose)
+                .turn(Math.toRadians(30)); //counterclockwise by default
 
+        TrajectoryActionBuilder two = drive.actionBuilder(initPose)
+                .strafeToConstantHeading(new Vector2d(0, 22), new TranslationalVelConstraint(10))
+                .turn(Math.toRadians(125)) //counterclockwise by default
+                .strafeToConstantHeading(new Vector2d(0, 35), new TranslationalVelConstraint(10));
 
+        TrajectoryActionBuilder three = drive.actionBuilder(initPose)
+                .strafeToConstantHeading(new Vector2d(0, 10), new TranslationalVelConstraint(10));
 
-        TrajectoryActionBuilder two = drive.actionBuilder(pose2)
-                .strafeToSplineHeading(new Vector2d(-26, -15), Math.toRadians(270), new TranslationalVelConstraint(10)); //counterclockwise by default
+        TrajectoryActionBuilder four = drive.actionBuilder(initPose)
+                .strafeToConstantHeading(new Vector2d(0, -23), new TranslationalVelConstraint(10))
+                .turn(Math.toRadians(-125)) //counterclockwise by default
+                .strafeToConstantHeading(new Vector2d(0, -22), new TranslationalVelConstraint(10));
+        TrajectoryActionBuilder five = drive.actionBuilder(initPose)
+                .strafeToConstantHeading(new Vector2d(0, 12), new TranslationalVelConstraint(10));
 
-        TrajectoryActionBuilder three = drive.actionBuilder(pose3)
-                .strafeToConstantHeading(new Vector2d(-26, -40), new TranslationalVelConstraint(10));
-
-        TrajectoryActionBuilder four = drive.actionBuilder(pose4)
-                .strafeToSplineHeading(new Vector2d(-3, 0), Math.toRadians(30), new TranslationalVelConstraint(10));
-
-        TrajectoryActionBuilder five = drive.actionBuilder(pose5)
-                .strafeToSplineHeading(new Vector2d(-57, -15), Math.toRadians(270), new TranslationalVelConstraint(10));
-
-        TrajectoryActionBuilder six = drive.actionBuilder(pose6)
-                .strafeToConstantHeading(new Vector2d(-57, -40), new TranslationalVelConstraint(10));
-
-        TrajectoryActionBuilder seven = drive.actionBuilder(pose7)
-                .strafeToSplineHeading(new Vector2d(-3, 0), Math.toRadians(30), new TranslationalVelConstraint(10));
-
-        TrajectoryActionBuilder eight = drive.actionBuilder(pose8)
-                .strafeToSplineHeading(new Vector2d(-15, -15), Math.toRadians(30), new TranslationalVelConstraint(10));
 
         // actions that need to happen on init
-
 
 
         waitForStart();
@@ -304,11 +301,11 @@ public class far_blue_9 extends LinearOpMode{
 
         Actions.runBlocking(
                 new SequentialAction(
-                        //shooter.fireUp(),
-                        //shooter.hold(),
+                        shooter.fireUp(),
+                        shooter.hold(),
                         one.build(),
 
-                        /*transfer.toA(),
+                        transfer.toA(),
                         flicker.kick(),
                         flicker.goBack(),
                         transfer.toB(),
@@ -316,17 +313,11 @@ public class far_blue_9 extends LinearOpMode{
                         flicker.goBack(),
                         transfer.toC(),
                         flicker.kick(),
-                        flicker.goBack(),*/
+                        flicker.goBack(),
 
 
                         two.build(),
-                        three.build(),
-                        four.build(),
-                        five.build(),
-                        six.build(),
-                        seven.build(),
-                        eight.build()
-                        /*new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
+                        new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
                                 intake.intaking(),
                                 three.build(),
                                 new SequentialAction(
@@ -349,7 +340,7 @@ public class far_blue_9 extends LinearOpMode{
                         flicker.goBack(),
                         five.build(),
 
-                        shooter.stop()*/
+                        shooter.stop()
 
                 )
 
@@ -358,4 +349,3 @@ public class far_blue_9 extends LinearOpMode{
 
     }
 }
-
