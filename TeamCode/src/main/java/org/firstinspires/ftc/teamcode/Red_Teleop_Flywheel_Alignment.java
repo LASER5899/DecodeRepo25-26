@@ -157,6 +157,15 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
         telemetry.addData("Status", "Initialized");
         telemetry.update();
 
+        boolean reached = false;
+        boolean turnCodeOn = false;
+        double alignVal=10000;
+        double turnSpeed = 0.15;
+        double originValue=0;
+
+        int timesOut = 0;
+        int timesNeeded =3;
+
         waitForStart();
 
         // run until the end of the match (driver presses STOP)
@@ -246,6 +255,99 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
                 }
             } else {
                 keyB = false;
+            }
+            if(gamepad1.y){
+                reached = true;
+                turnCodeOn = false;
+            }
+            if (!turnCodeOn && gamepad1.x&& !(camera.alignmentValue() == -10000)) {
+                turnCodeOn = true;
+                originValue = 0;
+                reached = false;
+
+            }
+            if(reached){
+                leftFrontDrive.setPower(0);
+                leftBackDrive.setPower(0);
+                rightFrontDrive.setPower(0);
+                rightBackDrive.setPower(0);
+                telemetry.addData("turning: ","none");
+                reached = false;
+                turnCodeOn = false;
+
+            }
+            alignVal = camera.alignmentValue();
+            if(originValue==0){
+                if(alignVal>0) {
+                    originValue = 1;
+                }else if(alignVal<0){
+                    originValue = -1;
+                }
+            }
+            if(turnCodeOn&&(alignVal*originValue<0)){
+                reached=true;
+                turnCodeOn = false;
+                leftFrontDrive.setPower(0);
+                leftBackDrive.setPower(0);
+                rightFrontDrive.setPower(0);
+                rightBackDrive.setPower(0);
+                telemetry.addData("turning: ","none");
+            }
+            if (!gamepad1.x && turnCodeOn&&!reached) {
+
+
+                /*if(Math.abs(alignVal)>70){
+                    turnSpeed = 1;
+                }else{
+                    turnSpeed = 0.8/67*(Math.abs(alignVal)-70)+1;
+                }*/
+
+                //below here we need to add when its ok.
+                ///if ((originValue*alignVal)>0) {
+                if(timesOut>=timesNeeded){
+                    reached = true;
+                }
+
+
+                if (!(alignVal == -10000)) {
+
+
+                    if ((originValue<0)&&(alignVal < 0)) {
+                        //turn left
+                        leftFrontDrive.setPower(-1 * turnSpeed);
+                        leftBackDrive.setPower(-1 * turnSpeed);
+                        rightFrontDrive.setPower(1 * turnSpeed);
+                        rightBackDrive.setPower(1 * turnSpeed);
+                        timesOut = 0;
+
+                        telemetry.addData("turning: ","left");
+
+                    } else if ((originValue>0)&&(alignVal > 0)) {
+                        //turnright
+
+                        leftFrontDrive.setPower(1 * turnSpeed);
+                        leftBackDrive.setPower(1 * turnSpeed);
+                        rightFrontDrive.setPower(-1 * turnSpeed);
+                        rightBackDrive.setPower(-1 * turnSpeed);
+                        timesOut = 0;
+                        telemetry.addData("turning: ","right");
+
+                    } else {
+
+                        timesOut++;
+                    }
+                }
+                /*}else {
+                    turnCodeOn = false;
+                    leftFrontDrive.setPower(0);
+                    leftBackDrive.setPower(0);
+                    rightFrontDrive.setPower(0);
+                    rightFrontDrive.setPower(0);
+                    telemetry.addData("turning: ","none");
+
+
+                }*/
+
             }
 
 
@@ -450,10 +552,12 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
 
             // Send calculated power to wheels
 
-            leftFrontDrive.setPower(leftFrontPower * speed * invDir);
-            rightFrontDrive.setPower(rightFrontPower * speed * invDir);
-            leftBackDrive.setPower(leftBackPower * speed * invDir);
-            rightBackDrive.setPower(rightBackPower * speed * invDir);
+            if(!turnCodeOn) {
+                leftFrontDrive.setPower(leftFrontPower * speed * invDir);
+                rightFrontDrive.setPower(rightFrontPower * speed * invDir);
+                leftBackDrive.setPower(leftBackPower * speed * invDir);
+                rightBackDrive.setPower(rightBackPower * speed * invDir);
+            }
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Distance from Center of Red Goal (cm): ", camera.centerDistanceCM());

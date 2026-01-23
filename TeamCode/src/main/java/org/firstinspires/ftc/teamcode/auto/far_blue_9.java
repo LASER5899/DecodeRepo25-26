@@ -4,12 +4,14 @@ import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.AngularVelConstraint;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
+import com.acmerobotics.roadrunner.TurnConstraints;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -263,8 +265,8 @@ public class far_blue_9 extends LinearOpMode{
         Pose2d pose3 = new Pose2d(-26, 15, Math.toRadians(270));
         Pose2d pose4 = new Pose2d(-26, 40, Math.toRadians(270));
         Pose2d pose5 = new Pose2d(-3, 0, Math.toRadians(30));
-        Pose2d pose6 = new Pose2d(-57, 15, Math.toRadians(270));
-        Pose2d pose7 = new Pose2d(-57, 40, Math.toRadians(270));
+        Pose2d pose6 = new Pose2d(-50, 15, Math.toRadians(270));
+        Pose2d pose7 = new Pose2d(-50, 40, Math.toRadians(270));
         Pose2d pose8 = new Pose2d(-3, 0, Math.toRadians(30));
         MecanumDrive drive = new MecanumDrive(hardwareMap, pose0);
         outtakeMotor shooter = new outtakeMotor(hardwareMap);
@@ -272,31 +274,50 @@ public class far_blue_9 extends LinearOpMode{
         intakeServo intake = new intakeServo(hardwareMap);
         flickServo flicker = new flickServo(hardwareMap);
 
+        TrajectoryActionBuilder test = drive.actionBuilder(pose0)
+                .strafeToConstantHeading(new Vector2d(-3, 0), new TranslationalVelConstraint(50))
+                .turnTo(Math.toRadians(30))
+                .strafeToConstantHeading(new Vector2d(-26, -15), new TranslationalVelConstraint(50)) //counterclockwise by default
+                .turnTo(Math.toRadians(270))
+                .strafeToConstantHeading(new Vector2d(-26, -40), new TranslationalVelConstraint(15))
+                .strafeToConstantHeading(new Vector2d(-3, 0), new TranslationalVelConstraint(50))
+                .turnTo(Math.toRadians(30))
+                .strafeToConstantHeading(new Vector2d(-50, -15), new TranslationalVelConstraint(50))
+                .turnTo(Math.toRadians(270))
+                .strafeToConstantHeading(new Vector2d(-50, -40), new TranslationalVelConstraint(15))
+                .strafeToLinearHeading(new Vector2d(-3, 0), Math.toRadians(30), new TranslationalVelConstraint(50))
+                .strafeToConstantHeading(new Vector2d(-15, -15), new TranslationalVelConstraint(50));
+
         TrajectoryActionBuilder one = drive.actionBuilder(pose0)
-                .strafeToSplineHeading(new Vector2d(-3, 0), Math.toRadians(-30), new TranslationalVelConstraint(10));
-
-
+                .strafeToConstantHeading(new Vector2d(-3, 0), new TranslationalVelConstraint(50))
+                .turnTo(Math.toRadians(30));
 
         TrajectoryActionBuilder two = drive.actionBuilder(pose2)
-                .strafeToSplineHeading(new Vector2d(-26, -15), Math.toRadians(270), new TranslationalVelConstraint(10)); //counterclockwise by default
+                .strafeToConstantHeading(new Vector2d(-26, -15), new TranslationalVelConstraint(10)) //counterclockwise by default
+                .turnTo(Math.toRadians(270))
+                .strafeToConstantHeading(new Vector2d(-26, -40), new TranslationalVelConstraint(10));
+
 
         TrajectoryActionBuilder three = drive.actionBuilder(pose3)
                 .strafeToConstantHeading(new Vector2d(-26, -40), new TranslationalVelConstraint(10));
 
         TrajectoryActionBuilder four = drive.actionBuilder(pose4)
-                .strafeToSplineHeading(new Vector2d(-3, 0), Math.toRadians(30), new TranslationalVelConstraint(10));
+                .strafeToConstantHeading(new Vector2d(-3, 0), new TranslationalVelConstraint(10))
+                .turnTo(Math.toRadians(30));
 
         TrajectoryActionBuilder five = drive.actionBuilder(pose5)
-                .strafeToSplineHeading(new Vector2d(-57, -15), Math.toRadians(270), new TranslationalVelConstraint(10));
+                .strafeToConstantHeading(new Vector2d(-50, -15), new TranslationalVelConstraint(10))
+                .turnTo(Math.toRadians(270));
 
         TrajectoryActionBuilder six = drive.actionBuilder(pose6)
-                .strafeToConstantHeading(new Vector2d(-57, -40), new TranslationalVelConstraint(10));
+                .strafeToConstantHeading(new Vector2d(-50, -40), new TranslationalVelConstraint(10));
 
         TrajectoryActionBuilder seven = drive.actionBuilder(pose7)
-                .strafeToSplineHeading(new Vector2d(-3, 0), Math.toRadians(30), new TranslationalVelConstraint(10));
+                .strafeToConstantHeading(new Vector2d(-3, 0), new TranslationalVelConstraint(10))
+                .turnTo(Math.toRadians(30));
 
         TrajectoryActionBuilder eight = drive.actionBuilder(pose8)
-                .strafeToSplineHeading(new Vector2d(-15, -15), Math.toRadians(30), new TranslationalVelConstraint(10));
+                .strafeToConstantHeading(new Vector2d(-15, -15), new TranslationalVelConstraint(10));
 
         // actions that need to happen on init
 
@@ -310,7 +331,7 @@ public class far_blue_9 extends LinearOpMode{
                 new SequentialAction(
                         //shooter.fireUp(),
                         //shooter.hold(),
-                        one.build(),
+                        //one.build(),
 
                         /*transfer.toA(),
                         flicker.kick(),
@@ -322,14 +343,16 @@ public class far_blue_9 extends LinearOpMode{
                         flicker.kick(),
                         flicker.goBack(),*/
 
+                        test.build()
 
-                        two.build(),
-                        three.build(),
-                        four.build(),
-                        five.build(),
-                        six.build(),
-                        seven.build(),
-                        eight.build()
+                        //one.build(),
+                        //two.build(),
+                        //three.build(),
+                        //four.build(),
+                        //five.build(),
+                        //six.build(),
+                        //seven.build(),
+                        //eight.build()
                         /*new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
                                 intake.intaking(),
                                 three.build(),

@@ -23,6 +23,11 @@ public class BLUE_Decode_Teleop2_with_alignment extends LinearOpMode {
     private Servo intakeServo;
     private Servo transferServo;
     private Servo flickServo;
+    boolean turnCodeOn = false;
+    double alignVal=-10000;
+
+    int timesOut= 0;
+    int timesNeeded = 2;
 
     @Override
     public void runOpMode() {
@@ -71,6 +76,7 @@ public class BLUE_Decode_Teleop2_with_alignment extends LinearOpMode {
         double tranferPosAOut = 0.575;
         double tranferPosBOut = 0.497;
 
+
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
         // ########################################################################################
@@ -103,10 +109,13 @@ public class BLUE_Decode_Teleop2_with_alignment extends LinearOpMode {
         camera.aprilTagSetUp(cam1);
 
         double graceMargin = 0.2;
+        boolean reached = false;
         boolean alignValue = false;
         double alignVal=10000;
-        double turnSpeed = 0.3;
+        double turnSpeed = 0.15;
         double originValue=0;
+
+
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
@@ -285,52 +294,97 @@ public class BLUE_Decode_Teleop2_with_alignment extends LinearOpMode {
             prevG2A = gamepad2.a;
             prevG2B = gamepad2.b;
 
-            if (alignValue == false && gamepad1.x&& !(camera.alignmentValue() == -10000)) {
-                alignValue = true;
-
-                originValue=0;
+            if(gamepad1.y){
+                reached = true;
+                turnCodeOn = false;
+            }
+            if (!turnCodeOn && gamepad1.x&& !(camera.alignmentValue() == -10000)) {
+                turnCodeOn = true;
+                originValue = 0;
+                reached = false;
 
             }
-            if (!gamepad1.x && alignValue) {
+            if(reached){
+                leftFrontDrive.setPower(0);
+                leftBackDrive.setPower(0);
+                rightFrontDrive.setPower(0);
+                rightBackDrive.setPower(0);
+                telemetry.addData("turning: ","none");
+                reached = false;
+                turnCodeOn = false;
 
-                alignVal = camera.alignmentValue();
-                if (!(alignVal < graceMargin&& alignVal > -graceMargin) && !gamepad1.x) {
+            }
+            alignVal = camera.alignmentValue();
+            if(originValue==0){
+                if(alignVal>0) {
+                    originValue = 1;
+                }else if(alignVal<0){
+                    originValue = -1;
+                }
+            }
+            if(turnCodeOn&&(alignVal*originValue<0)){
+                reached=true;
+                turnCodeOn = false;
+                leftFrontDrive.setPower(0);
+                leftBackDrive.setPower(0);
+                rightFrontDrive.setPower(0);
+                rightBackDrive.setPower(0);
+                telemetry.addData("turning: ","none");
+            }
+            if (!gamepad1.x && turnCodeOn&&!reached) {
 
 
-                    alignVal = camera.alignmentValue();
-                    if(originValue==0){
-                        originValue=alignVal;
+                /*if(Math.abs(alignVal)>70){
+                    turnSpeed = 1;
+                }else{
+                    turnSpeed = 0.8/67*(Math.abs(alignVal)-70)+1;
+                }*/
+
+                //below here we need to add when its ok.
+                ///if ((originValue*alignVal)>0) {
+                if(timesOut>=timesNeeded){
+                    reached = true;
+                }
+
+
+                if (!(alignVal == -10000)) {
+
+
+                    if ((originValue<0)&&(alignVal < 0)) {
+                        //turn left
+                        leftFrontDrive.setPower(-1 * turnSpeed);
+                        leftBackDrive.setPower(-1 * turnSpeed);
+                        rightFrontDrive.setPower(1 * turnSpeed);
+                        rightBackDrive.setPower(1 * turnSpeed);
+                        timesOut = 0;
+
+                        telemetry.addData("turning: ","left");
+
+                    } else if ((originValue>0)&&(alignVal > 0)) {
+                        //turnright
+
+                        leftFrontDrive.setPower(1 * turnSpeed);
+                        leftBackDrive.setPower(1 * turnSpeed);
+                        rightFrontDrive.setPower(-1 * turnSpeed);
+                        rightBackDrive.setPower(-1 * turnSpeed);
+                        timesOut = 0;
+                        telemetry.addData("turning: ","right");
+
+                    } else {
+
+                        timesOut++;
                     }
-                    if (!(alignVal == -10000)) {
-
-                        if (originValue<0&&alignVal < 0) {
-                            //turn left
-                            leftFrontDrive.setPower(-1 * turnSpeed);
-                            leftBackDrive.setPower(-1 * turnSpeed);
-                            rightFrontDrive.setPower(1 * turnSpeed);
-                            rightBackDrive.setPower(1 * turnSpeed);
-
-                            telemetry.addData("turning: ","left");
-
-                        } else if (originValue>0&&alignVal > 0) {
-                            //turnright
-                            leftFrontDrive.setPower(1 * turnSpeed);
-                            leftBackDrive.setPower(1 * turnSpeed);
-                            rightFrontDrive.setPower(-1 * turnSpeed);
-                            rightBackDrive.setPower(-1 * turnSpeed);
-                            telemetry.addData("turning: ","right");
-
-                        }
-                    }
-                }else {
-                    alignValue = false;
+                }
+                /*}else {
+                    turnCodeOn = false;
                     leftFrontDrive.setPower(0);
                     leftBackDrive.setPower(0);
                     rightFrontDrive.setPower(0);
                     rightFrontDrive.setPower(0);
                     telemetry.addData("turning: ","none");
 
-                }
+
+                }*/
 
             }
 
@@ -382,7 +436,7 @@ public class BLUE_Decode_Teleop2_with_alignment extends LinearOpMode {
 
             // Send calculated power to wheels
 
-            if(!alignValue) {
+            if(!turnCodeOn) {
                 leftFrontDrive.setPower(leftFrontPower * speed * invDir);
                 rightFrontDrive.setPower(rightFrontPower * speed * invDir);
                 leftBackDrive.setPower(leftBackPower * speed * invDir);

@@ -194,7 +194,8 @@ public class Vision {
         if (range == -1.0) {
             centerDistance = -1;
         } else {
-            centerDistance = Math.sqrt(TAG_TO_CENTER * TAG_TO_CENTER + range * range - 2 * TAG_TO_CENTER * range * Math.cos(Math.toRadians(180 - yaw)));
+            double range1 = Math.sqrt(yDistance*yDistance+xDistance*xDistance);
+            centerDistance = Math.sqrt(TAG_TO_CENTER * TAG_TO_CENTER + range1 * range1 - 2 * TAG_TO_CENTER * range1 * Math.cos(Math.toRadians(180 - yaw)));
         }
 
         return centerDistance;
@@ -337,7 +338,7 @@ public class Vision {
     public double alignmentValue() {
         scanForTarget();
         if (range != -1) {
-            double degrees_to_center = Math.toDegrees(Math.asin(TAG_TO_CENTER * Math.sin(180 - yaw) / centerDistanceCM()));
+            double degrees_to_center = Math.toDegrees(Math.asin(TAG_TO_CENTER * Math.sin(Math.toRadians(180 - yaw)) / centerDistanceCM()));
             double bearing = getBearing();
             return degrees_to_center - bearing;
         } return -10000;
