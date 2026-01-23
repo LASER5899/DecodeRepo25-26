@@ -1,4 +1,6 @@
 package org.firstinspires.ftc.teamcode.tuning.shooter;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.Vision;
 import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -22,6 +24,7 @@ public class ShooterTuning extends LinearOpMode {
 
     private DcMotorEx flywheel;
     private Servo flickServo;
+    public Vision camera = new Vision();
 
     @Override
 
@@ -29,6 +32,9 @@ public class ShooterTuning extends LinearOpMode {
     public void runOpMode() {
 
         final int CYCLE_MS = 10;
+        WebcamName cam1 = hardwareMap.get(WebcamName.class, "Camera1");
+        camera.setTarget(Vision.Target.red);
+        camera.aprilTagSetUp(cam1);
 
         shooter = new ShooterControl(hardwareMap);
         flickServo = hardwareMap.get(Servo.class, "flick_servo");
@@ -74,11 +80,13 @@ public class ShooterTuning extends LinearOpMode {
                 flickServo.setPosition(0.3);
             }
 
+            telemetry.addData("Distance from Center of Red Goal (cm): ", camera.centerDistanceCM());
+            telemetry.addData("targetRPM", shooter.getTargetRPM());
 
             telemetry.addData("Status", "Run Time:" + runtime.toString());
             telemetry.addData("actualRPM", shooter.getActualRPM());  // smoothedRPM
             telemetry.addData("rawRPM", shooter.getRawRPM());        // currentRPM
-            telemetry.addData("targetRPM", shooter.getTargetRPM());  // what you command
+              // what you command
             telemetry.addData("rampingRPM", shooter.getRampingRPM());
             telemetry.addData("power", shooter.getPower());
 

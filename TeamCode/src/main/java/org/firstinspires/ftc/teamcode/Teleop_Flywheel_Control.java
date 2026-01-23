@@ -16,7 +16,9 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
 @TeleOp(name="Teleop w Flywheel", group="Linear OpMode")
 public class Teleop_Flywheel_Control extends LinearOpMode {
-
+    public enum outtakeState {
+        out1, out2, out3, kick, down, rest
+    }
 
 
 
@@ -35,6 +37,14 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
     VoltageSensor battery;
     private ShooterControl shooter;
     public Vision camera = new Vision();
+    ElapsedTime stateTimer = new ElapsedTime();
+    boolean shooting = false;
+
+    private outtakeState state = outtakeState.down;
+
+    boolean pressNow = false;
+    boolean pressPrev = false;
+
 
     @Override
     public void runOpMode() {
@@ -68,6 +78,7 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
         double position4 = 0.575;
         double position5 = 0.535;
         double position6 = 0.497;
+
 
         double distFromGoal = 0;
         // total line 80
@@ -106,9 +117,21 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
         double tranferPosBOut = 0.497;
         double i = 0;
 
+        double aIn = 0.68;
+        double bIn = 0.61;
+        double cIn = 0.535;
+        double cOut = 0.647;
+        double aOut = 0.575;
+        double bOut = 0.497;
+
+
+        double postrack = cOut;
+
         boolean spinningUp = true;
         double flywheelAccel = 180;
         double targRPM = 0;
+
+
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -191,22 +214,7 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
             }
 
 
-            // This is test code:
-            //
-            // Uncomment the following code to test your motor directions.
-            // Each button should make the corresponding motor run axial.
-            //   1) First get all the motors to take to correct positions on the robot
-            //      by adjusting your Robot Configuration if necessary.
-            //   2) Then make sure they run in the correct direction by modifying the
-            //      the setDirection() calls above. -_-
-            // Once the correct motors move in the correct direction re-comment this code.
 
-            /*
-            leftFrontPower  = gamepad1.dpad_left ? 1.0 : 0.0;  // left gamepad
-            leftBackPower   = gamepad1.dpad_down ? 1.0 : 0.0;  // down gamepad
-            rightFrontPower = gamepad1.dpad_up ? 1.0 : 0.0;  // up gamepad
-            rightBackPower  = gamepad1.dpad_right ? 1.0 : 0.0;  // right gamepad
-            */
 
             // HALF SPEED CONTROLS
             if (C_HALF_SPEED) {
@@ -241,6 +249,8 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
             }
 
 
+            pressNow = gamepad2.a;
+
 
 
 
@@ -256,7 +266,18 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
                 if (targRPM >= 920){spinningUp =false;}
             }
             //if(!spinningUp && (distFromGoal != -1)){targRPM = (0.560459*distFromGoal)+760.13857;}
-            if(!spinningUp && (distFromGoal != -1)){targRPM = (0.560459*distFromGoal)+750.13857;}
+            if(!spinningUp && (distFromGoal >= 140) && (distFromGoal <= 270)){
+                shooter.setKf(0.00965);
+                targRPM = (0.546172*distFromGoal)+722.4006;
+            }
+            else if(!spinningUp && (distFromGoal > 320)){
+                shooter.setKf(0.0105);
+                targRPM = (targRPM); //TODO: need equation for this
+            }
+            else if(!spinningUp && (distFromGoal < 140) && (distFromGoal != -1)){
+                shooter.setKf(0.00965);
+                targRPM = (0.909091*distFromGoal)+703.18182;//TODO: only made this equation with two points; need equation for this
+            }
 
             /*NEW DATA
             lower ish end
@@ -277,7 +298,7 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
             NEW LINE
             NEW KF
             0.0105
-            384 - 1055
+            384 - 1055+
             */
 
             targRPM = Range.clip(targRPM, 0, 945);
@@ -320,6 +341,82 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
             shooter.setMaxAccel(RobotConstants.maxAccel);
 
             shooter.flywheelHold();
+
+
+
+
+
+            if(pressNow && !pressPrev){shooting = !shooting;} //if they're opposite i.e. it's changed
+
+            if (shooting){
+                state = outtakeState.out1;
+                stateTimer.reset();
+            }else{ //stop the sequence
+                state = outtakeState.rest;
+                flickServo.setPosition(0.3);
+            }
+
+            pressPrev = pressNow;
+
+            if(shooting) {
+                switch (state) {
+                    case out1:
+                        transferServo.setPosition(cOut);
+                        postrack = cOut;
+                        if (stateTimer.seconds() > 1){
+                            state = outtakeState.kick;
+                            stateTimer.reset();
+                        }
+                        break;
+
+                    case out2:
+                        transferServo.setPosition(aOut);
+                        postrack = aOut;
+                        if (stateTimer.seconds() > 1){
+                            state = outtakeState.kick;
+                            stateTimer.reset();
+                        }
+                        break;
+
+                    case out3:
+                        transferServo.setPosition(bOut);
+                        postrack = bOut;
+                        if (stateTimer.seconds() > 1){
+                            state = outtakeState.kick;
+                            stateTimer.reset();
+                        }
+                        break;
+
+                    case kick:
+                        flickServo.setPosition(0.0);
+                        if (stateTimer.seconds() > 1){
+                            state = outtakeState.down;
+                            stateTimer.reset();
+                        }
+                        break;
+
+
+
+                    case down:
+                        flickServo.setPosition(0.3);
+                        if (stateTimer.seconds() > 1) {
+                            if (postrack == cOut) {
+                                state = outtakeState.out2;
+                            } else if (postrack == aOut) {
+                                state = outtakeState.out3;
+                            } else if (postrack == bOut) {
+                                state = outtakeState.rest;
+                                shooting = false;
+                            }
+                            break;
+                        }
+
+                    case rest:
+                        transferServo.setPosition(cOut);
+                        shooting = false;
+                        break;
+                }
+            }
 
             if (gamepad2.x) {
                 intakeServo.setPosition(0.0);
