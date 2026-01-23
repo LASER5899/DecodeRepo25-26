@@ -263,7 +263,7 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
                 double dt = timer.seconds();
                 targRPM += dt * flywheelAccel;
                 targRPM = Range.clip(targRPM, 0, 940);
-                if (targRPM >= 920){spinningUp =false;}
+                if (targRPM >= 920){spinningUp = false; timer.reset();}
             }
             //if(!spinningUp && (distFromGoal != -1)){targRPM = (0.560459*distFromGoal)+760.13857;}
             if(!spinningUp && (distFromGoal >= 140) && (distFromGoal <= 270)){

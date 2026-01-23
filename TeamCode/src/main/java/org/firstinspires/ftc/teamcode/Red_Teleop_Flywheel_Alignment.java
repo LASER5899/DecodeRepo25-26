@@ -34,7 +34,7 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
     private Servo flickServo;
 
     private DcMotorEx flywheel;
-    VoltageSensor battery;
+    //VoltageSensor battery;
     private ShooterControl shooter;
     public Vision camera = new Vision();
     ElapsedTime stateTimer = new ElapsedTime();
