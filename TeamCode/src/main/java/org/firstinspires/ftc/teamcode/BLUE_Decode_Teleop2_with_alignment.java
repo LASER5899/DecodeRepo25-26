@@ -76,6 +76,7 @@ public class BLUE_Decode_Teleop2_with_alignment extends LinearOpMode {
         double tranferPosAOut = 0.575;
         double tranferPosBOut = 0.497;
 
+
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
         // ########################################################################################
@@ -113,6 +114,8 @@ public class BLUE_Decode_Teleop2_with_alignment extends LinearOpMode {
         double alignVal=10000;
         double turnSpeed = 0.15;
         double originValue=0;
+
+
 
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");

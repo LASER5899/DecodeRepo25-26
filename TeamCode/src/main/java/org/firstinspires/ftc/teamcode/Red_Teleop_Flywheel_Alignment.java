@@ -552,10 +552,12 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
 
             // Send calculated power to wheels
 
-            leftFrontDrive.setPower(leftFrontPower * speed * invDir);
-            rightFrontDrive.setPower(rightFrontPower * speed * invDir);
-            leftBackDrive.setPower(leftBackPower * speed * invDir);
-            rightBackDrive.setPower(rightBackPower * speed * invDir);
+            if(!turnCodeOn) {
+                leftFrontDrive.setPower(leftFrontPower * speed * invDir);
+                rightFrontDrive.setPower(rightFrontPower * speed * invDir);
+                leftBackDrive.setPower(leftBackPower * speed * invDir);
+                rightBackDrive.setPower(rightBackPower * speed * invDir);
+            }
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Distance from Center of Red Goal (cm): ", camera.centerDistanceCM());

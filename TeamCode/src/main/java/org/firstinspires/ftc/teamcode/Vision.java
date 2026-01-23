@@ -338,7 +338,7 @@ public class Vision {
     public double alignmentValue() {
         scanForTarget();
         if (range != -1) {
-            double degrees_to_center = Math.toDegrees(Math.asin(TAG_TO_CENTER * Math.sin(180 - yaw) / centerDistanceCM()));
+            double degrees_to_center = Math.toDegrees(Math.asin(TAG_TO_CENTER * Math.sin(Math.toRadians(180 - yaw)) / centerDistanceCM()));
             double bearing = getBearing();
             return degrees_to_center - bearing;
         } return -10000;
