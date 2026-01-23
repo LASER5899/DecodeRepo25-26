@@ -1,4 +1,5 @@
 package org.firstinspires.ftc.teamcode.auto;
+
 import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
@@ -14,36 +15,22 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import org.firstinspires.ftc.teamcode.MecanumDrive;
-
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import org.firstinspires.ftc.teamcode.MecanumDrive;
+import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
 
 
-//this is theoretical if everything is perfectly tuned, but using 90 degrees and 24 inches
-@Config
-@Autonomous(name = "far blue 6", group = "Autonomous")
-@Disabled
+    @Config
+@Autonomous(name = "close red 9", group = "Autonomous")
+//@Disabled
 //psuedocode
 /*
-start against wall
-turn cc 30 deg (less?)
-shoot 3
-22 in fwd
-125 deg cc
-13 in fwd
-intake on
-10 in fwd + intake sequ (pos a,b,c)
-23 in back
-125 deg clockwise
-22 in back
-shoot 3
-12 in fwd
  */
-public class far_blue_6 extends LinearOpMode{
+public class close_red_9 extends LinearOpMode{
 
     // if odometry is not properly tuned or constantly being retuned:
     // you MIGHT find it useful to change these values and use multiples of them instead of direct number
@@ -55,6 +42,12 @@ public class far_blue_6 extends LinearOpMode{
     double a = 0.575;
     double b = 0.497;
     double c = 0.647;
+    private ShooterControl flywheel;
+
+    VoltageSensor battery;
+
+
+
 
     //mechanism instantiation
 
@@ -219,10 +212,21 @@ public class far_blue_6 extends LinearOpMode{
             return new FireUp();
         }
 
-        public class Hold implements Action {
+        public class SetPower implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 shooter.setPower(0.7);
+                return false; // true reruns action
+            }
+        }
+        public Action setPower(){
+            return new SetPower();
+        }
+
+        public class Hold implements Action {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                flywheel.setTargetRPM(940);
                 return false; // true reruns action
             }
         }
@@ -246,6 +250,10 @@ public class far_blue_6 extends LinearOpMode{
     //begin code
     @Override
     public void runOpMode() throws InterruptedException {
+
+        battery = hardwareMap.voltageSensor.iterator().next();
+
+        flywheel = new ShooterControl(hardwareMap);
 
         Pose2d initPose = new Pose2d(0, 0, Math.toRadians(0));
         MecanumDrive drive = new MecanumDrive(hardwareMap, initPose);
@@ -296,6 +304,7 @@ public class far_blue_6 extends LinearOpMode{
                         flicker.kick(),
                         flicker.goBack(),
 
+
                         two.build(),
                         new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
                                 intake.intaking(),
@@ -329,3 +338,4 @@ public class far_blue_6 extends LinearOpMode{
 
     }
 }
+

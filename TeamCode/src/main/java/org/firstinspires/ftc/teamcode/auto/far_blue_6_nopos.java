@@ -20,41 +20,50 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
+
+//this is theoretical if everything is perfectly tuned, but using 90 degrees and 24 inches
 @Config
-@Autonomous(name = "close red 6", group = "Autonomous")
+@Autonomous(name = "far blue 6", group = "Autonomous")
 //@Disabled
 //psuedocode
 /*
-55 in fwd
-turn 45deg clock
+start against wall
+turn cc 30 deg (less?)
 shoot 3
-125 deg countclock
-fwd 35in
+22 in fwd
+125 deg cc
+13 in fwd
 intake on
-fwd 10 in and run intake seq
-back 32 in
-135 deg clock
+10 in fwd + intake sequ (pos a,b,c)
+23 in back
+125 deg clockwise
+22 in back
 shoot 3
-back 15 in
-*/
-public class close_red_6 extends LinearOpMode {
+12 in fwd
+ */
+public class far_blue_6_nopos extends LinearOpMode{
+
+    // if odometry is not properly tuned or constantly being retuned:
+    // you MIGHT find it useful to change these values and use multiples of them instead of direct number
+    // keep in mind that this may not work well
+    // i.e. if something is wrong with acceleration/deceleration, two lengths may not be equal to 2 * (one length)
+    double quarter = 90; // "90 degrees" / right angle turn
+    double tile = 24; // "24 inches" / one tile
 
     double a = 0.575;
     double b = 0.497;
     double c = 0.647;
-
-    double aIn = 0.68;
-    double bIn = 0.61;
-    double cIn = 0.535;
-    double cOut = 0.647;
-    double aOut = 0.575;
-    double bOut = 0.497;
-
     private ShooterControl flywheel;
 
     VoltageSensor battery;
 
+
+
+
     //mechanism instantiation
+
+
+
 
     public class intakeServo {
         private Servo intake;
@@ -95,12 +104,12 @@ public class close_red_6 extends LinearOpMode {
             transfer = hardwareMap.get(Servo.class, "transfer_servo");
         }
 
-        public class ToAOut implements Action {
+        public class ToA implements Action {
             private boolean started = false;
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
-                    transfer.setPosition(aOut);
+                    transfer.setPosition(a);
                     timer.reset();
                     started = true;
                 }
@@ -108,87 +117,39 @@ public class close_red_6 extends LinearOpMode {
             }
         }
         public Action toA(){
-            return new ToAOut();
+            return new ToA();
         }
 
-        public class ToBOut implements Action {
+        public class ToB implements Action {
             private boolean started = false;
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
-                    transfer.setPosition(bOut);
+                    transfer.setPosition(b);
                     timer.reset();
                     started = true;
                 }
                 return timer.seconds() < move_time; // true reruns action
             }
         }
-        public Action toBOut(){
-            return new ToBOut();
+        public Action toB(){
+            return new ToB();
         }
 
-        public class ToCOut implements Action {
+        public class ToC implements Action {
             private boolean started = false;
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
-                    transfer.setPosition(cOut);
+                    transfer.setPosition(c);
                     timer.reset();
                     started = true;
                 }
                 return timer.seconds() < move_time; // true reruns action
             }
         }
-        public Action toCOut(){
-            return new ToCOut();
-        }
-
-        public class ToAIn implements Action {
-            private boolean started = false;
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                if (!started) {
-                    transfer.setPosition(aIn);
-                    timer.reset();
-                    started = true;
-                }
-                return timer.seconds() < move_time; // true reruns action
-            }
-        }
-        public Action toAIn(){
-            return new ToAIn();
-        }
-
-        public class ToBIn implements Action {
-            private boolean started = false;
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                if (!started) {
-                    transfer.setPosition(bIn);
-                    timer.reset();
-                    started = true;
-                }
-                return timer.seconds() < move_time; // true reruns action
-            }
-        }
-        public Action toBIn(){
-            return new ToBIn();
-        }
-
-        public class ToCIn implements Action {
-            private boolean started = false;
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                if (!started) {
-                    transfer.setPosition(cIn);
-                    timer.reset();
-                    started = true;
-                }
-                return timer.seconds() < move_time; // true reruns action
-            }
-        }
-        public Action toCIn(){
-            return new ToCIn();
+        public Action toC(){
+            return new ToC();
         }
     }
 
@@ -252,9 +213,9 @@ public class close_red_6 extends LinearOpMode {
         public class FireUp implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                    power += dt * maxStep;
-                    shooter.setPower(power);
-                    timer.reset();
+                power += dt * maxStep;
+                shooter.setPower(power);
+                timer.reset();
                 return !(shooter.getPower() > 0.7); // true reruns action
             }
         }
@@ -296,6 +257,8 @@ public class close_red_6 extends LinearOpMode {
         }
     }
 
+
+    //begin code
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -311,23 +274,22 @@ public class close_red_6 extends LinearOpMode {
         flickServo flicker = new flickServo(hardwareMap);
 
         TrajectoryActionBuilder one = drive.actionBuilder(initPose)
-                .strafeToConstantHeading(new Vector2d(0, 55), new TranslationalVelConstraint(10))
-                .turn(Math.toRadians(-45)); //counterclockwise by default
+                .turn(Math.toRadians(30)); //counterclockwise by default
 
         TrajectoryActionBuilder two = drive.actionBuilder(initPose)
-                .turn(Math.toRadians(135)) //counterclockwise by default
+                .strafeToConstantHeading(new Vector2d(0, 22), new TranslationalVelConstraint(10))
+                .turn(Math.toRadians(125)) //counterclockwise by default
                 .strafeToConstantHeading(new Vector2d(0, 35), new TranslationalVelConstraint(10));
 
         TrajectoryActionBuilder three = drive.actionBuilder(initPose)
                 .strafeToConstantHeading(new Vector2d(0, 10), new TranslationalVelConstraint(10));
 
         TrajectoryActionBuilder four = drive.actionBuilder(initPose)
-                .strafeToConstantHeading(new Vector2d(0, -32), new TranslationalVelConstraint(10))
-                .turn(Math.toRadians(-135)); //counterclockwise by default
-
+                .strafeToConstantHeading(new Vector2d(0, -23), new TranslationalVelConstraint(10))
+                .turn(Math.toRadians(-125)) //counterclockwise by default
+                .strafeToConstantHeading(new Vector2d(0, -22), new TranslationalVelConstraint(10));
         TrajectoryActionBuilder five = drive.actionBuilder(initPose)
-                .strafeToConstantHeading(new Vector2d(0, -15), new TranslationalVelConstraint(10));
-
+                .strafeToConstantHeading(new Vector2d(0, 12), new TranslationalVelConstraint(10));
 
 
         // actions that need to happen on init
@@ -346,22 +308,23 @@ public class close_red_6 extends LinearOpMode {
                         transfer.toA(),
                         flicker.kick(),
                         flicker.goBack(),
-                        //transfer.toB(),
+                        transfer.toB(),
                         flicker.kick(),
                         flicker.goBack(),
-                        //transfer.toC(),
+                        transfer.toC(),
                         flicker.kick(),
                         flicker.goBack(),
 
+
                         two.build(),
                         new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
-                            intake.intaking(),
-                            three.build(),
-                            new SequentialAction(
-                                transfer.toA()
-                                //transfer.toB(),
-                                //transfer.toC()
-                            )
+                                intake.intaking(),
+                                three.build(),
+                                new SequentialAction(
+                                        transfer.toA(),
+                                        transfer.toB(),
+                                        transfer.toC()
+                                )
                         ),
                         intake.stopIntaking(),
                         four.build(),
@@ -369,14 +332,14 @@ public class close_red_6 extends LinearOpMode {
                         transfer.toA(),
                         flicker.kick(),
                         flicker.goBack(),
-                        //transfer.toB(),
+                        transfer.toB(),
                         flicker.kick(),
                         flicker.goBack(),
-                        //transfer.toC(),
+                        transfer.toC(),
                         flicker.kick(),
                         flicker.goBack(),
-
                         five.build(),
+
                         shooter.stop()
 
                 )

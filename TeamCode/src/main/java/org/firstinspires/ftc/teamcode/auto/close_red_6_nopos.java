@@ -21,7 +21,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
 @Config
-@Autonomous(name = "close red 6", group = "Autonomous")
+@Autonomous(name = "close red 6 nopos", group = "Autonomous")
 //@Disabled
 //psuedocode
 /*
@@ -37,18 +37,11 @@ back 32 in
 shoot 3
 back 15 in
 */
-public class close_red_6 extends LinearOpMode {
+public class close_red_6_nopos extends LinearOpMode {
 
     double a = 0.575;
     double b = 0.497;
     double c = 0.647;
-
-    double aIn = 0.68;
-    double bIn = 0.61;
-    double cIn = 0.535;
-    double cOut = 0.647;
-    double aOut = 0.575;
-    double bOut = 0.497;
 
     private ShooterControl flywheel;
 
@@ -95,12 +88,12 @@ public class close_red_6 extends LinearOpMode {
             transfer = hardwareMap.get(Servo.class, "transfer_servo");
         }
 
-        public class ToAOut implements Action {
+        public class ToA implements Action {
             private boolean started = false;
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
-                    transfer.setPosition(aOut);
+                    transfer.setPosition(a);
                     timer.reset();
                     started = true;
                 }
@@ -108,87 +101,39 @@ public class close_red_6 extends LinearOpMode {
             }
         }
         public Action toA(){
-            return new ToAOut();
+            return new ToA();
         }
 
-        public class ToBOut implements Action {
+        public class ToB implements Action {
             private boolean started = false;
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
-                    transfer.setPosition(bOut);
+                    transfer.setPosition(b);
                     timer.reset();
                     started = true;
                 }
                 return timer.seconds() < move_time; // true reruns action
             }
         }
-        public Action toBOut(){
-            return new ToBOut();
+        public Action toB(){
+            return new ToB();
         }
 
-        public class ToCOut implements Action {
+        public class ToC implements Action {
             private boolean started = false;
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
-                    transfer.setPosition(cOut);
+                    transfer.setPosition(c);
                     timer.reset();
                     started = true;
                 }
                 return timer.seconds() < move_time; // true reruns action
             }
         }
-        public Action toCOut(){
-            return new ToCOut();
-        }
-
-        public class ToAIn implements Action {
-            private boolean started = false;
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                if (!started) {
-                    transfer.setPosition(aIn);
-                    timer.reset();
-                    started = true;
-                }
-                return timer.seconds() < move_time; // true reruns action
-            }
-        }
-        public Action toAIn(){
-            return new ToAIn();
-        }
-
-        public class ToBIn implements Action {
-            private boolean started = false;
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                if (!started) {
-                    transfer.setPosition(bIn);
-                    timer.reset();
-                    started = true;
-                }
-                return timer.seconds() < move_time; // true reruns action
-            }
-        }
-        public Action toBIn(){
-            return new ToBIn();
-        }
-
-        public class ToCIn implements Action {
-            private boolean started = false;
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                if (!started) {
-                    transfer.setPosition(cIn);
-                    timer.reset();
-                    started = true;
-                }
-                return timer.seconds() < move_time; // true reruns action
-            }
-        }
-        public Action toCIn(){
-            return new ToCIn();
+        public Action toC(){
+            return new ToC();
         }
     }
 
@@ -346,10 +291,10 @@ public class close_red_6 extends LinearOpMode {
                         transfer.toA(),
                         flicker.kick(),
                         flicker.goBack(),
-                        //transfer.toB(),
+                        transfer.toB(),
                         flicker.kick(),
                         flicker.goBack(),
-                        //transfer.toC(),
+                        transfer.toC(),
                         flicker.kick(),
                         flicker.goBack(),
 
@@ -358,9 +303,9 @@ public class close_red_6 extends LinearOpMode {
                             intake.intaking(),
                             three.build(),
                             new SequentialAction(
-                                transfer.toA()
-                                //transfer.toB(),
-                                //transfer.toC()
+                                transfer.toA(),
+                                transfer.toB(),
+                                transfer.toC()
                             )
                         ),
                         intake.stopIntaking(),
@@ -369,10 +314,10 @@ public class close_red_6 extends LinearOpMode {
                         transfer.toA(),
                         flicker.kick(),
                         flicker.goBack(),
-                        //transfer.toB(),
+                        transfer.toB(),
                         flicker.kick(),
                         flicker.goBack(),
-                        //transfer.toC(),
+                        transfer.toC(),
                         flicker.kick(),
                         flicker.goBack(),
 
