@@ -55,6 +55,9 @@ public class VisionTestEnvironment extends LinearOpMode {
         boolean reached = false;
         boolean turnCodeOn = false;
 
+        int timesOut = 0;
+        int timesNeeded = 5;
+
 
 
         while (opModeIsActive()) {
@@ -83,6 +86,8 @@ public class VisionTestEnvironment extends LinearOpMode {
                 rightFrontDrive.setPower(0);
                 rightBackDrive.setPower(0);
                 telemetry.addData("turning: ","none");
+                reached = false;
+                turnCodeOn = false;
 
             }
             alignVal = camera.alignmentValue();
@@ -113,6 +118,9 @@ public class VisionTestEnvironment extends LinearOpMode {
 
                 //below here we need to add when its ok.
                 ///if ((originValue*alignVal)>0) {
+                    if(timesOut>=timesNeeded){
+                        reached = true;
+                    }
 
 
                     if (!(alignVal == -10000)) {
@@ -124,6 +132,7 @@ public class VisionTestEnvironment extends LinearOpMode {
                             leftBackDrive.setPower(-1 * turnSpeed);
                             rightFrontDrive.setPower(1 * turnSpeed);
                             rightBackDrive.setPower(1 * turnSpeed);
+                            timesOut = 0;
 
                             telemetry.addData("turning: ","left");
 
@@ -134,16 +143,12 @@ public class VisionTestEnvironment extends LinearOpMode {
                             leftBackDrive.setPower(1 * turnSpeed);
                             rightFrontDrive.setPower(-1 * turnSpeed);
                             rightBackDrive.setPower(-1 * turnSpeed);
+                            timesOut = 0;
                             telemetry.addData("turning: ","right");
 
                         } else {
-                            reached = true;
-                            turnCodeOn = false;
-                            leftFrontDrive.setPower(0);
-                            leftBackDrive.setPower(0);
-                            rightFrontDrive.setPower(0);
-                            rightBackDrive.setPower(0);
-                            telemetry.addData("turning: ","none");
+
+                            timesOut++;
                         }
                     }
                 /*}else {
