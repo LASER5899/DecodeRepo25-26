@@ -37,7 +37,7 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
     VoltageSensor battery;
     private ShooterControl shooter;
     public Vision camera = new Vision();
-    ElapsedTime stateTimer = new ElapsedTime();
+
     boolean shooting = false;
 
     private outtakeState state = outtakeState.down;
@@ -54,6 +54,8 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
         camera.aprilTagSetUp(cam1);
 
         double presentVoltage;
+
+        ElapsedTime stateTimer = new ElapsedTime();
 
         VoltageSensor battery = hardwareMap.voltageSensor.iterator().next();
 
@@ -128,7 +130,7 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
         double postrack = cOut;
 
         boolean spinningUp = true;
-        double flywheelAccel = 180;
+        double flywheelAccel = 900;
         double targRPM = 0;
 
 
@@ -156,6 +158,8 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
         telemetry.update();
+
+        transferServo.setPosition(cOut);
 
         waitForStart();
 
@@ -261,18 +265,19 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
 
             if(spinningUp){
                 double dt = timer.seconds();
-                targRPM += dt * flywheelAccel;
-                targRPM = Range.clip(targRPM, 0, 940);
-                if (targRPM >= 920){spinningUp = false; timer.reset();}
+                targRPM += dt * 180; //TODO: add flywheel accel instead
+                targRPM = Range.clip(targRPM, 0, 920);
+                timer.reset();
+                if (targRPM >= 920){spinningUp = false; }
             }
             //if(!spinningUp && (distFromGoal != -1)){targRPM = (0.560459*distFromGoal)+760.13857;}
             if(!spinningUp && (distFromGoal >= 140) && (distFromGoal <= 270)){
                 shooter.setKf(0.00965);
-                targRPM = (0.546172*distFromGoal)+722.4006;
+                targRPM = (0.546172*distFromGoal)+722.4006; //(0.546172*distFromGoal)+722.4006;
             }
-            else if(!spinningUp && (distFromGoal > 320)){
+            else if(!spinningUp && (distFromGoal > 320) && gamepad2.dpad_up){
                 shooter.setKf(0.0105);
-                targRPM = (targRPM); //TODO: need equation for this
+                targRPM = (1060); //TODO: need equation for this
             }
             else if(!spinningUp && (distFromGoal < 140) && (distFromGoal != -1)){
                 shooter.setKf(0.00965);
@@ -346,24 +351,30 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
 
 
 
-            if(pressNow && !pressPrev){shooting = !shooting;} //if they're opposite i.e. it's changed
-
-            if (shooting){
-                state = outtakeState.out1;
-                stateTimer.reset();
-            }else{ //stop the sequence
-                state = outtakeState.rest;
-                flickServo.setPosition(0.3);
+            if(pressNow && !pressPrev) {
+                shooting = !shooting;
+                if (shooting) {
+                    state = outtakeState.out1;
+                    stateTimer.reset();
+                } else { //stop the sequence
+                    state = outtakeState.rest;
+                    flickServo.setPosition(0.3);
+                } //if they're opposite i.e. it's changed
             }
+
+
+
+
 
             pressPrev = pressNow;
 
             if(shooting) {
                 switch (state) {
                     case out1:
+
                         transferServo.setPosition(cOut);
                         postrack = cOut;
-                        if (stateTimer.seconds() > 1){
+                        if (stateTimer.seconds() > 0.4){
                             state = outtakeState.kick;
                             stateTimer.reset();
                         }
@@ -372,7 +383,7 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
                     case out2:
                         transferServo.setPosition(aOut);
                         postrack = aOut;
-                        if (stateTimer.seconds() > 1){
+                        if (stateTimer.seconds() > 0.4){
                             state = outtakeState.kick;
                             stateTimer.reset();
                         }
@@ -381,7 +392,7 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
                     case out3:
                         transferServo.setPosition(bOut);
                         postrack = bOut;
-                        if (stateTimer.seconds() > 1){
+                        if (stateTimer.seconds() > 0.4){
                             state = outtakeState.kick;
                             stateTimer.reset();
                         }
@@ -389,7 +400,7 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
 
                     case kick:
                         flickServo.setPosition(0.0);
-                        if (stateTimer.seconds() > 1){
+                        if (stateTimer.seconds() > 0.5){
                             state = outtakeState.down;
                             stateTimer.reset();
                         }
@@ -399,21 +410,26 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
 
                     case down:
                         flickServo.setPosition(0.3);
-                        if (stateTimer.seconds() > 1) {
+                        if (stateTimer.seconds() > 0.5) {
                             if (postrack == cOut) {
                                 state = outtakeState.out2;
+                                stateTimer.reset();
                             } else if (postrack == aOut) {
                                 state = outtakeState.out3;
+                                stateTimer.reset();
                             } else if (postrack == bOut) {
                                 state = outtakeState.rest;
+                                stateTimer.reset();
                                 shooting = false;
                             }
-                            break;
+
                         }
+                        break;
 
                     case rest:
                         transferServo.setPosition(cOut);
                         shooting = false;
+                        timer.reset();
                         break;
                 }
             }
@@ -443,7 +459,7 @@ public class Teleop_Flywheel_Control extends LinearOpMode {
             if (gamepad2.y) {
                 flickServo.setPosition(0.0);
                 isEnter = true;
-            } else {
+            }else if(!gamepad2.y&&!shooting){
                 flickServo.setPosition(0.3);
             }
 

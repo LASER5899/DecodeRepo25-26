@@ -13,11 +13,14 @@ import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
+
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
 @Config
@@ -38,16 +41,16 @@ public class mechanism_only extends LinearOpMode {
     //mechanism instantiation
 
     public class intakeServo {
-        private Servo intake;
+        private CRServo intake;
         public intakeServo(HardwareMap hwMap) {
-            intake = hardwareMap.get(Servo.class, "intake_servo");
+            intake = hardwareMap.get(CRServo.class, "intake_servo");
         }
 
         public class Intaking implements Action {
             private boolean started = false;
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                intake.setPosition(0.0);
+                intake.setPower(1.0);
                 return false; // true reruns action
             }
         }
@@ -59,7 +62,7 @@ public class mechanism_only extends LinearOpMode {
             private boolean started = false;
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                intake.setPosition(0.5);
+                intake.setPower(0.0);
                 return false; // true reruns action
             }
         }
@@ -88,7 +91,7 @@ public class mechanism_only extends LinearOpMode {
                 return timer.seconds() < move_time; // true reruns action
             }
         }
-        public Action toA(){
+        public Action toAOut(){
             return new ToAOut();
         }
 
@@ -187,11 +190,12 @@ public class mechanism_only extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
-                    flicker.setPosition(0.0);
                     timer.reset();
+                    //flicker.setPosition(0.0);
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                flicker.setPosition(0.0);
+                return timer.seconds() <= 0.8; // true reruns action
             }
         }
         public Action kick(){
@@ -203,12 +207,12 @@ public class mechanism_only extends LinearOpMode {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
-                    flicker.setPosition(0.3);
                     timer.reset();
                     started = true;
 
                 }
-                return timer.seconds() < move_time; // true reruns action
+                flicker.setPosition(0.3);
+                return timer.seconds() <= 0.8; // true reruns action
             }
         }
         public Action goBack(){
@@ -231,13 +235,19 @@ public class mechanism_only extends LinearOpMode {
         }
 
         public class FireUp implements Action {
+
+            private boolean started = false;
+            private final ElapsedTime t = new ElapsedTime();
+
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                    dt = timer.seconds();
-                    power += dt * maxStep;
+                    if (!started){t.reset(); started=true;}
+                    double dt = t.seconds();
+                    power += dt * 100;
+                    power = Range.clip(power, 0, 0.8);
                     shooter.setPower(power);
-                    timer.reset();
-                return !(shooter.getPower() > 0.7); // true reruns action
+                    t.reset();
+                return power < 0.7; // true reruns action
             }
         }
         public Action fireUp(){
@@ -258,8 +268,9 @@ public class mechanism_only extends LinearOpMode {
         public class Hold implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                flywheel.setTargetRPM(940);
-                return false; // true reruns action
+                flywheel.setTargetRPM(800);
+                flywheel.flywheelHold();
+                return true; // true reruns action
             }
         }
         public Action hold(){
@@ -269,7 +280,9 @@ public class mechanism_only extends LinearOpMode {
         public class Stop implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                shooter.setPower(0);
+                //shooter.setPower(0);
+                flywheel.setTargetRPM(0);
+                flywheel.flywheelHold();
                 return false; // true reruns action
             }
         }
@@ -293,7 +306,7 @@ public class mechanism_only extends LinearOpMode {
         flickServo flicker = new flickServo(hardwareMap);
 
         // actions that need to happen on init
-
+        Actions.runBlocking(transfer.toCOut());
 
         waitForStart();
 
@@ -302,32 +315,46 @@ public class mechanism_only extends LinearOpMode {
         Actions.runBlocking(
                 new SequentialAction(
                         shooter.fireUp(),
-                        shooter.hold(),
-
-                        transfer.toA(),
-                        flicker.kick(),
-                        flicker.goBack(),
-                        transfer.toBIn(),
-                        flicker.kick(),
-                        flicker.goBack(),
+                        new ParallelAction(
+                            shooter.hold(),
+                            new SequentialAction(
+                                transfer.toAOut(),
+                                flicker.kick(),
+                                flicker.goBack(),
+                                transfer.toBOut(),
+                                flicker.kick(),
+                                flicker.goBack(),
+                                shooter.stop()
+                            )
+                            ),
+                        shooter.stop(),
+                        intake.intaking(),
                         transfer.toCIn(),
-                        flicker.kick(),
-                        flicker.goBack(),
-
                         intake.stopIntaking(),
-
-                        transfer.toA(),
-                        flicker.kick(),
-                        flicker.goBack(),
+                        intake.intaking(),
                         transfer.toBIn(),
+                        intake.stopIntaking(),
+                        intake.intaking(),
+                        transfer.toAIn(),
+                        intake.stopIntaking()
+                        /*transfer.toAOut(),
                         flicker.kick(),
                         flicker.goBack(),
+                        transfer.toBOut(),
+                        flicker.kick(),
+                        flicker.goBack(),
+                        flicker.kick(),
+                        flicker.goBack(),
+                        intake.intaking(),
                         transfer.toCIn(),
-                        flicker.kick(),
-                        flicker.goBack(),
+                        intake.stopIntaking(),
+                        intake.intaking(),
+                        transfer.toBIn(),
+                        intake.stopIntaking(),
+                        intake.intaking(),
+                        transfer.toAIn(),
+                        intake.stopIntaking()*/
 
-
-                        shooter.stop()
 
                 )
 
