@@ -12,14 +12,11 @@ import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-
-@TeleOp(name="Red_Teleop_Flywheel_Alignment", group="Linear OpMode")
-public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
+@TeleOp(name="R_TFA_PatternShoot", group="Linear OpMode")
+public class R_TFA_PatternShoot extends LinearOpMode {
     public enum outtakeState {
-        outC, outA, outB, kick, down, rest
+        outC, outA, outB, ABC, BCA, CAB, kick, down, rest
     }
-    int shootStep = 0;
 
 
 
@@ -455,7 +452,18 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
             if(pressNow && !pressPrev){shooting = !shooting;} //if they're opposite i.e. it's changed
 
             if (shooting){
-                state = outtakeState.outC;
+                if (   (pattern.equals("PPG") && postrack==cOut) || (pattern.equals("GPP") && postrack==aOut) || (pattern.equals("PGP") && postrack==bOut) ){
+                    shootOrder = "ABC";
+                    state = outtakeState.ABC;
+                }
+                else if (   (pattern.equals("PPG") && postrack==aOut) || (pattern.equals("GPP") && postrack==bOut) || (pattern.equals("PGP") && postrack==cOut) ){
+                    shootOrder = "BCA";
+                    state = outtakeState.BCA;
+                }
+                else if (   (pattern.equals("PPG") && postrack==bOut) || (pattern.equals("GPP") && postrack==cOut) || (pattern.equals("PGP") && postrack==aOut) ){
+                    shootOrder = "CAB";
+                    state = outtakeState.CAB;
+                }
                 stateTimer.reset();
             }else{ //stop the sequence
                 state = outtakeState.rest;
@@ -466,11 +474,54 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
 
             if(shooting) {
                 switch (state) {
-                    case outC:
+                    case ABC:
+                        transferServo.setPosition(aOut);
+                        postrack = aOut;
+                        if (stateTimer.seconds() > 1){
+                            stateTimer.reset();
+                        }
+
+                        flickServo.setPosition(0.0);
+                        if (stateTimer.seconds() > 1){
+                            stateTimer.reset();
+                        }
+
+                        flickServo.setPosition(0.3);
+                        if (stateTimer.seconds() > 1){
+                            stateTimer.reset();
+                        }
+
+
+                        transferServo.setPosition(bOut);
+                        postrack = bOut;
+                        if (stateTimer.seconds() > 1){
+                            stateTimer.reset();
+                        }
+
+                        flickServo.setPosition(0.0);
+                        if (stateTimer.seconds() > 1){
+                            stateTimer.reset();
+                        }
+
+                        flickServo.setPosition(0.3);
+                        if (stateTimer.seconds() > 1){
+                            stateTimer.reset();
+                        }
+
                         transferServo.setPosition(cOut);
                         postrack = cOut;
                         if (stateTimer.seconds() > 1){
-                            state = outtakeState.kick;
+                            stateTimer.reset();
+                            state = outtakeState.rest;
+                        }
+
+                        flickServo.setPosition(0.0);
+                        if (stateTimer.seconds() > 1){
+                            stateTimer.reset();
+                        }
+
+                        flickServo.setPosition(0.3);
+                        if (stateTimer.seconds() > 1){
                             stateTimer.reset();
                         }
                         break;

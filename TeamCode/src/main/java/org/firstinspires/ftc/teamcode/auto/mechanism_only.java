@@ -266,15 +266,22 @@ public class mechanism_only extends LinearOpMode {
         }
 
         public class Hold implements Action {
+            private final double rpm;
+
+            public Hold(double rpm) {
+                this.rpm = rpm;
+            }
+
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                flywheel.setTargetRPM(800);
+                flywheel.setTargetRPM(rpm);
                 flywheel.flywheelHold();
-                return true; // true reruns action
+                return true;
             }
         }
-        public Action hold(){
-            return new Hold();
+
+        public Action hold(double rpm) {
+            return new Hold(rpm);
         }
 
         public class Stop implements Action {
@@ -316,7 +323,7 @@ public class mechanism_only extends LinearOpMode {
                 new SequentialAction(
                         shooter.fireUp(),
                         new ParallelAction(
-                            shooter.hold(),
+                            shooter.hold(900),
                             new SequentialAction(
                                 transfer.toAOut(),
                                 flicker.kick(),
