@@ -14,12 +14,11 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
-@TeleOp(name="Red_Teleop_Flywheel_Alignment", group="Linear OpMode")
-public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
+@TeleOp(name="DEBUGGGGG", group="Linear OpMode")
+public class Red_Flywheel_Alignment_Debug extends LinearOpMode {
     public enum outtakeState {
-        outC, outA, outB, kick, down, rest
+        out1, out2, out3, kick, down, rest
     }
-    int shootStep = 0;
 
 
 
@@ -45,9 +44,6 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
 
     boolean pressNow = false;
     boolean pressPrev = false;
-
-    String pattern = "PPG";
-    String shootOrder = "ABC";
 
 
     @Override
@@ -265,6 +261,7 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
                 turnCodeOn = false;
             }
             if (!turnCodeOn && gamepad1.x&& !(camera.alignmentValue() == -10000)) {
+                telemetry.addData("entered: ","!turnCodeOn && gamepad1.x&& !(camera.alignmentValue() == -10000)");
                 turnCodeOn = true;
                 originValue = 0;
                 reached = false;
@@ -455,7 +452,7 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
             if(pressNow && !pressPrev){shooting = !shooting;} //if they're opposite i.e. it's changed
 
             if (shooting){
-                state = outtakeState.outC;
+                state = outtakeState.out1;
                 stateTimer.reset();
             }else{ //stop the sequence
                 state = outtakeState.rest;
@@ -466,7 +463,7 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
 
             if(shooting) {
                 switch (state) {
-                    case outC:
+                    case out1:
                         transferServo.setPosition(cOut);
                         postrack = cOut;
                         if (stateTimer.seconds() > 1){
@@ -475,7 +472,7 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
                         }
                         break;
 
-                    case outA:
+                    case out2:
                         transferServo.setPosition(aOut);
                         postrack = aOut;
                         if (stateTimer.seconds() > 1){
@@ -484,7 +481,7 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
                         }
                         break;
 
-                    case outB:
+                    case out3:
                         transferServo.setPosition(bOut);
                         postrack = bOut;
                         if (stateTimer.seconds() > 1){
@@ -507,9 +504,9 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
                         flickServo.setPosition(0.3);
                         if (stateTimer.seconds() > 1) {
                             if (postrack == cOut) {
-                                state = outtakeState.outA;
+                                state = outtakeState.out2;
                             } else if (postrack == aOut) {
-                                state = outtakeState.outB;
+                                state = outtakeState.out3;
                             } else if (postrack == bOut) {
                                 state = outtakeState.rest;
                                 shooting = false;
@@ -532,23 +529,17 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
             }
 
             if (C_MOVE_LEFT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
-                transferServo.setPosition(aIn);
-                postrack = aIn;
+                transferServo.setPosition(tranferPosAIn);
             } else if (C_MOVE_RIGHT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
-                transferServo.setPosition(aOut);
-                postrack = aOut;
+                transferServo.setPosition(tranferPosAOut);
             } else if (C_MOVE_LEFT && gamepad2.left_bumper && !gamepad2.right_bumper) {
-                transferServo.setPosition(bIn);
-                postrack = bIn;
+                transferServo.setPosition(tranferPosBIn);
             } else if (C_MOVE_RIGHT && gamepad2.left_bumper && !gamepad2.right_bumper) {
-                transferServo.setPosition(bOut);
-                postrack = bOut;
+                transferServo.setPosition(tranferPosBOut);
             } else if (C_MOVE_LEFT && !gamepad2.left_bumper && gamepad2.right_bumper) {
-                transferServo.setPosition(cIn);
-                postrack = cIn;
+                transferServo.setPosition(tranferPosCIn);
             } else if (C_MOVE_RIGHT && !gamepad2.left_bumper && gamepad2.right_bumper) {
-                transferServo.setPosition(cOut);
-                postrack = cOut;
+                transferServo.setPosition(tranferPosCOut);
             }
 
 
