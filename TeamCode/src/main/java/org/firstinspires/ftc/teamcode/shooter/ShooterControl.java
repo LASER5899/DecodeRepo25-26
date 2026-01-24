@@ -50,7 +50,7 @@ public class ShooterControl {
 
     double holdSeconds;
 
-    double batteryVoltage;
+    double batteryVoltage = 12;
 
     double targetRPM; // don't set an initial value here, this should be passed from teleop
     double rampingRPM = 0;
@@ -112,7 +112,7 @@ public class ShooterControl {
 
        double holdTop = timerTop.seconds();
 
-        switch(state) {
+        /*switch(state) {
 
             case RAMP:
                 if (rampingRPM < targetRPM) {
@@ -149,7 +149,7 @@ public class ShooterControl {
 
                 break;
 
-        }
+        }*/
 
         correctPow = rpmToPower(rampingRPM, dt);
         flywheel.setPower(correctPow);
