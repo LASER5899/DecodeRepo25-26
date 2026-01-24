@@ -20,6 +20,7 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
         out1, out2, out3, kick, down, rest
     }
 
+    private int codePostion = 0;
 
 
     private DcMotor leftFrontDrive;
@@ -256,17 +257,24 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
             } else {
                 keyB = false;
             }
+
+
+            ///Alignment code
             if(gamepad1.y){
                 reached = true;
                 turnCodeOn = false;
+                codePostion = 10;
+
             }
             if (!turnCodeOn && gamepad1.x&& !(camera.alignmentValue() == -10000)) {
                 turnCodeOn = true;
                 originValue = 0;
                 reached = false;
+                codePostion = 1;
 
             }
             if(reached){
+                timesOut = 0;
                 leftFrontDrive.setPower(0);
                 leftBackDrive.setPower(0);
                 rightFrontDrive.setPower(0);
@@ -274,17 +282,22 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
                 telemetry.addData("turning: ","none");
                 reached = false;
                 turnCodeOn = false;
+                codePostion = 11;
 
             }
-            alignVal = camera.alignmentValue();
-            if(originValue==0){
-                if(alignVal>0) {
-                    originValue = 1;
-                }else if(alignVal<0){
-                    originValue = -1;
+            if(turnCodeOn){
+                codePostion=2;
+                alignVal = camera.alignmentValue();
+                if(originValue==0){
+                    if(alignVal>0) {
+                        originValue = 1;
+                    }else if(alignVal<0){
+                        originValue = -1;
+                    }
                 }
             }
             if(turnCodeOn&&(alignVal*originValue<0)){
+                codePostion = 9;
                 reached=true;
                 turnCodeOn = false;
                 leftFrontDrive.setPower(0);
@@ -292,11 +305,12 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
                 rightFrontDrive.setPower(0);
                 rightBackDrive.setPower(0);
                 telemetry.addData("turning: ","none");
+
             }
             if (!gamepad1.x && turnCodeOn&&!reached) {
 
 
-                /*if(Math.abs(alignVal)>70){
+                /*if(Math.abs(alignVal)>70){FT
                     turnSpeed = 1;
                 }else{
                     turnSpeed = 0.8/67*(Math.abs(alignVal)-70)+1;
@@ -310,7 +324,7 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
 
 
                 if (!(alignVal == -10000)) {
-
+                    telemetry.addData("alignval: ","billion");
 
                     if ((originValue<0)&&(alignVal < 0)) {
                         //turn left
@@ -364,6 +378,7 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
             if(spinningUp){
                 double dt = timer.seconds();
                 targRPM += dt * flywheelAccel;
+                timer.reset();
                 targRPM = Range.clip(targRPM, 0, 940);
                 if (targRPM >= 920){spinningUp =false;}
             }
@@ -435,7 +450,7 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
             // front wheels @ 20, 860 rpm / distance 60
             // front wheels @ 33, 840 rpm question mark / distance 47
 
-            shooter.setKf(RobotConstants.kF);
+            //shooter.setKf(RobotConstants.kF);
             shooter.setKp(RobotConstants.kP);
             shooter.setKi(RobotConstants.kI);
             shooter.setKd(RobotConstants.kD);
@@ -497,8 +512,6 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
                         }
                         break;
 
-
-
                     case down:
                         flickServo.setPosition(0.3);
                         if (stateTimer.seconds() > 1) {
@@ -510,8 +523,9 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
                                 state = outtakeState.rest;
                                 shooting = false;
                             }
-                            break;
+
                         }
+                        break;
 
                     case rest:
                         transferServo.setPosition(cOut);
@@ -560,15 +574,19 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
             }
 
             // Show the elapsed game time and wheel power.
-            telemetry.addData("Distance from Center of Red Goal (cm): ", camera.centerDistanceCM());
-            telemetry.addData("target RPM", targRPM);
-            telemetry.addData("flywheel measured velocity", flywheel.getVelocity());
+            //telemetry.addData("Distance from Center of Red Goal (cm): ", camera.centerDistanceCM());
+            //telemetry.addData("target RPM", targRPM);
+            //telemetry.addData("flywheel measured velocity", flywheel.getVelocity());
 
-            telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower * speed * invDir, rightFrontPower * speed * invDir);
-            telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower * speed * invDir, rightBackPower * speed * invDir);
-            telemetry.addData("Speed", "%4.2f", speed);
-            telemetry.addData("Invert Direction", "%1b", invertDir);
-
+            //telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower * speed * invDir, rightFrontPower * speed * invDir);
+            //telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower * speed * invDir, rightBackPower * speed * invDir);
+            ///telemetry.addData("Speed", "%4.2f", speed);
+            /////telemetry.addData("Invert Direction", "%1b", invertDir);
+            telemetry.addData("gamepad 1 x",gamepad1.x);
+            telemetry.addData("alignVal",alignVal);
+            telemetry.addData("turnCodeOn",turnCodeOn);
+            telemetry.addData("reached",reached);
+            telemetry.addData("code position", codePostion);
             telemetry.update();
 
             sleep(CYCLE_MS);

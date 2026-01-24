@@ -190,6 +190,7 @@ public class BLUE_Decode_Teleop2_with_alignment extends LinearOpMode {
             rightBackPower  = gamepad1.dpad_right ? 1.0 : 0.0;  // right gamepad
             */
 
+
             // HALF SPEED CONTROLS
             if (C_HALF_SPEED) {
                 if (keyA == false) {
@@ -454,7 +455,7 @@ public class BLUE_Decode_Teleop2_with_alignment extends LinearOpMode {
             telemetry.addData("gamepad 2 x", gamepad2.x);
             telemetry.addData("gamepad 1 x",gamepad1.x);
             telemetry.addData("alignVal",alignVal);
-            telemetry.addData("alignValue",alignValue);
+            telemetry.addData("turnCodeOn",turnCodeOn);
             telemetry.update();
 
             sleep(CYCLE_MS);
