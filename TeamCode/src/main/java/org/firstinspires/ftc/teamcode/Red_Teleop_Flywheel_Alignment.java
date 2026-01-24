@@ -20,7 +20,7 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
         out1, out2, out3, kick, down, rest
     }
 
-    private int codePostion = 0;
+    private int codePosition = 0;
 
 
     private DcMotor leftFrontDrive;
@@ -263,14 +263,14 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
             if(gamepad1.y){
                 reached = true;
                 turnCodeOn = false;
-                codePostion = 10;
+                codePosition = 10;
 
             }
             if (!turnCodeOn && gamepad1.x&& !(camera.alignmentValue() == -10000)) {
                 turnCodeOn = true;
                 originValue = 0;
                 reached = false;
-                codePostion = 1;
+                codePosition = 1;
 
             }
             if(reached){
@@ -282,11 +282,11 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
                 telemetry.addData("turning: ","none");
                 reached = false;
                 turnCodeOn = false;
-                codePostion = 11;
+                codePosition = 11;
 
             }
             if(turnCodeOn){
-                codePostion=2;
+                codePosition=2;
                 alignVal = camera.alignmentValue();
                 if(originValue==0){
                     if(alignVal>0) {
@@ -297,7 +297,7 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
                 }
             }
             if(turnCodeOn&&(alignVal*originValue<0)){
-                codePostion = 9;
+                codePosition = 9;
                 reached=true;
                 turnCodeOn = false;
                 leftFrontDrive.setPower(0);
@@ -320,6 +320,7 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
                 ///if ((originValue*alignVal)>0) {
                 if(timesOut>=timesNeeded){
                     reached = true;
+                    codePosition = 300;
                 }
 
 
@@ -327,6 +328,7 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
                     telemetry.addData("alignval: ","billion");
 
                     if ((originValue<0)&&(alignVal < 0)) {
+                        codePosition = 1000;
                         //turn left
                         leftFrontDrive.setPower(-1 * turnSpeed);
                         leftBackDrive.setPower(-1 * turnSpeed);
@@ -338,6 +340,7 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
 
                     } else if ((originValue>0)&&(alignVal > 0)) {
                         //turnright
+                        codePosition = -1000;
 
                         leftFrontDrive.setPower(1 * turnSpeed);
                         leftBackDrive.setPower(1 * turnSpeed);
@@ -347,7 +350,7 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
                         telemetry.addData("turning: ","right");
 
                     } else {
-
+                        codePosition= 2000;
                         timesOut++;
                     }
                 }
@@ -586,7 +589,8 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
             telemetry.addData("alignVal",alignVal);
             telemetry.addData("turnCodeOn",turnCodeOn);
             telemetry.addData("reached",reached);
-            telemetry.addData("code position", codePostion);
+            telemetry.addData("code position", codePosition);
+            telemetry.addData("Camera", camera.alignmentValue());
             telemetry.update();
 
             sleep(CYCLE_MS);
