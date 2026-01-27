@@ -15,8 +15,9 @@ import com.qualcomm.robotcore.util.Range;
 @TeleOp(name="R_TFA_PatternShoot", group="Linear OpMode")
 public class R_TFA_PatternShoot extends LinearOpMode {
     public enum outtakeState {
-        outC, outA, outB, ABC, BCA, CAB, kick, down, rest
+        outC, outA, outB, ABC, BCA, CAB, kick, down, REST
     }
+    int shootStep =0;
 
 
 
@@ -27,7 +28,8 @@ public class R_TFA_PatternShoot extends LinearOpMode {
 
     private DcMotor outtake_motor;
 
-    private Servo intakeServo;
+    //private Servo intakeServo;
+    private CRServo intakeServo;
     private Servo transferServo;
     private Servo flickServo;
 
@@ -40,8 +42,9 @@ public class R_TFA_PatternShoot extends LinearOpMode {
 
     private outtakeState state = outtakeState.down;
 
-    boolean pressNow = false;
-    boolean pressPrev = false;
+    boolean pressNowShoot = false;
+    boolean pressPrevShoot = false;
+    boolean patternDetected = false;
 
     String pattern = "PPG";
     String shootOrder = "ABC";
@@ -92,7 +95,7 @@ public class R_TFA_PatternShoot extends LinearOpMode {
         double setFlickPos = 1;
 
         double C_LATERAL, C_AXIAL, C_YAW;
-        boolean C_HALF_SPEED, C_INV_DIR, SET_RPM, C_INTAKE, C_TRANSFER_PA, C_TRANSFER_PB, C_TRANSFER_PC, C_FLICK = false, C_MOVE_LEFT, C_MOVE_RIGHT;
+        boolean C_HALF_SPEED, C_INV_DIR, AUTO_SHOT, OUTTAKE_MANUAL, TRANSFER_MANUAL, C_INTAKE, C_SPIT, C_TRANSFER_PA, C_TRANSFER_PB, C_TRANSFER_PC, C_FLICK = false, C_MOVE_LEFT, C_MOVE_RIGHT;
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
@@ -106,7 +109,8 @@ public class R_TFA_PatternShoot extends LinearOpMode {
         boolean prevG2A = false;
         boolean prevG2B = false;
 
-        intakeServo = hardwareMap.get(Servo.class, "intake_servo");
+        //intakeServo = hardwareMap.get(Servo.class, "intake_servo");
+        intakeServo = hardwareMap.get(CRServo.class, "intake_servo");
         transferServo = hardwareMap.get(Servo.class, "transfer_servo");
         flickServo = hardwareMap.get(Servo.class, "flick_servo");
         double rest = 2.95;
@@ -193,7 +197,16 @@ public class R_TFA_PatternShoot extends LinearOpMode {
             C_FLICK = gamepad2.y;
             C_MOVE_LEFT = gamepad2.dpad_left;
             C_MOVE_RIGHT = gamepad2.dpad_right;
-            SET_RPM = gamepad2.dpad_up;
+
+            //TODO: CHECK WITH ALLIE ON THE FOLLOWING FOUR
+            C_SPIT = gamepad2.b;
+            AUTO_SHOT = gamepad2.a;
+            OUTTAKE_MANUAL =  gamepad2.a; //TODO: add
+            TRANSFER_MANUAL =  gamepad2.a; //TODO: add
+
+
+            //SET_RPM = gamepad2.dpad_up;
+            //failsafes we need: outtake manual, intake flip power, transfer reset
 
             double max;
 
@@ -257,6 +270,13 @@ public class R_TFA_PatternShoot extends LinearOpMode {
             } else {
                 keyB = false;
             }
+
+            String sequence = camera.scanForPattern();
+            if (!patternDetected && !(sequence.equals("none"))){
+                pattern = sequence;
+                patternDetected = true;
+            }
+
             if(gamepad1.y){
                 reached = true;
                 turnCodeOn = false;
@@ -352,7 +372,7 @@ public class R_TFA_PatternShoot extends LinearOpMode {
             }
 
 
-            pressNow = gamepad2.a;
+            pressNowShoot = AUTO_SHOT;
 
 
 
@@ -365,20 +385,20 @@ public class R_TFA_PatternShoot extends LinearOpMode {
             if(spinningUp){
                 double dt = timer.seconds();
                 targRPM += dt * flywheelAccel;
-                targRPM = Range.clip(targRPM, 0, 940);
+                targRPM = Range.clip(targRPM, 0, 980);
                 if (targRPM >= 920){spinningUp =false;}
             }
             //if(!spinningUp && (distFromGoal != -1)){targRPM = (0.560459*distFromGoal)+760.13857;}
             if(!spinningUp && (distFromGoal >= 140) && (distFromGoal <= 270)){
-                shooter.setKf(0.00965);
+                //shooter.setKf(0.00965);
                 targRPM = (0.546172*distFromGoal)+722.4006;
             }
             else if(!spinningUp && (distFromGoal > 320)){
-                shooter.setKf(0.0105);
-                targRPM = (targRPM); //TODO: need equation for this
+                //shooter.setKf(0.0105);
+                targRPM = (980); //TODO: need equation for this
             }
             else if(!spinningUp && (distFromGoal < 140) && (distFromGoal != -1)){
-                shooter.setKf(0.00965);
+                //shooter.setKf(0.00965);
                 targRPM = (0.909091*distFromGoal)+703.18182;//TODO: only made this equation with two points; need equation for this
             }
 
@@ -404,7 +424,7 @@ public class R_TFA_PatternShoot extends LinearOpMode {
             384 - 1055+
             */
 
-            targRPM = Range.clip(targRPM, 0, 945);
+            targRPM = Range.clip(targRPM, 0, 980);
 
             shooter.setTargetRPM(targRPM);
 
@@ -449,7 +469,7 @@ public class R_TFA_PatternShoot extends LinearOpMode {
 
 
 
-            if(pressNow && !pressPrev){shooting = !shooting;} //if they're opposite i.e. it's changed
+            if(pressNowShoot && !pressPrevShoot){shooting = !shooting;} //if they're opposite i.e. it's changed
 
             if (shooting){
                 if (   (pattern.equals("PPG") && postrack==cOut) || (pattern.equals("GPP") && postrack==aOut) || (pattern.equals("PGP") && postrack==bOut) ){
@@ -464,150 +484,111 @@ public class R_TFA_PatternShoot extends LinearOpMode {
                     shootOrder = "CAB";
                     state = outtakeState.CAB;
                 }
-                stateTimer.reset();
+                //stateTimer.reset();
             }else{ //stop the sequence
-                state = outtakeState.rest;
+                state = outtakeState.REST;
                 flickServo.setPosition(0.3);
             }
 
-            pressPrev = pressNow;
+            pressPrevShoot = pressNowShoot;
 
             if(shooting) {
                 switch (state) {
                     case ABC:
-                        transferServo.setPosition(aOut);
-                        postrack = aOut;
-                        if (stateTimer.seconds() > 1){
-                            stateTimer.reset();
-                        }
+                        switch (shootStep){
+                        case 0: transferServo.setPosition(aOut); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); postrack = aOut; shootStep++; } break;
+                        case 1: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+                        case 2: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
 
-                        flickServo.setPosition(0.0);
-                        if (stateTimer.seconds() > 1){
-                            stateTimer.reset();
-                        }
+                        case 3: transferServo.setPosition(bOut); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); postrack = bOut; shootStep++; } break;
+                        case 4: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+                        case 5: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
 
-                        flickServo.setPosition(0.3);
-                        if (stateTimer.seconds() > 1){
-                            stateTimer.reset();
-                        }
-
-
-                        transferServo.setPosition(bOut);
-                        postrack = bOut;
-                        if (stateTimer.seconds() > 1){
-                            stateTimer.reset();
-                        }
-
-                        flickServo.setPosition(0.0);
-                        if (stateTimer.seconds() > 1){
-                            stateTimer.reset();
-                        }
-
-                        flickServo.setPosition(0.3);
-                        if (stateTimer.seconds() > 1){
-                            stateTimer.reset();
-                        }
-
-                        transferServo.setPosition(cOut);
-                        postrack = cOut;
-                        if (stateTimer.seconds() > 1){
-                            stateTimer.reset();
-                            state = outtakeState.rest;
-                        }
-
-                        flickServo.setPosition(0.0);
-                        if (stateTimer.seconds() > 1){
-                            stateTimer.reset();
-                        }
-
-                        flickServo.setPosition(0.3);
-                        if (stateTimer.seconds() > 1){
-                            stateTimer.reset();
+                        case 6: transferServo.setPosition(cOut); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); postrack = cOut; shootStep++; } break;
+                        case 7: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+                        case 8: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); state = outtakeState.REST; } break;
                         }
                         break;
 
-                    case outA:
-                        transferServo.setPosition(aOut);
-                        postrack = aOut;
-                        if (stateTimer.seconds() > 1){
-                            state = outtakeState.kick;
-                            stateTimer.reset();
+                    case BCA:
+                        switch (shootStep){
+                            case 0: transferServo.setPosition(bOut); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); postrack = bOut; shootStep++; } break;
+                            case 1: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+                            case 2: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+
+                            case 3: transferServo.setPosition(cOut); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); postrack = cOut; shootStep++; } break;
+                            case 4: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+                            case 5: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+
+                            case 6: transferServo.setPosition(aOut); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); postrack = aOut; shootStep++; } break;
+                            case 7: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+                            case 8: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); state = outtakeState.REST; } break;
                         }
                         break;
 
-                    case outB:
-                        transferServo.setPosition(bOut);
-                        postrack = bOut;
-                        if (stateTimer.seconds() > 1){
-                            state = outtakeState.kick;
-                            stateTimer.reset();
+                    case CAB:
+                        switch (shootStep){
+                            case 0: transferServo.setPosition(cOut); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); postrack = cOut; shootStep++; } break;
+                            case 1: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+                            case 2: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+
+                            case 3: transferServo.setPosition(aOut); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); postrack = aOut; shootStep++; } break;
+                            case 4: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+                            case 5: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+
+                            case 6: transferServo.setPosition(bOut); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); postrack = bOut; shootStep++; } break;
+                            case 7: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+                            case 8: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); state = outtakeState.REST; } break;
                         }
                         break;
-
-                    case kick:
-                        flickServo.setPosition(0.0);
-                        if (stateTimer.seconds() > 1){
-                            state = outtakeState.down;
-                            stateTimer.reset();
-                        }
-                        break;
-
-
-
-                    case down:
-                        flickServo.setPosition(0.3);
-                        if (stateTimer.seconds() > 1) {
-                            if (postrack == cOut) {
-                                state = outtakeState.outA;
-                            } else if (postrack == aOut) {
-                                state = outtakeState.outB;
-                            } else if (postrack == bOut) {
-                                state = outtakeState.rest;
-                                shooting = false;
-                            }
-                            break;
-                        }
-
-                    case rest:
-                        transferServo.setPosition(cOut);
+                    case REST:
+                        shootStep = 0;
                         shooting = false;
-                        break;
+                        stateTimer.reset();
                 }
             }
 
-            if (gamepad2.x) {
-                intakeServo.setPosition(0.0);
-                isEnter = true;
-            } else {
-                intakeServo.setPosition(0.5);
+                if (C_INTAKE) {
+                    //intakeServo.setPosition(0.0);
+                    intakeServo.setPower(-1);
+                    isEnter = true;
+                } else if (C_SPIT){
+                    intakeServo.setPower(1);
+                }else {
+                    //intakeServo.setPosition(0.5);
+                    intakeServo.setPower(0);
+                }
+
+            if (!shooting) {
+
+                if (C_MOVE_LEFT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
+                    transferServo.setPosition(aIn);
+                    postrack = aIn;
+                } else if (C_MOVE_RIGHT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
+                    transferServo.setPosition(aOut);
+                    postrack = aOut;
+                } else if (C_MOVE_LEFT && gamepad2.left_bumper && !gamepad2.right_bumper) {
+                    transferServo.setPosition(bIn);
+                    postrack = bIn;
+                } else if (C_MOVE_RIGHT && gamepad2.left_bumper && !gamepad2.right_bumper) {
+                    transferServo.setPosition(bOut);
+                    postrack = bOut;
+                } else if (C_MOVE_LEFT && !gamepad2.left_bumper && gamepad2.right_bumper) {
+                    transferServo.setPosition(cIn);
+                    postrack = cIn;
+                } else if (C_MOVE_RIGHT && !gamepad2.left_bumper && gamepad2.right_bumper) {
+                    transferServo.setPosition(cOut);
+                    postrack = cOut;
+                }
+
+                if(!shooting){
+                if (C_FLICK) {
+                    flickServo.setPosition(0.0);
+                    isEnter = true;
+                } else {
+                    flickServo.setPosition(0.3);
+                }
             }
-
-            if (C_MOVE_LEFT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
-                transferServo.setPosition(aIn);
-                postrack = aIn;
-            } else if (C_MOVE_RIGHT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
-                transferServo.setPosition(aOut);
-                postrack = aOut;
-            } else if (C_MOVE_LEFT && gamepad2.left_bumper && !gamepad2.right_bumper) {
-                transferServo.setPosition(bIn);
-                postrack = bIn;
-            } else if (C_MOVE_RIGHT && gamepad2.left_bumper && !gamepad2.right_bumper) {
-                transferServo.setPosition(bOut);
-                postrack = bOut;
-            } else if (C_MOVE_LEFT && !gamepad2.left_bumper && gamepad2.right_bumper) {
-                transferServo.setPosition(cIn);
-                postrack = cIn;
-            } else if (C_MOVE_RIGHT && !gamepad2.left_bumper && gamepad2.right_bumper) {
-                transferServo.setPosition(cOut);
-                postrack = cOut;
-            }
-
-
-            if (gamepad2.y) {
-                flickServo.setPosition(0.0);
-                isEnter = true;
-            } else {
-                flickServo.setPosition(0.3);
             }
 
 
@@ -624,6 +605,7 @@ public class R_TFA_PatternShoot extends LinearOpMode {
             telemetry.addData("Distance from Center of Red Goal (cm): ", camera.centerDistanceCM());
             telemetry.addData("target RPM", targRPM);
             telemetry.addData("flywheel measured velocity", flywheel.getVelocity());
+            telemetry.addData("pattern", pattern);
 
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower * speed * invDir, rightFrontPower * speed * invDir);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower * speed * invDir, rightBackPower * speed * invDir);
