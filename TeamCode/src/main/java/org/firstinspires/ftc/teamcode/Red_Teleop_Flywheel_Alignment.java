@@ -424,6 +424,11 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
                     transferServo.setPosition(postrack);
                     cOut = postrack;
                     bIn = cOut - (transferValues.cOut - transferValues.bIn);
+                    aIn = cOut + (transferValues.cOut - transferValues.aIn);
+                    bOut = cOut + (transferValues.cOut - transferValues.bOut);
+                    cIn = cOut + (transferValues.cOut - transferValues.cIn);
+                    aOut = cOut + (transferValues.cOut - transferValues.aOut);
+                    rest = cOut + (transferValues.cOut - transferValues.rest);
                 }
                 transfFailsafe = !transfFailsafe;}
 
