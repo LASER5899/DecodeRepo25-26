@@ -404,7 +404,7 @@ public class Red_Flywheel_Alignment_Debug extends LinearOpMode {
             384 - 1055+
             */
 
-            targRPM = Range.clip(targRPM, 0, 945);
+            targRPM = Range.clip(targRPM, 0, 980);
 
             shooter.setTargetRPM(targRPM);
 

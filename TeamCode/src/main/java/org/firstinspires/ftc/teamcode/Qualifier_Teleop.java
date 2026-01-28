@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
 
+import org.firstinspires.ftc.teamcode.classes.Transfer_Values;
+
 @TeleOp(name="Qualifier Teleop", group="Linear OpMode")
 public class Qualifier_Teleop extends LinearOpMode {
 
@@ -15,9 +17,10 @@ public class Qualifier_Teleop extends LinearOpMode {
 
     private DcMotor outtake_motor;
 
-    private Servo intakeServo;
+    private CRServo intakeServo;
     private Servo transferServo;
     private Servo flickServo;
+    private Transfer_Values transferValues;
 
     @Override
     public void runOpMode() {
@@ -41,7 +44,7 @@ public class Qualifier_Teleop extends LinearOpMode {
         double setFlickPos = 1;
 
         double C_LATERAL, C_AXIAL, C_YAW;
-        boolean C_HALF_SPEED, C_INV_DIR, C_INTAKE, C_TRANSFER_PA, C_TRANSFER_PB, C_TRANSFER_PC, C_FLICK = false, C_MOVE_LEFT, C_MOVE_RIGHT;
+        boolean C_HALF_SPEED, C_INV_DIR, C_INTAKE, C_TRANSFER_PA, C_TRANSFER_PB, C_TRANSFER_PC, C_MOVE_REST, C_FLICK = false, C_MOVE_LEFT, C_MOVE_RIGHT;
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
@@ -55,16 +58,17 @@ public class Qualifier_Teleop extends LinearOpMode {
         boolean prevG2A = false;
         boolean prevG2B = false;
 
-        intakeServo = hardwareMap.get(Servo.class, "intake_servo");
+        intakeServo = hardwareMap.get(CRServo.class, "intake_servo");
         transferServo = hardwareMap.get(Servo.class, "transfer_servo");
         flickServo = hardwareMap.get(Servo.class, "flick_servo");
-        double rest = 2.95;
-        double tranferPosAIn = 0.68;
-        double tranferPosBIn = 0.61;
-        double tranferPosCIn = 0.535;
-        double tranferPosCOut = 0.647;
-        double tranferPosAOut = 0.575;
-        double tranferPosBOut = 0.497;
+
+        double aIn = transferValues.aIn;
+        double bIn = transferValues.bIn;
+        double cIn = transferValues.cIn;
+        double aOut = transferValues.aOut;
+        double bOut = transferValues.bOut;
+        double cOut = transferValues.cOut;
+        double rest = transferValues.rest;
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -114,6 +118,7 @@ public class Qualifier_Teleop extends LinearOpMode {
             C_FLICK = gamepad2.y;
             C_MOVE_LEFT = gamepad2.dpad_left;
             C_MOVE_RIGHT = gamepad2.dpad_right;
+            C_MOVE_REST = gamepad2.dpad_up;
 
             double max;
 
@@ -192,26 +197,28 @@ public class Qualifier_Teleop extends LinearOpMode {
             }
 
             if (gamepad2.x) {
-                intakeServo.setPosition(0.0);
+                intakeServo.setPower(-1.0);
                 isEnter = true;
             } else {
-                intakeServo.setPosition(0.5);
+                intakeServo.setPower(1.0);
             }
 
             /*if (flickServo.getPosition() >= 2) {
                 transferServo.setPosition(tranferPosAIn);
             } else*/ if (C_MOVE_LEFT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
-                transferServo.setPosition(tranferPosAIn);
+                transferServo.setPosition(aIn);
             } else if (C_MOVE_RIGHT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
-                transferServo.setPosition(tranferPosAOut);
+                transferServo.setPosition(aOut);
             } else if (C_MOVE_LEFT && gamepad2.left_bumper && !gamepad2.right_bumper) {
-                transferServo.setPosition(tranferPosBIn);
+                transferServo.setPosition(bIn);
             } else if (C_MOVE_RIGHT && gamepad2.left_bumper && !gamepad2.right_bumper) {
-                transferServo.setPosition(tranferPosBOut);
+                transferServo.setPosition(bOut);
             } else if (C_MOVE_LEFT && !gamepad2.left_bumper && gamepad2.right_bumper) {
-                transferServo.setPosition(tranferPosCIn);
+                transferServo.setPosition(cIn);
             } else if (C_MOVE_RIGHT && !gamepad2.left_bumper && gamepad2.right_bumper) {
-                transferServo.setPosition(tranferPosCOut);
+                transferServo.setPosition(cOut);
+            } else if (C_MOVE_REST && !gamepad2.left_bumper && !gamepad2.right_bumper){
+                transferServo.setPosition(rest);
             }
 
 

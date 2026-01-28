@@ -12,6 +12,8 @@ import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.classes.Transfer_Values;
+
 @TeleOp(name="R_TFA_PatternShoot", group="Linear OpMode")
 public class R_TFA_PatternShoot extends LinearOpMode {
     public enum outtakeState {
@@ -36,6 +38,8 @@ public class R_TFA_PatternShoot extends LinearOpMode {
     private DcMotorEx flywheel;
     //VoltageSensor battery;
     private ShooterControl shooter;
+    private Transfer_Values transferValues;
+    //private Transfer_Values transferValues;
     public Vision camera = new Vision();
     ElapsedTime stateTimer = new ElapsedTime();
     boolean shooting = false;
@@ -64,6 +68,7 @@ public class R_TFA_PatternShoot extends LinearOpMode {
         ElapsedTime timer = new ElapsedTime();
 
         shooter = new ShooterControl(hardwareMap);
+        transferValues = new Transfer_Values();
         flywheel = hardwareMap.get(DcMotorEx.class, "outtake_drive");
         flywheel.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         flywheel.setDirection(DcMotorEx.Direction.REVERSE);
@@ -75,13 +80,7 @@ public class R_TFA_PatternShoot extends LinearOpMode {
         int invDir = 1;    // used to activate inverted direction
         boolean keyA = false, keyB = false;    // used for toggle keys
 
-        double postiion0 = 2.95;
-        double position1 = 0.68;
-        double position2 = 0.647;
-        double position3 = 0.61;
-        double position4 = 0.575;
-        double position5 = 0.535;
-        double position6 = 0.497;
+
 
 
         double distFromGoal = 0;
@@ -113,21 +112,15 @@ public class R_TFA_PatternShoot extends LinearOpMode {
         intakeServo = hardwareMap.get(CRServo.class, "intake_servo");
         transferServo = hardwareMap.get(Servo.class, "transfer_servo");
         flickServo = hardwareMap.get(Servo.class, "flick_servo");
-        double rest = 2.95;
-        double tranferPosAIn = 0.68;
-        double tranferPosBIn = 0.61;
-        double tranferPosCIn = 0.535;
-        double tranferPosCOut = 0.647;
-        double tranferPosAOut = 0.575;
-        double tranferPosBOut = 0.497;
-        double i = 0;
 
-        double aIn = 0.68;
-        double bIn = 0.61;
-        double cIn = 0.535;
-        double cOut = 0.647;
-        double aOut = 0.575;
-        double bOut = 0.497;
+
+        double aIn = transferValues.aIn;
+        double bIn = transferValues.bIn;
+        double cIn = transferValues.cIn;
+        double aOut = transferValues.aOut;
+        double bOut = transferValues.bOut;
+        double cOut = transferValues.cOut;
+        double rest = transferValues.rest;
 
 
         double postrack = cOut;
@@ -469,7 +462,7 @@ public class R_TFA_PatternShoot extends LinearOpMode {
 
 
 
-            if(pressNowShoot && !pressPrevShoot){shooting = !shooting;} //if they're opposite i.e. it's changed
+            if(pressNowShoot && !pressPrevShoot){shooting = !shooting; timer.reset();} //if they're opposite i.e. it's changed
 
             if (shooting){
                 if (   (pattern.equals("PPG") && postrack==cOut) || (pattern.equals("GPP") && postrack==aOut) || (pattern.equals("PGP") && postrack==bOut) ){

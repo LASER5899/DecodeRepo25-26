@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
 import org.firstinspires.ftc.teamcode.tuning.shooter.RobotConstants;
+import org.firstinspires.ftc.teamcode.classes.Transfer_Values;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -30,21 +31,24 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
 
     private DcMotor outtake_motor;
 
-    private Servo intakeServo;
+    private CRServo intakeServo;
     private Servo transferServo;
     private Servo flickServo;
 
     private DcMotorEx flywheel;
     //VoltageSensor battery;
     private ShooterControl shooter;
+    private Transfer_Values transferValues;
     public Vision camera = new Vision();
     ElapsedTime stateTimer = new ElapsedTime();
     boolean shooting = false;
 
     private outtakeState state = outtakeState.down;
 
-    boolean pressNow = false;
-    boolean pressPrev = false;
+    boolean pressNowShot = false;
+    boolean pressPrevShot = false;
+    boolean pressNowTransf = false;
+    boolean pressPrevTransf = false;
 
     String pattern = "PPG";
     String shootOrder = "ABC";
@@ -52,6 +56,8 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
 
     @Override
     public void runOpMode() {
+
+
 
         WebcamName cam1 = hardwareMap.get(WebcamName.class, "Camera1");
         camera.setTarget(Vision.Target.red);
@@ -75,14 +81,6 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
         int invDir = 1;    // used to activate inverted direction
         boolean keyA = false, keyB = false;    // used for toggle keys
 
-        double postiion0 = 2.95;
-        double position1 = 0.68;
-        double position2 = 0.647;
-        double position3 = 0.61;
-        double position4 = 0.575;
-        double position5 = 0.535;
-        double position6 = 0.497;
-
 
         double distFromGoal = 0;
         // total line 80
@@ -95,7 +93,7 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
         double setFlickPos = 1;
 
         double C_LATERAL, C_AXIAL, C_YAW;
-        boolean C_HALF_SPEED, C_INV_DIR, SET_RPM, C_INTAKE, C_TRANSFER_PA, C_TRANSFER_PB, C_TRANSFER_PC, C_FLICK = false, C_MOVE_LEFT, C_MOVE_RIGHT;
+        boolean C_HALF_SPEED, C_INV_DIR, SET_RPM, C_INTAKE, C_TRANSFER_PA, C_TRANSFER_PB, C_TRANSFER_PC, C_MOVE_REST, C_FLICK, TRANSFER_MANUAL = false, C_MOVE_LEFT, C_MOVE_RIGHT;
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
@@ -103,30 +101,23 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
         leftBackDrive = hardwareMap.get(DcMotor.class, "left_back_drive");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
-
         outtake_motor = hardwareMap.get(DcMotor.class, "outtake_drive");
+
         double outtakeMotorPower = -0.75;
         boolean prevG2A = false;
         boolean prevG2B = false;
 
-        intakeServo = hardwareMap.get(Servo.class, "intake_servo");
+        intakeServo = hardwareMap.get(CRServo.class, "intake_servo");
         transferServo = hardwareMap.get(Servo.class, "transfer_servo");
         flickServo = hardwareMap.get(Servo.class, "flick_servo");
-        double rest = 2.95;
-        double tranferPosAIn = 0.68;
-        double tranferPosBIn = 0.61;
-        double tranferPosCIn = 0.535;
-        double tranferPosCOut = 0.647;
-        double tranferPosAOut = 0.575;
-        double tranferPosBOut = 0.497;
-        double i = 0;
 
-        double aIn = 0.68;
-        double bIn = 0.61;
-        double cIn = 0.535;
-        double cOut = 0.647;
-        double aOut = 0.575;
-        double bOut = 0.497;
+        double aIn = transferValues.aIn;
+        double bIn = transferValues.bIn;
+        double cIn = transferValues.cIn;
+        double aOut = transferValues.aOut;
+        double bOut = transferValues.bOut;
+        double cOut = transferValues.cOut;
+        double rest = transferValues.rest;
 
 
         double postrack = cOut;
@@ -197,6 +188,8 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
             C_MOVE_LEFT = gamepad2.dpad_left;
             C_MOVE_RIGHT = gamepad2.dpad_right;
             SET_RPM = gamepad2.dpad_up;
+            C_MOVE_REST = gamepad2.dpad_up;
+            TRANSFER_MANUAL =  gamepad2.dpad_down;
 
             double max;
 
@@ -355,7 +348,7 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
             }
 
 
-            pressNow = gamepad2.a;
+            pressNowShot = gamepad2.a; //TODO: change!!!!!!
 
 
 
@@ -368,24 +361,25 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
             if(spinningUp){
                 double dt = timer.seconds();
                 targRPM += dt * flywheelAccel;
-                targRPM = Range.clip(targRPM, 0, 940);
+                targRPM = Range.clip(targRPM, 0, 980);
                 if (targRPM >= 920){spinningUp =false;}
             }
             //if(!spinningUp && (distFromGoal != -1)){targRPM = (0.560459*distFromGoal)+760.13857;}
             if(!spinningUp && (distFromGoal >= 140) && (distFromGoal <= 270)){
-                shooter.setKf(0.00965);
+                //shooter.setKf(0.000749);
                 targRPM = (0.546172*distFromGoal)+722.4006;
             }
             else if(!spinningUp && (distFromGoal > 320)){
-                shooter.setKf(0.0105);
-                targRPM = (targRPM); //TODO: need equation for this
+                //shooter.setKf(0.0105);
+                targRPM = (980); //TODO: need equation for this
             }
             else if(!spinningUp && (distFromGoal < 140) && (distFromGoal != -1)){
-                shooter.setKf(0.00965);
+                //shooter.setKf(0.000749);
                 targRPM = (0.909091*distFromGoal)+703.18182;//TODO: only made this equation with two points; need equation for this
             }
 
             /*NEW DATA
+            !!!!!!!!!880 ON THE EDGE OF THE MIDDLE!!!!!!! 98O FOR FAR AUTO
             lower ish end
             865 / 263
             860 / 243
@@ -407,7 +401,7 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
             384 - 1055+
             */
 
-            targRPM = Range.clip(targRPM, 0, 945);
+            targRPM = Range.clip(targRPM, 0, 980);
 
             shooter.setTargetRPM(targRPM);
 
@@ -451,18 +445,19 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
 
 
 
-
-            if(pressNow && !pressPrev){shooting = !shooting;} //if they're opposite i.e. it's changed
-
-            if (shooting){
-                state = outtakeState.outC;
-                stateTimer.reset();
-            }else{ //stop the sequence
-                state = outtakeState.rest;
-                flickServo.setPosition(0.3);
+/*
+            if (pressNow && !pressPrev) {
+                shooting = !shooting;
+                if (shooting) {
+                    state = outtakeState.outC;
+                    stateTimer.reset();   // reset ONCE here
+                } else {
+                    state = outtakeState.rest;
+                    flickServo.setPosition(0.3);
+                }
             }
 
-            pressPrev = pressNow;
+
 
             if(shooting) {
                 switch (state) {
@@ -524,39 +519,44 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
                 }
             }
 
-            if (gamepad2.x) {
-                intakeServo.setPosition(0.0);
-                isEnter = true;
-            } else {
-                intakeServo.setPosition(0.5);
-            }
+ */ //TODO: PUTBACK IN
+            if (!shooting) {
+                if (gamepad2.x) {
+                    intakeServo.setPower(-1.0);
+                    isEnter = true;
+                } else {
+                    intakeServo.setPower(0.0);
+                }
 
-            if (C_MOVE_LEFT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
-                transferServo.setPosition(aIn);
-                postrack = aIn;
-            } else if (C_MOVE_RIGHT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
-                transferServo.setPosition(aOut);
-                postrack = aOut;
-            } else if (C_MOVE_LEFT && gamepad2.left_bumper && !gamepad2.right_bumper) {
-                transferServo.setPosition(bIn);
-                postrack = bIn;
-            } else if (C_MOVE_RIGHT && gamepad2.left_bumper && !gamepad2.right_bumper) {
-                transferServo.setPosition(bOut);
-                postrack = bOut;
-            } else if (C_MOVE_LEFT && !gamepad2.left_bumper && gamepad2.right_bumper) {
-                transferServo.setPosition(cIn);
-                postrack = cIn;
-            } else if (C_MOVE_RIGHT && !gamepad2.left_bumper && gamepad2.right_bumper) {
-                transferServo.setPosition(cOut);
-                postrack = cOut;
-            }
+                if (C_MOVE_LEFT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
+                    transferServo.setPosition(aIn);
+                    postrack = aIn;
+                } else if (C_MOVE_RIGHT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
+                    transferServo.setPosition(aOut);//aout
+                    postrack = aOut;
+                } else if (C_MOVE_LEFT && gamepad2.left_bumper && !gamepad2.right_bumper) {
+                    transferServo.setPosition(bIn);
+                    postrack = bIn;
+                } else if (C_MOVE_RIGHT && gamepad2.left_bumper && !gamepad2.right_bumper) {
+                    transferServo.setPosition(bOut); //bOut
+                    postrack = bOut;
+                } else if (C_MOVE_LEFT && !gamepad2.left_bumper && gamepad2.right_bumper) {
+                    transferServo.setPosition(cIn);
+                    postrack = cIn;
+                } else if (C_MOVE_RIGHT && !gamepad2.left_bumper && gamepad2.right_bumper) {
+                    transferServo.setPosition(cOut);
+                    postrack = cOut;
+                }else if (C_MOVE_REST && !gamepad2.left_bumper && !gamepad2.right_bumper){
+                    transferServo.setPosition(rest);
+                }
 
 
-            if (gamepad2.y) {
-                flickServo.setPosition(0.0);
-                isEnter = true;
-            } else {
-                flickServo.setPosition(0.3);
+                if (gamepad2.y) {
+                    flickServo.setPosition(0.0);
+                    isEnter = true;
+                } else {
+                    flickServo.setPosition(0.3);
+                }
             }
 
 
@@ -568,6 +568,8 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
                 leftBackDrive.setPower(leftBackPower * speed * invDir);
                 rightBackDrive.setPower(rightBackPower * speed * invDir);
             }
+
+            pressPrevShot = pressNowShot;
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Distance from Center of Red Goal (cm): ", camera.centerDistanceCM());

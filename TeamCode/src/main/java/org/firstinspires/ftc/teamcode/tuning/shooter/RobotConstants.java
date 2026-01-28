@@ -5,8 +5,8 @@ import com.acmerobotics.dashboard.config.Config;
 @Config
 public class RobotConstants {
     public static double TARGET_RPM =  900;
-    public static double kP = 0.003;
-    public static double kF = 0.00965;
+    public static double kP = 0.005;
+    public static double kF = 0.0028;
     public static double kI = 0.0000;
     public static double kD = 0.0009;
     public static double holdSeconds = 5;
