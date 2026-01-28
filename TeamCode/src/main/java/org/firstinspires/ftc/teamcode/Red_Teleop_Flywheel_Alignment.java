@@ -18,7 +18,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 @TeleOp(name="Red_Teleop_Flywheel_Alignment", group="Linear OpMode")
 public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
     public enum outtakeState {
-        outC, outA, outB, kick, down, rest
+        ABC, BCA, CAB, REST
     }
     int shootStep = 0;
 
@@ -41,14 +41,11 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
     private Transfer_Values transferValues;
     public Vision camera = new Vision();
     ElapsedTime stateTimer = new ElapsedTime();
-    boolean shooting = false;
+    boolean shooting, manualShooting, transfFailsafe = false;
 
-    private outtakeState state = outtakeState.down;
+    private outtakeState state = outtakeState.REST;
 
-    boolean pressNowShot = false;
-    boolean pressPrevShot = false;
-    boolean pressNowTransf = false;
-    boolean pressPrevTransf = false;
+    boolean pressNowShoot, pressPrevShoot, pressNowTransf, pressPrevTransf, pressNowManualShoot, pressPrevManualShoot = false;
 
     String pattern = "PPG";
     String shootOrder = "ABC";
@@ -93,7 +90,7 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
         double setFlickPos = 1;
 
         double C_LATERAL, C_AXIAL, C_YAW;
-        boolean C_HALF_SPEED, C_INV_DIR, SET_RPM, C_INTAKE, C_TRANSFER_PA, C_TRANSFER_PB, C_TRANSFER_PC, C_MOVE_REST, C_FLICK, TRANSFER_MANUAL = false, C_MOVE_LEFT, C_MOVE_RIGHT;
+        boolean C_HALF_SPEED, C_INV_DIR, SET_RPM, C_INTAKE, C_TRANSFER_PA, C_TRANSFER_PB, C_TRANSFER_PC, C_SPIT, C_MOVE_REST, C_FLICK, TRANSFER_MANUAL = false, C_MOVE_LEFT, C_MOVE_RIGHT;
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
@@ -190,6 +187,7 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
             SET_RPM = gamepad2.dpad_up;
             C_MOVE_REST = gamepad2.dpad_up;
             TRANSFER_MANUAL =  gamepad2.dpad_down;
+            C_SPIT = gamepad2.a;
 
             double max;
 
@@ -253,6 +251,14 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
             } else {
                 keyB = false;
             }
+
+            //
+            pressNowShoot = gamepad2.a; //TODO: change!!!!!!
+            distFromGoal = camera.centerDistanceCM();
+            presentVoltage = battery.getVoltage();
+            shooter.setBatteryVoltage(presentVoltage);
+
+
             if(gamepad1.y){
                 reached = true;
                 turnCodeOn = false;
@@ -291,24 +297,12 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
                 telemetry.addData("turning: ","none");
             }
             if (!gamepad1.x && turnCodeOn&&!reached) {
-
-
-                /*if(Math.abs(alignVal)>70){
-                    turnSpeed = 1;
-                }else{
-                    turnSpeed = 0.8/67*(Math.abs(alignVal)-70)+1;
-                }*/
-
                 //below here we need to add when its ok.
                 ///if ((originValue*alignVal)>0) {
                 if(timesOut>=timesNeeded){
                     reached = true;
                 }
-
-
                 if (!(alignVal == -10000)) {
-
-
                     if ((originValue<0)&&(alignVal < 0)) {
                         //turn left
                         leftFrontDrive.setPower(-1 * turnSpeed);
@@ -316,218 +310,138 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
                         rightFrontDrive.setPower(1 * turnSpeed);
                         rightBackDrive.setPower(1 * turnSpeed);
                         timesOut = 0;
-
                         telemetry.addData("turning: ","left");
-
                     } else if ((originValue>0)&&(alignVal > 0)) {
-                        //turnright
-
+                        //turn right
                         leftFrontDrive.setPower(1 * turnSpeed);
                         leftBackDrive.setPower(1 * turnSpeed);
                         rightFrontDrive.setPower(-1 * turnSpeed);
                         rightBackDrive.setPower(-1 * turnSpeed);
                         timesOut = 0;
                         telemetry.addData("turning: ","right");
-
-                    } else {
-
-                        timesOut++;
-                    }
+                    } else {timesOut++;}
                 }
-                /*}else {
-                    turnCodeOn = false;
-                    leftFrontDrive.setPower(0);
-                    leftBackDrive.setPower(0);
-                    rightFrontDrive.setPower(0);
-                    rightFrontDrive.setPower(0);
-                    telemetry.addData("turning: ","none");
-
-
-                }*/
-
             }
-
-
-            pressNowShot = gamepad2.a; //TODO: change!!!!!!
-
-
-
-
-            distFromGoal = camera.centerDistanceCM();
-
-            presentVoltage = battery.getVoltage();
-            shooter.setBatteryVoltage(presentVoltage);
 
             if(spinningUp){
                 double dt = timer.seconds();
                 targRPM += dt * flywheelAccel;
                 targRPM = Range.clip(targRPM, 0, 980);
                 if (targRPM >= 920){spinningUp =false;}
-            }
-            //if(!spinningUp && (distFromGoal != -1)){targRPM = (0.560459*distFromGoal)+760.13857;}
-            if(!spinningUp && (distFromGoal >= 140) && (distFromGoal <= 270)){
-                //shooter.setKf(0.000749);
-                targRPM = (0.546172*distFromGoal)+722.4006;
-            }
-            else if(!spinningUp && (distFromGoal > 320)){
-                //shooter.setKf(0.0105);
-                targRPM = (980); //TODO: need equation for this
-            }
-            else if(!spinningUp && (distFromGoal < 140) && (distFromGoal != -1)){
-                //shooter.setKf(0.000749);
-                targRPM = (0.909091*distFromGoal)+703.18182;//TODO: only made this equation with two points; need equation for this
-            }
-
-            /*NEW DATA
-            !!!!!!!!!880 ON THE EDGE OF THE MIDDLE!!!!!!! 98O FOR FAR AUTO
-            lower ish end
-            865 / 263
-            860 / 243
-            850 / 225
-            830 / 213
-            830 / 202
-            825 / 188
-            820 / 174
-            810 / 162
-
-            805 / 147
-            825 / 134
-            815 / 123
-
-
-            NEW LINE
-            NEW KF
-            0.0105
-            384 - 1055+
-            */
+            } //old constant equation 0.560459*distFromGoal+760.13857
+            if(!spinningUp && (distFromGoal >= 140) && (distFromGoal <= 270)){ targRPM = (0.546172*distFromGoal)+722.4006;} //old Kf 0.000749
+            else if(!spinningUp && (distFromGoal > 320)){targRPM = 980;}                                                    //old Kf 0.0105
+            else if(!spinningUp && (distFromGoal < 140) && (distFromGoal != -1)){targRPM = (0.909091*distFromGoal)+703.18182;} //old Kf 0.000749 //TODO: this equation is really shoddy
 
             targRPM = Range.clip(targRPM, 0, 980);
 
             shooter.setTargetRPM(targRPM);
-
-
-            /*if (!spinningUp && SET_RPM) {
-                if (distFromGoal >= (245)) { // ish
-                    targRPM = 940;
-                } //lowkenuinely the rpm for >= 90 is a total guess
-                if (distFromGoal >= (220) && distFromGoal < (245)) { //230
-                    targRPM = 900;
-                }
-                if (distFromGoal >= (200) && distFromGoal < (220)) { //212
-                    targRPM = 880;
-                }
-                if (distFromGoal >= (165) && distFromGoal < (200)) { //175
-                    targRPM = 860;
-                }
-                if (distFromGoal < (165) && distFromGoal != -1) { //158
-                    targRPM = 840;
-                }
-            }*/
-
-
-
-
-            // total line 80
-            // front wheels @ edge - 900 rpm / distance 80
-            // front wheels @ 10, 880 rpm / distance 70
-            // front wheels @ 20, 860 rpm / distance 60
-            // front wheels @ 33, 840 rpm question mark / distance 47
-
+            shooter.setMaxAccel(RobotConstants.maxAccel);
             shooter.setKf(RobotConstants.kF);
             shooter.setKp(RobotConstants.kP);
             shooter.setKi(RobotConstants.kI);
             shooter.setKd(RobotConstants.kD);
-
-            shooter.setMaxAccel(RobotConstants.maxAccel);
-
             shooter.flywheelHold();
 
+            if(pressNowShoot && !pressPrevShoot){shooting = !shooting; stateTimer.reset();}
+            if(pressNowTransf && pressPrevTransf){transfFailsafe = !transfFailsafe;}
 
-
-
-/*
-            if (pressNow && !pressPrev) {
-                shooting = !shooting;
-                if (shooting) {
-                    state = outtakeState.outC;
-                    stateTimer.reset();   // reset ONCE here
-                } else {
-                    state = outtakeState.rest;
-                    flickServo.setPosition(0.3);
+            if (shooting){
+                if (   (pattern.equals("PPG") && postrack==cOut) || (pattern.equals("GPP") && postrack==aOut) || (pattern.equals("PGP") && postrack==bOut) ){
+                    shootOrder = "ABC";
+                    state = outtakeState.ABC;
                 }
-            }
-
-
+                else if (   (pattern.equals("PPG") && postrack==aOut) || (pattern.equals("GPP") && postrack==bOut) || (pattern.equals("PGP") && postrack==cOut) ){
+                    shootOrder = "BCA";
+                    state = outtakeState.BCA;
+                }
+                else if (   (pattern.equals("PPG") && postrack==bOut) || (pattern.equals("GPP") && postrack==cOut) || (pattern.equals("PGP") && postrack==aOut) ){
+                    shootOrder = "CAB";
+                    state = outtakeState.CAB;
+                }
+            }else{ state = outtakeState.REST; flickServo.setPosition(0.3); }
 
             if(shooting) {
                 switch (state) {
-                    case outC:
-                        transferServo.setPosition(cOut);
-                        postrack = cOut;
-                        if (stateTimer.seconds() > 1){
-                            state = outtakeState.kick;
-                            stateTimer.reset();
+                    case ABC:
+                        switch (shootStep){
+                        case 0: transferServo.setPosition(aOut); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); postrack = aOut; shootStep++; } break;
+                        case 1: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+                        case 2: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+
+                        case 3: transferServo.setPosition(bOut); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); postrack = bOut; shootStep++; } break;
+                        case 4: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+                        case 5: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+
+                        case 6: transferServo.setPosition(cOut); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); postrack = cOut; shootStep++; } break;
+                        case 7: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+                        case 8: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); state = outtakeState.REST; } break;
                         }
                         break;
 
-                    case outA:
-                        transferServo.setPosition(aOut);
-                        postrack = aOut;
-                        if (stateTimer.seconds() > 1){
-                            state = outtakeState.kick;
-                            stateTimer.reset();
+                    case BCA:
+                        switch (shootStep){
+                            case 0: transferServo.setPosition(bOut); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); postrack = bOut; shootStep++; } break;
+                            case 1: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+                            case 2: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+
+                            case 3: transferServo.setPosition(cOut); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); postrack = cOut; shootStep++; } break;
+                            case 4: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+                            case 5: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+
+                            case 6: transferServo.setPosition(aOut); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); postrack = aOut; shootStep++; } break;
+                            case 7: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+                            case 8: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); state = outtakeState.REST; } break;
                         }
                         break;
 
-                    case outB:
-                        transferServo.setPosition(bOut);
-                        postrack = bOut;
-                        if (stateTimer.seconds() > 1){
-                            state = outtakeState.kick;
-                            stateTimer.reset();
+                    case CAB:
+                        switch (shootStep){
+                            case 0: transferServo.setPosition(cOut); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); postrack = cOut; shootStep++; } break;
+                            case 1: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+                            case 2: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+
+                            case 3: transferServo.setPosition(aOut); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); postrack = aOut; shootStep++; } break;
+                            case 4: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+                            case 5: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+
+                            case 6: transferServo.setPosition(bOut); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); postrack = bOut; shootStep++; } break;
+                            case 7: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
+                            case 8: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); state = outtakeState.REST; } break;
                         }
                         break;
-
-                    case kick:
-                        flickServo.setPosition(0.0);
-                        if (stateTimer.seconds() > 1){
-                            state = outtakeState.down;
-                            stateTimer.reset();
-                        }
-                        break;
-
-
-
-                    case down:
-                        flickServo.setPosition(0.3);
-                        if (stateTimer.seconds() > 1) {
-                            if (postrack == cOut) {
-                                state = outtakeState.outA;
-                            } else if (postrack == aOut) {
-                                state = outtakeState.outB;
-                            } else if (postrack == bOut) {
-                                state = outtakeState.rest;
-                                shooting = false;
-                            }
-                            break;
-                        }
-
-                    case rest:
-                        transferServo.setPosition(cOut);
+                    case REST:
+                        shootStep = 0;
                         shooting = false;
-                        break;
+                        stateTimer.reset();
                 }
             }
 
- */ //TODO: PUTBACK IN
-            if (!shooting) {
-                if (gamepad2.x) {
-                    intakeServo.setPower(-1.0);
-                    isEnter = true;
-                } else {
-                    intakeServo.setPower(0.0);
-                }
+            //transfer failsafe
 
+            if(pressNowTransf && pressPrevTransf){
+                if (transfFailsafe){
+                    transferServo.setPosition(postrack);
+                    cOut = postrack;
+                    bIn = cOut - (transferValues.cOut - transferValues.bIn);
+                }
+                transfFailsafe = !transfFailsafe;}
+
+            if(transfFailsafe){
+                //GOAL: get cOut to the top, calibrate the rest based on that
+                if (gamepad2.right_bumper){postrack += 0.005;}
+                if (gamepad2.left_bumper){postrack -= 0.005;}
+                transferServo.setPosition(postrack);
+            }
+
+
+            if (gamepad2.x) {intakeServo.setPower(-1.0);}
+            else if (C_SPIT){intakeServo.setPower(1.0);}
+            else {intakeServo.setPower(0.0);}
+
+            //manual but non-failsafe controls for transfer + kicker + outtake
+
+            if (!shooting) {
                 if (C_MOVE_LEFT && !gamepad2.left_bumper && !gamepad2.right_bumper) {
                     transferServo.setPosition(aIn);
                     postrack = aIn;
@@ -550,17 +464,20 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
                     transferServo.setPosition(rest);
                 }
 
-
-                if (gamepad2.y) {
-                    flickServo.setPosition(0.0);
-                    isEnter = true;
-                } else {
-                    flickServo.setPosition(0.3);
-                }
+                if (gamepad2.y) {flickServo.setPosition(0.0);}
+                else {flickServo.setPosition(0.3);}
             }
 
+            if (gamepad2.a && !prevG2A) {
+                outtakeMotorPower -= 0.05;
+            } else if (gamepad2.b && !prevG2B) {
+                outtakeMotorPower += 0.05;
+            }
+            outtake_motor.setPower(outtakeMotorPower);
+            prevG2A = gamepad2.a;
+            prevG2B = gamepad2.b;
 
-            // Send calculated power to wheels
+
 
             if(!turnCodeOn) {
                 leftFrontDrive.setPower(leftFrontPower * speed * invDir);
@@ -569,12 +486,14 @@ public class Red_Teleop_Flywheel_Alignment extends LinearOpMode {
                 rightBackDrive.setPower(rightBackPower * speed * invDir);
             }
 
-            pressPrevShot = pressNowShot;
+            pressPrevShoot = pressNowShoot;
+            pressPrevTransf = pressNowTransf;
+            pressPrevManualShoot = pressNowManualShoot;
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Distance from Center of Red Goal (cm): ", camera.centerDistanceCM());
-            telemetry.addData("target RPM", targRPM);
-            telemetry.addData("flywheel measured velocity", flywheel.getVelocity());
+            telemetry.addData("Target RPM", targRPM);
+            telemetry.addData("Flywheel measured velocity", flywheel.getVelocity());
 
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower * speed * invDir, rightFrontPower * speed * invDir);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower * speed * invDir, rightBackPower * speed * invDir);
