@@ -301,8 +301,9 @@ public class far_blue_9 extends LinearOpMode{
         public class Hold implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                flywheel.setKf(0.0105);
-                flywheel.setTargetRPM(970);
+                flywheel.setKf(0.0028);
+                flywheel.setKp(0.005);
+                flywheel.setTargetRPM(980);
                 flywheel.flywheelHold();
                 return true; // true reruns action
             }
