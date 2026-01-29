@@ -4,8 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
 
-@TeleOp(name="Qualifier Teleop", group="Linear OpMode")
-public class Qualifiretest extends LinearOpMode {
+@TeleOp(name="Qualifier Teleop - TEST", group="Linear OpMode")
+public class Qualifiertest extends LinearOpMode {
 
 
     private DcMotor leftFrontDrive;
