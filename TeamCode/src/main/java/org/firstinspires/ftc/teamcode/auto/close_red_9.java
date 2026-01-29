@@ -22,9 +22,10 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
+import org.firstinspires.ftc.teamcode.tuning.shooter.RobotConstants;import org.firstinspires.ftc.teamcode.classes.Transfer_Values;
 
 
-    @Config
+@Config
 @Autonomous(name = "close red 9", group = "Autonomous")
 //@Disabled
 //psuedocode
@@ -45,6 +46,7 @@ public class close_red_9 extends LinearOpMode{
     private ShooterControl flywheel;
 
     VoltageSensor battery;
+    private Transfer_Values transferValues;
 
 
 
@@ -226,6 +228,10 @@ public class close_red_9 extends LinearOpMode{
         public class Hold implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
+                flywheel.setKf(RobotConstants.kF);
+                flywheel.setKp(RobotConstants.kP);
+                flywheel.setKi(RobotConstants.kI);
+                flywheel.setKd(RobotConstants.kD);
                 flywheel.setTargetRPM(940);
                 return false; // true reruns action
             }

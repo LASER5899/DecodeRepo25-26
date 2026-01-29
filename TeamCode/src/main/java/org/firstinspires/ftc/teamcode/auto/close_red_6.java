@@ -23,6 +23,8 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
+import org.firstinspires.ftc.teamcode.tuning.shooter.RobotConstants;import org.firstinspires.ftc.teamcode.classes.Transfer_Values;
+
 @Config
 @Autonomous(name = "close red 6", group = "Autonomous")
 //@Disabled
@@ -39,13 +41,15 @@ public class close_red_6 extends LinearOpMode{
     double quarter = 90; // "90 degrees" / right angle turn
     double tile = 24; // "24 inches" / one tile
 
-    double aIn = 0.68;
-    double bIn = 0.61;
-    double cIn = 0.535;
-    double cOut = 0.647;
-    double aOut = 0.575;
-    double bOut = 0.495;
-    double neutral = 0.591;
+    private Transfer_Values transferValues;
+
+    double aIn = transferValues.aIn;
+    double bIn = transferValues.bIn;
+    double cIn = transferValues.cIn;
+    double aOut = transferValues.aOut;
+    double bOut = transferValues.bOut;
+    double cOut = transferValues.cOut;
+    double rest = transferValues.rest;
 
     private ShooterControl flywheel;
 
@@ -193,7 +197,7 @@ public class close_red_6 extends LinearOpMode{
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
-                    transfer.setPosition(neutral);
+                    transfer.setPosition(rest);
                     timer.reset();
                     started = true;
                 }
@@ -297,8 +301,10 @@ public class close_red_6 extends LinearOpMode{
         public class Hold implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                flywheel.setKf(0.0028);
-                flywheel.setKp(0.005);
+                flywheel.setKf(RobotConstants.kF);
+                flywheel.setKp(RobotConstants.kP);
+                flywheel.setKi(RobotConstants.kI);
+                flywheel.setKd(RobotConstants.kD);
                 flywheel.setTargetRPM(865);
                 flywheel.flywheelHold();
                 return true; // true reruns action
