@@ -43,13 +43,13 @@ public class close_blue_6 extends LinearOpMode{
     double tile = 24; // "24 inches" / one tile
     private Transfer_Values transferValues;
 
-    double aIn = transferValues.aIn;
-    double bIn = transferValues.bIn;
-    double cIn = transferValues.cIn;
-    double aOut = transferValues.aOut;
-    double bOut = transferValues.bOut;
-    double cOut = transferValues.cOut;
-    double rest = transferValues.rest;
+    double bIn = 0.07;//0.07;
+    double cOut = 0.105;//0.100;
+    double aIn = 0.14;//0.145;
+    double bOut = 0.175;//0.175;
+    double cIn = 0.21;//0.21;
+    double aOut = 0.250;//0.240;
+    double rest = 0.4;//0.4;
 
     private ShooterControl flywheel;
 
@@ -301,11 +301,11 @@ public class close_blue_6 extends LinearOpMode{
         public class Hold implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                flywheel.setKf(RobotConstants.kF);
-                flywheel.setKp(RobotConstants.kP);
-                flywheel.setKi(RobotConstants.kI);
-                flywheel.setKd(RobotConstants.kD);
-                flywheel.setTargetRPM(865);
+                flywheel.setKf(0.0028);
+                flywheel.setKp(0.005);
+                flywheel.setKi(0);
+                flywheel.setKd(0.0009);
+                flywheel.setTargetRPM(818);
                 flywheel.flywheelHold();
                 return true; // true reruns action
             }
@@ -410,13 +410,13 @@ public class close_blue_6 extends LinearOpMode{
 
                                         one.build(),
 
-                                        transfer.toAIn(),
+                                        transfer.toAOut(),
                                         flicker.kick(),
                                         flicker.goBack(),
-                                        transfer.toBIn(),
+                                        transfer.toBOut(),
                                         flicker.kick(),
                                         flicker.goBack(),
-                                        transfer.toCIn(),
+                                        transfer.toCOut(),
                                         flicker.kick(),
                                         flicker.goBack(),
 

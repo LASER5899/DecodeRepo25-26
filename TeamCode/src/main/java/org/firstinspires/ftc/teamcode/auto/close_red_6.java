@@ -42,18 +42,19 @@ public class close_red_6 extends LinearOpMode{
     double tile = 24; // "24 inches" / one tile
 
     private Transfer_Values transferValues;
+    private VoltageSensor battery;
 
-    double aIn = transferValues.aIn;
-    double bIn = transferValues.bIn;
-    double cIn = transferValues.cIn;
-    double aOut = transferValues.aOut;
-    double bOut = transferValues.bOut;
-    double cOut = transferValues.cOut;
-    double rest = transferValues.rest;
+    double bIn = 0.07;//0.07;
+    double cOut = 0.105;//0.100;
+    double aIn = 0.14;//0.145;
+    double bOut = 0.175;//0.175;
+    double cIn = 0.21;//0.21;
+    double aOut = 0.250;//0.240;
+    double rest = 0.0875;//0.4;
 
     private ShooterControl flywheel;
 
-    VoltageSensor battery;
+    //VoltageSensor battery;
 
     //mechanism instantiation
 
@@ -301,11 +302,12 @@ public class close_red_6 extends LinearOpMode{
         public class Hold implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                flywheel.setKf(RobotConstants.kF);
-                flywheel.setKp(RobotConstants.kP);
-                flywheel.setKi(RobotConstants.kI);
-                flywheel.setKd(RobotConstants.kD);
-                flywheel.setTargetRPM(865);
+                flywheel.setBatteryVoltage(battery.getVoltage());
+                flywheel.setKf(0.0028);
+                flywheel.setKp(0.005);
+                flywheel.setKi(0);
+                flywheel.setKd(0.0009);
+                flywheel.setTargetRPM(818);
                 flywheel.flywheelHold();
                 return true; // true reruns action
             }
@@ -332,7 +334,9 @@ public class close_red_6 extends LinearOpMode{
     @Override
     public void runOpMode() throws InterruptedException {
 
+
         battery = hardwareMap.voltageSensor.iterator().next();
+
 
         flywheel = new ShooterControl(hardwareMap);
 
@@ -402,7 +406,7 @@ public class close_red_6 extends LinearOpMode{
         Actions.runBlocking(
                 new SequentialAction(
 
-                        shooter.fireUp(),
+                        //shooter.fireUp(),
                         new ParallelAction(
                                 shooter.hold(),
                                 intake.intaking(),
@@ -410,40 +414,42 @@ public class close_red_6 extends LinearOpMode{
 
                                         one.build(),
 
-                                        transfer.toAIn(),
+                                        transfer.toAOut(),
                                         flicker.kick(),
                                         flicker.goBack(),
-                                        transfer.toBIn(),
+                                        transfer.toBOut(),
                                         flicker.kick(),
                                         flicker.goBack(),
-                                        transfer.toCIn(),
+                                        transfer.toCOut(),
                                         flicker.kick(),
                                         flicker.goBack(),
+                                        //TODO: TRANSFER CORRECT
 
                                         two.build(),
 
                                         new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
                                                 three.build(),
                                                 new SequentialAction(
-                                                        transfer.toAOut(),
-                                                        transfer.toBOut(),
-                                                        transfer.toCOut(),
+                                                        transfer.toAIn(),
+                                                        transfer.toBIn(),
+                                                        transfer.toCIn(),
                                                         transfer.toNeutral()
                                                 )
                                         ),
                                         four.build(),
 
-                                        transfer.toAIn(),
+                                        transfer.toAOut(),
                                         flicker.kick(),
                                         flicker.goBack(),
-                                        transfer.toBIn(),
+                                        transfer.toBOut(),
                                         flicker.kick(),
                                         flicker.goBack(),
-                                        transfer.toCIn(),
+                                        transfer.toCOut(),
                                         flicker.kick(),
                                         flicker.goBack(),
                                         /*
                                         five.build(),
+                                        //TODO: THIS IS THE FIXED OOTU
 
                                         new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
                                                 six.build(),

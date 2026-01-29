@@ -46,13 +46,13 @@ public class far_red_9 extends LinearOpMode{
     //transferValues = new Transfer_Values();
 
 
-    double aIn = transferValues.aIn;
-    double bIn = transferValues.bIn;
-    double cIn = transferValues.cIn;
-    double aOut = transferValues.aOut;
-    double bOut = transferValues.bOut;
-    double cOut = transferValues.cOut;
-    double rest = transferValues.rest;
+    double bIn = 0.07;//0.07;
+    double cOut = 0.105;//0.100;
+    double aIn = 0.14;//0.145;
+    double bOut = 0.175;//0.175;
+    double cIn = 0.21;//0.21;
+    double aOut = 0.250;//0.240;
+    double rest = 0.4;//0.4;
 
     private ShooterControl flywheel;
 
@@ -446,7 +446,7 @@ public class far_red_9 extends LinearOpMode{
                     transfer.toCOut(),
                     flicker.kick(),
                     flicker.goBack(),
-
+                    /*
                     five.build(),
 
                     new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
@@ -469,7 +469,7 @@ public class far_red_9 extends LinearOpMode{
                     transfer.toCOut(),
                     flicker.kick(),
                     flicker.goBack(),
-
+                    */
                     eight.build(),
 
                     shooter.stop(),

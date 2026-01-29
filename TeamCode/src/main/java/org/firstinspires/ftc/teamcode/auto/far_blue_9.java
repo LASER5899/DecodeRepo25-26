@@ -46,13 +46,13 @@ public class far_blue_9 extends LinearOpMode{
     double tile = 24; // "24 inches" / one tile
     private Transfer_Values transferValues;
 
-    double aIn = transferValues.aIn;
-    double bIn = transferValues.bIn;
-    double cIn = transferValues.cIn;
-    double aOut = transferValues.aOut;
-    double bOut = transferValues.bOut;
-    double cOut = transferValues.cOut;
-    double rest = transferValues.rest;
+    double bIn = 0.07;//0.07;
+    double cOut = 0.105;//0.100;
+    double aIn = 0.14;//0.145;
+    double bOut = 0.175;//0.175;
+    double cIn = 0.21;//0.21;
+    double aOut = 0.250;//0.240;
+    double rest = 0.4;//0.4;
 
 
     private ShooterControl flywheel;
