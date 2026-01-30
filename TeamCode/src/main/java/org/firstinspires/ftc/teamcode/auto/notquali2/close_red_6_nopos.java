@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.auto;
+package org.firstinspires.ftc.teamcode.auto.notquali2;
 
 import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
@@ -12,6 +12,7 @@ import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -23,6 +24,7 @@ import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
 @Config
 @Autonomous(name = "close red 6 nopos", group = "Autonomous")
 //@Disabled
+@Disabled
 //psuedocode
 /*
 55 in fwd

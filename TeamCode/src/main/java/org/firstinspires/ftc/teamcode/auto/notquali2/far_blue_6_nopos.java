@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.auto;
+package org.firstinspires.ftc.teamcode.auto.notquali2;
 
 import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
@@ -6,7 +6,6 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
@@ -22,16 +21,28 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
-import org.firstinspires.ftc.teamcode.tuning.shooter.RobotConstants;import org.firstinspires.ftc.teamcode.classes.Transfer_Values;
 
-
+//this is theoretical if everything is perfectly tuned, but using 90 degrees and 24 inches
 @Config
-@Autonomous(name = "close red 9", group = "Autonomous")
-//@Disabled
+@Autonomous(name = "far blue 6", group = "Autonomous")
+@Disabled
 //psuedocode
 /*
+start against wall
+turn cc 30 deg (less?)
+shoot 3
+22 in fwd
+125 deg cc
+13 in fwd
+intake on
+10 in fwd + intake sequ (pos a,b,c)
+23 in back
+125 deg clockwise
+22 in back
+shoot 3
+12 in fwd
  */
-public class close_red_9 extends LinearOpMode{
+public class far_blue_6_nopos extends LinearOpMode{
 
     // if odometry is not properly tuned or constantly being retuned:
     // you MIGHT find it useful to change these values and use multiples of them instead of direct number
@@ -46,7 +57,6 @@ public class close_red_9 extends LinearOpMode{
     private ShooterControl flywheel;
 
     VoltageSensor battery;
-    private Transfer_Values transferValues;
 
 
 
@@ -228,10 +238,6 @@ public class close_red_9 extends LinearOpMode{
         public class Hold implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                flywheel.setKf(RobotConstants.kF);
-                flywheel.setKp(RobotConstants.kP);
-                flywheel.setKi(RobotConstants.kI);
-                flywheel.setKd(RobotConstants.kD);
                 flywheel.setTargetRPM(940);
                 return false; // true reruns action
             }
@@ -344,4 +350,3 @@ public class close_red_9 extends LinearOpMode{
 
     }
 }
-

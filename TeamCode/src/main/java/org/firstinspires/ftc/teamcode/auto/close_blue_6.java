@@ -41,7 +41,9 @@ public class close_blue_6 extends LinearOpMode{
     // i.e. if something is wrong with acceleration/deceleration, two lengths may not be equal to 2 * (one length)
     double quarter = 90; // "90 degrees" / right angle turn
     double tile = 24; // "24 inches" / one tile
+
     private Transfer_Values transferValues;
+    private VoltageSensor battery;
 
     double bIn = 0.07;//0.07;
     double cOut = 0.105;//0.100;
@@ -49,11 +51,11 @@ public class close_blue_6 extends LinearOpMode{
     double bOut = 0.175;//0.175;
     double cIn = 0.21;//0.21;
     double aOut = 0.250;//0.240;
-    double rest = 0.4;//0.4;
+    double rest = 0.0875;//0.4;
 
     private ShooterControl flywheel;
 
-    VoltageSensor battery;
+    //VoltageSensor battery;
 
     //mechanism instantiation
 
@@ -301,6 +303,7 @@ public class close_blue_6 extends LinearOpMode{
         public class Hold implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
+                flywheel.setBatteryVoltage(battery.getVoltage());
                 flywheel.setKf(0.0028);
                 flywheel.setKp(0.005);
                 flywheel.setKi(0);

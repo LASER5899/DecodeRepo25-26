@@ -442,12 +442,12 @@ public class Qualifier_Two_Teleop_Blue extends LinearOpMode {
                     transferServo.setPosition(postrack);
                     cOut = postrack;
                     //TODO: THIS IS THER CORRECT OPMORE
-                    bIn = cOut - 0.08; //(transferValues.cOut - transferValues.bIn);
-                    aIn = cOut + 0.04 - 0.005;//(transferValues.cOut - transferValues.aIn);
-                    bOut = cOut + 0.075 - 0.005;//(transferValues.cOut - transferValues.bOut);
-                    cIn = cOut + 0.11 - 0.005;//(transferValues.cOut - transferValues.cIn);
-                    aOut = cOut + 0.15 - 0.005;//(transferValues.cOut - transferValues.aOut);
-                    rest = cOut + 0.3 - 0.005; //(transferValues.cOut - transferValues.rest);
+                    bIn = postrack - (transferValues.cOut - transferValues.bIn);
+                    aIn = postrack + (transferValues.aIn - transferValues.cOut);
+                    bOut = postrack + (transferValues.bOut - transferValues.cOut);
+                    cIn = postrack + (transferValues.cIn - transferValues.cOut);
+                    aOut = postrack + (transferValues.aOut - transferValues.cOut);
+                    rest = postrack + (transferValues.rest - transferValues.cOut);
                 }
                 transfFailsafe = !transfFailsafe;}
 

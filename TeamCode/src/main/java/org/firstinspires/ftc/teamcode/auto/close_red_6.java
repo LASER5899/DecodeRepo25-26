@@ -23,7 +23,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
-import org.firstinspires.ftc.teamcode.tuning.shooter.RobotConstants;import org.firstinspires.ftc.teamcode.classes.Transfer_Values;
+import org.firstinspires.ftc.teamcode.classes.Transfer_Values;
 
 @Config
 @Autonomous(name = "close red 6", group = "Autonomous")

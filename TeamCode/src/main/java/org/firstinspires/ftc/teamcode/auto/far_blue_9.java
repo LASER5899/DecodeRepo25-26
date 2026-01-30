@@ -44,7 +44,9 @@ public class far_blue_9 extends LinearOpMode{
     // i.e. if something is wrong with acceleration/deceleration, two lengths may not be equal to 2 * (one length)
     double quarter = 90; // "90 degrees" / right angle turn
     double tile = 24; // "24 inches" / one tile
+
     private Transfer_Values transferValues;
+    private VoltageSensor battery;
 
     double bIn = 0.07;//0.07;
     double cOut = 0.105;//0.100;
@@ -52,12 +54,11 @@ public class far_blue_9 extends LinearOpMode{
     double bOut = 0.175;//0.175;
     double cIn = 0.21;//0.21;
     double aOut = 0.250;//0.240;
-    double rest = 0.4;//0.4;
-
+    double rest = 0.0875;//0.4;
 
     private ShooterControl flywheel;
 
-    VoltageSensor battery;
+    //VoltageSensor battery;
 
     //mechanism instantiation
 
@@ -215,7 +216,7 @@ public class far_blue_9 extends LinearOpMode{
 
     public class flickServo {
         private final ElapsedTime timer = new ElapsedTime();
-        private final double move_time = 0.3;
+        private final double move_time = 0.15;
         private boolean started = false;
         private Servo flicker;
         public flickServo(HardwareMap hwMap) {
@@ -278,12 +279,12 @@ public class far_blue_9 extends LinearOpMode{
 
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                    if (!started){t.reset(); started=true;}
-                    double dt = t.seconds();
-                    power += dt * 100;
-                    power = Range.clip(power, 0, 0.8);
-                    shooter.setPower(power);
-                    t.reset();
+                if (!started){t.reset(); started=true;}
+                double dt = t.seconds();
+                power += dt * 100;
+                power = Range.clip(power, 0, 0.8);
+                shooter.setPower(power);
+                t.reset();
                 return power < 0.7; // true reruns action
             }
         }
@@ -305,11 +306,12 @@ public class far_blue_9 extends LinearOpMode{
         public class Hold implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                flywheel.setKf(RobotConstants.kF);
-                flywheel.setKp(RobotConstants.kP);
-                flywheel.setKi(RobotConstants.kI);
-                flywheel.setKd(RobotConstants.kD);
-                flywheel.setTargetRPM(980);
+                flywheel.setBatteryVoltage(battery.getVoltage());
+                flywheel.setKf(0.0028);
+                flywheel.setKp(0.005);
+                flywheel.setKi(0);
+                flywheel.setKd(0.0009);
+                flywheel.setTargetRPM(818);
                 flywheel.flywheelHold();
                 return true; // true reruns action
             }
