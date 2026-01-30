@@ -311,7 +311,7 @@ public class far_blue_9 extends LinearOpMode{
                 flywheel.setKp(0.005);
                 flywheel.setKi(0);
                 flywheel.setKd(0.0009);
-                flywheel.setTargetRPM(818);
+                flywheel.setTargetRPM(980);
                 flywheel.flywheelHold();
                 return true; // true reruns action
             }
