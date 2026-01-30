@@ -107,7 +107,7 @@ public class close_blue_6 extends LinearOpMode{
                     timer.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                return timer.seconds() < move_time + 0.5; // true reruns action
             }
         }
         public Action toAOut(){
@@ -187,7 +187,7 @@ public class close_blue_6 extends LinearOpMode{
                     timer.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                return timer.seconds() < move_time + 1; // true reruns action
             }
         }
         public Action toCIn(){
@@ -230,7 +230,7 @@ public class close_blue_6 extends LinearOpMode{
                     started = true;
                 }
                 flicker.setPosition(0.0);
-                return timer.seconds() <= 0.8; // true reruns action
+                return timer.seconds() <= 0.4; // true reruns action
             }
         }
         public Action kick(){
@@ -247,14 +247,13 @@ public class close_blue_6 extends LinearOpMode{
 
                 }
                 flicker.setPosition(0.3);
-                return timer.seconds() <= 0.8; // true reruns action
+                return timer.seconds() <= 0.4; // true reruns action
             }
         }
         public Action goBack(){
             return new GoBack();
         }
     }
-
     public class outtakeMotor {
         private DcMotorEx shooter;
         double power = 0;
