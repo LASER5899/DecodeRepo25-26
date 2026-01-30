@@ -341,10 +341,10 @@ public class close_red_6 extends LinearOpMode{
         flywheel = new ShooterControl(hardwareMap);
 
         Pose2d pose0 = new Pose2d(0, 0, Math.toRadians(0));
-        Pose2d pose2 = new Pose2d(45, -20, Math.toRadians(-50));
+        Pose2d pose2 = new Pose2d(45, -20, Math.toRadians(-40));
         Pose2d pose3 = new Pose2d(49, -10, Math.toRadians(90));
         Pose2d pose4 = new Pose2d(49, 17, Math.toRadians(90));
-        Pose2d pose5 = new Pose2d(45, -20, Math.toRadians(-50));
+        Pose2d pose5 = new Pose2d(45, -20, Math.toRadians(-45));
         Pose2d pose6 = new Pose2d(73, -10, Math.toRadians(90));
         Pose2d pose7 = new Pose2d(73, 20, Math.toRadians(90));
         Pose2d pose8 = new Pose2d(45, -20, Math.toRadians(-50));
@@ -369,7 +369,7 @@ public class close_red_6 extends LinearOpMode{
                 .strafeToConstantHeading(new Vector2d(-15, -15), new TranslationalVelConstraint(50));
 
         TrajectoryActionBuilder one = drive.actionBuilder(pose0)
-                .strafeToLinearHeading(new Vector2d(45, -20), Math.toRadians(-50));//, new TranslationalVelConstraint(10));
+                .strafeToLinearHeading(new Vector2d(45, -20), Math.toRadians(-40));//, new TranslationalVelConstraint(10));
 
         TrajectoryActionBuilder two = drive.actionBuilder(pose2)
                 .strafeToLinearHeading(new Vector2d(49, -10), Math.toRadians(90));//, new TranslationalVelConstraint(10)); //counterclockwise by default
@@ -379,7 +379,7 @@ public class close_red_6 extends LinearOpMode{
 
         TrajectoryActionBuilder four = drive.actionBuilder(pose4)
                 .strafeToConstantHeading(new Vector2d(45, -20))//, new TranslationalVelConstraint(10))
-                .turnTo(Math.toRadians(-50));
+                .turnTo(Math.toRadians(-45));
 
         TrajectoryActionBuilder five = drive.actionBuilder(pose5)
                 .strafeToConstantHeading(new Vector2d(73, -10))//, new TranslationalVelConstraint(10))

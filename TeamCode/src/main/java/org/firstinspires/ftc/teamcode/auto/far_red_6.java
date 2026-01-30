@@ -1,21 +1,18 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
-import com.acmerobotics.roadrunner.AngularVelConstraint;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.ProfileAccelConstraint;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.TranslationalVelConstraint;
-import com.acmerobotics.roadrunner.TurnConstraints;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -27,16 +24,16 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
-import org.firstinspires.ftc.teamcode.tuning.shooter.RobotConstants;import org.firstinspires.ftc.teamcode.classes.Transfer_Values;
+import org.firstinspires.ftc.teamcode.classes.Transfer_Values;
 
 @Config
-@Autonomous(name = "far blue 9", group = "Autonomous")
+@Autonomous(name = "far red 6", group = "Autonomous")
 //@Disabled
 //psuedocode
 /*
 
  */
-public class far_blue_9 extends LinearOpMode{
+public class far_red_6 extends LinearOpMode{
 
     // if odometry is not properly tuned or constantly being retuned:
     // you MIGHT find it useful to change these values and use multiples of them instead of direct number
@@ -343,13 +340,13 @@ public class far_blue_9 extends LinearOpMode{
         flywheel = new ShooterControl(hardwareMap);
 
         Pose2d pose0 = new Pose2d(0, 0, Math.toRadians(0));
-        Pose2d pose2 = new Pose2d(-3, 0, Math.toRadians(20));
-        Pose2d pose3 = new Pose2d(-26, -12, Math.toRadians(270));
-        Pose2d pose4 = new Pose2d(-26, -45, Math.toRadians(270));
-        Pose2d pose5 = new Pose2d(-3, 0, Math.toRadians(20));
-        Pose2d pose6 = new Pose2d(-48, -12, Math.toRadians(270));
-        Pose2d pose7 = new Pose2d(-48, -45, Math.toRadians(270));
-        Pose2d pose8 = new Pose2d(-3, 0, Math.toRadians(20));
+        Pose2d pose2 = new Pose2d(-3, 0, Math.toRadians(-20));
+        Pose2d pose3 = new Pose2d(-26, 12, Math.toRadians(-270));
+        Pose2d pose4 = new Pose2d(-26, 45, Math.toRadians(-270));
+        Pose2d pose5 = new Pose2d(-3, 0, Math.toRadians(-20));
+        Pose2d pose6 = new Pose2d(-48, 12, Math.toRadians(-270));
+        Pose2d pose7 = new Pose2d(-48, 45, Math.toRadians(-270));
+        Pose2d pose8 = new Pose2d(-3, 0, Math.toRadians(-20));
         MecanumDrive drive = new MecanumDrive(hardwareMap, pose0);
         outtakeMotor shooter = new outtakeMotor(hardwareMap);
         transferServo transfer = new transferServo(hardwareMap);
@@ -372,31 +369,31 @@ public class far_blue_9 extends LinearOpMode{
 
         TrajectoryActionBuilder one = drive.actionBuilder(pose0)
                 .strafeToConstantHeading(new Vector2d(-3, 0))//, new TranslationalVelConstraint(50))
-                .turnTo(Math.toRadians(20));
+                .turnTo(Math.toRadians(-20));
 
         TrajectoryActionBuilder two = drive.actionBuilder(pose2)
-                .strafeToLinearHeading(new Vector2d(-26, -12), Math.toRadians(270));//, new TranslationalVelConstraint(10)); //counterclockwise by default
+                .strafeToLinearHeading(new Vector2d(-26, 12), Math.toRadians(-270));//, new TranslationalVelConstraint(10)); //counterclockwise by default
 
         TrajectoryActionBuilder three = drive.actionBuilder(pose3)
-                .strafeToConstantHeading(new Vector2d(-26, -45), new TranslationalVelConstraint(10));
+                .strafeToConstantHeading(new Vector2d(-26, 45), new TranslationalVelConstraint(10));
 
         TrajectoryActionBuilder four = drive.actionBuilder(pose4)
                 .strafeToConstantHeading(new Vector2d(-3, 0))//, new TranslationalVelConstraint(10))
-                .turnTo(Math.toRadians(20));
+                .turnTo(Math.toRadians(-20));
 
         TrajectoryActionBuilder five = drive.actionBuilder(pose5)
-                .strafeToConstantHeading(new Vector2d(-48, -12))//, new TranslationalVelConstraint(10))
-                .turnTo(Math.toRadians(270));
+                .strafeToConstantHeading(new Vector2d(-48, 12))//, new TranslationalVelConstraint(10))
+                .turnTo(Math.toRadians(-270));
 
         TrajectoryActionBuilder six = drive.actionBuilder(pose6)
-                .strafeToConstantHeading(new Vector2d(-48, -45), new TranslationalVelConstraint(10));
+                .strafeToConstantHeading(new Vector2d(-48, 45), new TranslationalVelConstraint(10));
 
         TrajectoryActionBuilder seven = drive.actionBuilder(pose7)
                 .strafeToConstantHeading(new Vector2d(-3, 0))//, new TranslationalVelConstraint(10))
-                .turnTo(Math.toRadians(20));
+                .turnTo(Math.toRadians(-20));
 
         TrajectoryActionBuilder eight = drive.actionBuilder(pose8)
-                .strafeToConstantHeading(new Vector2d(-15, -15));//, new TranslationalVelConstraint(10));
+                .strafeToConstantHeading(new Vector2d(-15, 15));//, new TranslationalVelConstraint(10));
 
         // actions that need to happen on init
 
@@ -449,7 +446,7 @@ public class far_blue_9 extends LinearOpMode{
                     transfer.toCOut(),
                     flicker.kick(),
                     flicker.goBack(),
-
+                    /*
                     five.build(),
 
                     new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
@@ -472,7 +469,7 @@ public class far_blue_9 extends LinearOpMode{
                     transfer.toCOut(),
                     flicker.kick(),
                     flicker.goBack(),
-
+                    */
                     eight.build(),
 
                     shooter.stop(),

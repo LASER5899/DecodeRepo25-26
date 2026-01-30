@@ -428,21 +428,21 @@ public class close_blue_6 extends LinearOpMode{
                                         new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
                                                 three.build(),
                                                 new SequentialAction(
-                                                        transfer.toAOut(),
-                                                        transfer.toBOut(),
-                                                        transfer.toCOut(),
+                                                        transfer.toAIn(),
+                                                        transfer.toBIn(),
+                                                        transfer.toCIn(),
                                                         transfer.toNeutral()
                                                 )
                                         ),
                                         four.build(),
 
-                                        transfer.toAIn(),
+                                        transfer.toAOut(),
                                         flicker.kick(),
                                         flicker.goBack(),
-                                        transfer.toBIn(),
+                                        transfer.toBOut(),
                                         flicker.kick(),
                                         flicker.goBack(),
-                                        transfer.toCIn(),
+                                        transfer.toCOut(),
                                         flicker.kick(),
                                         flicker.goBack(),
                                         /*
