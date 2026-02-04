@@ -18,7 +18,7 @@ public class Decode_Teleop_Field_Relative extends LinearOpMode {
 
     private DcMotor outtake_motor;
 
-    private Servo intakeServo;
+    private CRServo intakeServo;
     private Servo transferServo;
     private Servo flickServo;
 
@@ -93,7 +93,7 @@ public class Decode_Teleop_Field_Relative extends LinearOpMode {
         boolean prevG2A = false;
         boolean prevG2B = false;
 
-        intakeServo   = hardwareMap.get(Servo.class, "intake_servo");
+        intakeServo   = hardwareMap.get(CRServo.class, "intake_servo");
         transferServo = hardwareMap.get(Servo.class, "transfer_servo");
         flickServo    = hardwareMap.get(Servo.class, "flick_servo");
         double tranferPosA = 0.68;
@@ -219,9 +219,9 @@ public class Decode_Teleop_Field_Relative extends LinearOpMode {
             }
 */
             if (C_INTAKE) {
-                intakeServo.setPosition(0.0);
+                intakeServo.setPower(-1.0);
             } else {
-                intakeServo.setPosition(0.5);
+                intakeServo.setPower(0.0);
             }
 
             //if (flickServo.getPosition() >= 2.95){
