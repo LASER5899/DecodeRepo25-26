@@ -410,6 +410,7 @@ public class far_red_6 extends LinearOpMode{
             new ParallelAction(
                 shooter.hold(),
                 intake.intaking(),
+                transfer.toAOut(),
                 new SequentialAction(
 
                     one.build(),

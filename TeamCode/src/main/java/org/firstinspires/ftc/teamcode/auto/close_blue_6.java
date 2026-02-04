@@ -307,7 +307,7 @@ public class close_blue_6 extends LinearOpMode{
                 flywheel.setKp(0.005);
                 flywheel.setKi(0);
                 flywheel.setKd(0.0009);
-                flywheel.setTargetRPM(818);
+                flywheel.setTargetRPM(810);
                 flywheel.flywheelHold();
                 return true; // true reruns action
             }
@@ -341,7 +341,7 @@ public class close_blue_6 extends LinearOpMode{
         Pose2d pose0 = new Pose2d(0, 0, Math.toRadians(0));
         Pose2d pose2 = new Pose2d(45, 20, Math.toRadians(50));
         Pose2d pose3 = new Pose2d(49, 10, Math.toRadians(-90));
-        Pose2d pose4 = new Pose2d(49, -17, Math.toRadians(-90));
+        Pose2d pose4 = new Pose2d(48, -17, Math.toRadians(-90));
         Pose2d pose5 = new Pose2d(45, 20, Math.toRadians(50));
         Pose2d pose6 = new Pose2d(73, 10, Math.toRadians(-90));
         Pose2d pose7 = new Pose2d(73, -20, Math.toRadians(-90));
@@ -373,7 +373,7 @@ public class close_blue_6 extends LinearOpMode{
                 .strafeToLinearHeading(new Vector2d(49, 10), Math.toRadians(-90));//, new TranslationalVelConstraint(10)); //counterclockwise by default
 
         TrajectoryActionBuilder three = drive.actionBuilder(pose3)
-                .strafeToConstantHeading(new Vector2d(49, -17), new TranslationalVelConstraint(15));
+                .strafeToConstantHeading(new Vector2d(48, -17), new TranslationalVelConstraint(15));
 
         TrajectoryActionBuilder four = drive.actionBuilder(pose4)
                 .strafeToConstantHeading(new Vector2d(45, 20))//, new TranslationalVelConstraint(10))
@@ -408,6 +408,7 @@ public class close_blue_6 extends LinearOpMode{
                         new ParallelAction(
                                 shooter.hold(),
                                 intake.intaking(),
+                                transfer.toAOut(),
                                 new SequentialAction(
 
                                         one.build(),

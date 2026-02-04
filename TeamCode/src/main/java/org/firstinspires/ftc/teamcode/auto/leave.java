@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
@@ -26,13 +27,13 @@ import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
 import org.firstinspires.ftc.teamcode.classes.Transfer_Values;
 
 @Config
-@Autonomous(name = "far blue 6", group = "Autonomous")
+@Autonomous(name = "leave", group = "Autonomous")
 //@Disabled
 //psuedocode
 /*
 
  */
-public class far_blue_6 extends LinearOpMode{
+public class leave extends LinearOpMode{
 
     // if odometry is not properly tuned or constantly being retuned:
     // you MIGHT find it useful to change these values and use multiples of them instead of direct number
@@ -339,145 +340,23 @@ public class far_blue_6 extends LinearOpMode{
         flywheel = new ShooterControl(hardwareMap);
 
         Pose2d pose0 = new Pose2d(0, 0, Math.toRadians(0));
-        Pose2d pose2 = new Pose2d(-3, 0, Math.toRadians(20));
-        Pose2d pose3 = new Pose2d(-26, -12, Math.toRadians(270));
-        Pose2d pose4 = new Pose2d(-26, -45, Math.toRadians(270));
-        Pose2d pose5 = new Pose2d(-3, 0, Math.toRadians(20));
-        Pose2d pose6 = new Pose2d(-48, -12, Math.toRadians(270));
-        Pose2d pose7 = new Pose2d(-48, -45, Math.toRadians(270));
-        Pose2d pose8 = new Pose2d(-3, 0, Math.toRadians(20));
+
         MecanumDrive drive = new MecanumDrive(hardwareMap, pose0);
         outtakeMotor shooter = new outtakeMotor(hardwareMap);
         transferServo transfer = new transferServo(hardwareMap);
         intakeServo intake = new intakeServo(hardwareMap);
         flickServo flicker = new flickServo(hardwareMap);
 
-        TrajectoryActionBuilder test = drive.actionBuilder(pose0)
-                .strafeToConstantHeading(new Vector2d(-3, 0), new TranslationalVelConstraint(50))
-                .turnTo(Math.toRadians(30))
-                .strafeToConstantHeading(new Vector2d(-26, -15), new TranslationalVelConstraint(50)) //counterclockwise by default
-                .turnTo(Math.toRadians(270))
-                .strafeToConstantHeading(new Vector2d(-26, -40), new TranslationalVelConstraint(10))
-                .strafeToConstantHeading(new Vector2d(-3, 0), new TranslationalVelConstraint(50))
-                .turnTo(Math.toRadians(30))
-                .strafeToConstantHeading(new Vector2d(-50, -15), new TranslationalVelConstraint(50))
-                .turnTo(Math.toRadians(270))
-                .strafeToConstantHeading(new Vector2d(-50, -40), new TranslationalVelConstraint(10))
-                .strafeToLinearHeading(new Vector2d(-3, 0), Math.toRadians(30), new TranslationalVelConstraint(50))
-                .strafeToConstantHeading(new Vector2d(-15, -15), new TranslationalVelConstraint(50));
-
         TrajectoryActionBuilder one = drive.actionBuilder(pose0)
-                .strafeToConstantHeading(new Vector2d(-3, 0))//, new TranslationalVelConstraint(50))
-                .turnTo(Math.toRadians(20));
-
-        TrajectoryActionBuilder two = drive.actionBuilder(pose2)
-                .strafeToLinearHeading(new Vector2d(-26, -12), Math.toRadians(270));//, new TranslationalVelConstraint(10)); //counterclockwise by default
-
-        TrajectoryActionBuilder three = drive.actionBuilder(pose3)
-                .strafeToConstantHeading(new Vector2d(-26, -45), new TranslationalVelConstraint(10));
-
-        TrajectoryActionBuilder four = drive.actionBuilder(pose4)
-                .strafeToConstantHeading(new Vector2d(-3, 0))//, new TranslationalVelConstraint(10))
-                .turnTo(Math.toRadians(20));
-
-        TrajectoryActionBuilder five = drive.actionBuilder(pose5)
-                .strafeToConstantHeading(new Vector2d(-48, -12))//, new TranslationalVelConstraint(10))
-                .turnTo(Math.toRadians(270));
-
-        TrajectoryActionBuilder six = drive.actionBuilder(pose6)
-                .strafeToConstantHeading(new Vector2d(-48, -45), new TranslationalVelConstraint(10));
-
-        TrajectoryActionBuilder seven = drive.actionBuilder(pose7)
-                .strafeToConstantHeading(new Vector2d(-3, 0))//, new TranslationalVelConstraint(10))
-                .turnTo(Math.toRadians(20));
-
-        TrajectoryActionBuilder eight = drive.actionBuilder(pose8)
-                .strafeToConstantHeading(new Vector2d(-15, -15));//, new TranslationalVelConstraint(10));
+                .strafeToConstantHeading(new Vector2d(18, 0));
 
         // actions that need to happen on init
-
-
 
         waitForStart();
 
         if (isStopRequested()) return;
 
-        Actions.runBlocking(
-            new SequentialAction(
-
-            shooter.fireUp(),
-            new ParallelAction(
-                shooter.hold(),
-                intake.intaking(),
-                transfer.toAOut(),
-                new SequentialAction(
-
-                    one.build(),
-
-                    transfer.toAOut(),
-                    flicker.kick(),
-                    flicker.goBack(),
-                    transfer.toBOut(),
-                    flicker.kick(),
-                    flicker.goBack(),
-                    transfer.toCOut(),
-                    flicker.kick(),
-                    flicker.goBack(),
-
-                    two.build(),
-
-                    new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
-                        three.build(),
-                        new SequentialAction(
-                            transfer.toAIn(),
-                            transfer.toBIn(),
-                            transfer.toCIn(),
-                            transfer.toNeutral()
-                        )
-                    ),
-                    four.build(),
-
-                    transfer.toAOut(),
-                    flicker.kick(),
-                    flicker.goBack(),
-                    transfer.toBOut(),
-                    flicker.kick(),
-                    flicker.goBack(),
-                    transfer.toCOut(),
-                    flicker.kick(),
-                    flicker.goBack(),
-                    /*
-                    five.build(),
-
-                    new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
-                        six.build(),
-                        new SequentialAction(
-                            transfer.toAIn(),
-                            transfer.toBIn(),
-                            transfer.toCIn(),
-                            transfer.toNeutral()
-                        )
-                    ),
-                    seven.build(),
-
-                    transfer.toAOut(),
-                    flicker.kick(),
-                    flicker.goBack(),
-                    transfer.toBOut(),
-                    flicker.kick(),
-                    flicker.goBack(),
-                    transfer.toCOut(),
-                    flicker.kick(),
-                    flicker.goBack(),
-                    */
-                    eight.build(),
-
-                    shooter.stop(),
-                    intake.stopIntaking()
-                )
-            )
-            )
-        );
+        Actions.runBlocking(one.build());
     }
 }
 

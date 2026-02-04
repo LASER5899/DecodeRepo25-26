@@ -307,7 +307,7 @@ public class close_red_6 extends LinearOpMode{
                 flywheel.setKp(0.005);
                 flywheel.setKi(0);
                 flywheel.setKd(0.0009);
-                flywheel.setTargetRPM(818);
+                flywheel.setTargetRPM(810);
                 flywheel.flywheelHold();
                 return true; // true reruns action
             }
@@ -406,10 +406,11 @@ public class close_red_6 extends LinearOpMode{
         Actions.runBlocking(
                 new SequentialAction(
 
-                        //shooter.fireUp(),
+                        shooter.fireUp(),
                         new ParallelAction(
                                 shooter.hold(),
                                 intake.intaking(),
+                                transfer.toAOut(),
                                 new SequentialAction(
 
                                         one.build(),
