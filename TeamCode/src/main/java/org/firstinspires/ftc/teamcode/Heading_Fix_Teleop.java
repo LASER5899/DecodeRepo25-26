@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
 import org.firstinspires.ftc.teamcode.tuning.shooter.RobotConstants;
 import org.firstinspires.ftc.teamcode.classes.Transfer_Values;
 
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
@@ -12,15 +14,86 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+import androidx.annotation.NonNull;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.ParallelAction;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
+import com.acmerobotics.roadrunner.TranslationalVelConstraint;
+import com.acmerobotics.roadrunner.Vector2d;
+import com.acmerobotics.roadrunner.ftc.Actions;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.util.Range;
 
-@TeleOp(name="AAAToday's Teleop - Blue", group="Linear OpMode")
-public class Qualifier_Two_Teleop_Blue extends LinearOpMode {
+import org.firstinspires.ftc.teamcode.MecanumDrive;
+import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
+import org.firstinspires.ftc.teamcode.classes.Transfer_Values;
+
+
+@TeleOp(name="Fixed heading teleop", group="Linear OpMode")
+public class Heading_Fix_Teleop extends LinearOpMode {
+
     public enum outtakeState {
         ABC, BCA, CAB, REST
     }
     int shootStep = 0;
 
 
+    private IMU imu;
+
+    private void driveFieldRelative(double forward, double right, double rotate) {
+        // First, convert direction being asked to drive to polar coordinates
+        double theta = Math.atan2(forward, right);
+        double r = Math.hypot(right, forward);
+
+        // Second, rotate angle by the angle the robot is pointing
+        theta = AngleUnit.normalizeRadians(theta -
+                imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS));
+
+        // Third, convert back to cartesian
+        double newForward = r * Math.sin(theta);
+        double newRight = r * Math.cos(theta);
+
+        // Finally, call the drive method with robot relative forward and right amounts
+        drive(newForward, newRight, rotate);
+    }
+
+    public void drive(double forward, double right, double rotate) {
+        // This calculates the power needed for each wheel based on the amount of forward,
+        // strafe right, and rotate
+        double frontLeftPower = forward + right + rotate;
+        double frontRightPower = forward - right - rotate;
+        double backRightPower = forward + right - rotate;
+        double backLeftPower = forward - right + rotate;
+
+        double maxPower = 1.0;
+
+        // This is needed to make sure we don't pass > 1.0 to any wheel
+        // It allows us to keep all of the motors in proportion to what they should
+        // be and not get clipped
+        maxPower = Math.max(maxPower, Math.abs(frontLeftPower));
+        maxPower = Math.max(maxPower, Math.abs(frontRightPower));
+        maxPower = Math.max(maxPower, Math.abs(backRightPower));
+        maxPower = Math.max(maxPower, Math.abs(backLeftPower));
+
+        // We multiply by maxSpeed so that it can be set lower for outreaches
+        // When a young child is driving the robot, we may not want to allow full
+        // speed.
+        leftFrontDrive.setPower(frontLeftPower / maxPower);
+        rightFrontDrive.setPower(frontRightPower / maxPower);
+        leftBackDrive.setPower(backLeftPower / maxPower);
+        rightBackDrive.setPower(backRightPower / maxPower);
+    }
 
     private DcMotor leftFrontDrive;
     private DcMotor leftBackDrive;
@@ -89,7 +162,7 @@ public class Qualifier_Two_Teleop_Blue extends LinearOpMode {
         double setFlickPos = 1;
 
         double C_LATERAL, C_AXIAL, C_YAW;
-        boolean C_HALF_SPEED, C_INV_DIR, SET_RPM, C_INTAKE, C_TRANSFER_PA, C_TRANSFER_PB, C_TRANSFER_PC, SET_POWER, AUTO_SHOOT, C_SPIT, C_MOVE_REST, C_FLICK, TRANSFER_MANUAL = false, C_MOVE_LEFT, C_MOVE_RIGHT;
+        boolean C_HALF_SPEED, C_INV_DIR, SET_RPM, HEADING_FREEZE, C_INTAKE, C_TRANSFER_PA, C_TRANSFER_PB, C_TRANSFER_PC, SET_POWER, AUTO_SHOOT, C_SPIT, C_MOVE_REST, C_FLICK, TRANSFER_MANUAL = false, C_MOVE_LEFT, C_MOVE_RIGHT;
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
@@ -98,6 +171,10 @@ public class Qualifier_Two_Teleop_Blue extends LinearOpMode {
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front_drive");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back_drive");
         outtake_motor = hardwareMap.get(DcMotor.class, "outtake_drive");
+        //StandardTrackingWheelLocalizer myLocalizer = new StandardTrackingWheelLocalizer(hardwareMap);
+        Pose2d initpose = new Pose2d(0, 0, Math.toRadians(-20));
+        MecanumDrive drive = new MecanumDrive(hardwareMap, initpose);
+        drive.updatePoseEstimate();
 
         double outtakeMotorPower = 0.75;
         boolean prevG2A = false;
@@ -145,6 +222,17 @@ public class Qualifier_Two_Teleop_Blue extends LinearOpMode {
         rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        imu = hardwareMap.get(IMU.class, "imu");
+        // This needs to be changed to match the orientation on your robot
+        RevHubOrientationOnRobot.LogoFacingDirection logoDirection =
+                RevHubOrientationOnRobot.LogoFacingDirection.UP;
+        RevHubOrientationOnRobot.UsbFacingDirection usbDirection =
+                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
+
+        RevHubOrientationOnRobot orientationOnRobot = new
+                RevHubOrientationOnRobot(logoDirection, usbDirection);
+        imu.initialize(new IMU.Parameters(orientationOnRobot));
+
         // Wait for the game to start (driver presses PLAY)
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -184,7 +272,7 @@ public class Qualifier_Two_Teleop_Blue extends LinearOpMode {
             C_INV_DIR = gamepad1.b;
 
             C_INTAKE = gamepad2.x;
-            C_SPIT = gamepad2.a;
+            HEADING_FREEZE = gamepad2.a;
             C_FLICK = gamepad2.y;
             C_MOVE_LEFT = gamepad2.dpad_left;
             C_MOVE_RIGHT = gamepad2.dpad_right;
@@ -221,6 +309,28 @@ public class Qualifier_Two_Teleop_Blue extends LinearOpMode {
                 rightBackPower /= max;
             }
 
+            drive.localizer.update();
+            Pose2d myPose = drive.localizer.getPose();
+            double myPoseX = myPose.position.x;
+            double myPoseY = myPose.position.y;
+
+
+            /*if(HEADING_FREEZE){drive.localizer.setPose(new Pose2d(myPoseX, myPoseY, Math.toRadians(-20)));}*/
+
+            // If you press the A button, then you reset the Yaw to be zero from the way
+            // the robot is currently pointing
+            if (gamepad1.x) {
+                imu.resetYaw();
+            }
+            // If you press the left bumper, you get a drive from the point of view of the robot
+            // (much like driving an RC vehicle)
+            if (HEADING_FREEZE) {
+                drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+            } else {
+                driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+            }
+
+
 
 
 
@@ -255,6 +365,9 @@ public class Qualifier_Two_Teleop_Blue extends LinearOpMode {
             } else {
                 keyB = false;
             }
+
+
+
 
             String sequence = camera.scanForPattern();
             if (!patternDetected && !(sequence.equals("none"))){
@@ -471,7 +584,7 @@ public class Qualifier_Two_Teleop_Blue extends LinearOpMode {
 
 
             if (C_INTAKE) {intakeServo.setPower(-1.0);}
-            else if (C_SPIT){intakeServo.setPower(1.0);}
+            //else if (C_SPIT){intakeServo.setPower(1.0);}
             else {intakeServo.setPower(0.0);}
 
             //manual but non-failsafe controls for transfer + kicker + outtake

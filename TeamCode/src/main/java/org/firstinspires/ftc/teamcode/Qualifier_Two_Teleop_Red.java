@@ -117,6 +117,7 @@ public class Qualifier_Two_Teleop_Red extends LinearOpMode {
 
 
         double postrack = cOut;
+        double postrackreset = 0;
 
         boolean spinningUp = true;
         double flywheelAccel = 180;
@@ -341,10 +342,16 @@ public class Qualifier_Two_Teleop_Red extends LinearOpMode {
                 targRPM += dt * flywheelAccel;
                 targRPM = Range.clip(targRPM, 0, 980);
                 if (targRPM >= 920){spinningUp =false;}
-            } //old constant equation 0.560459*distFromGoal+760.13857
-            if(!spinningUp && (distFromGoal >= 140) && (distFromGoal <= 270)){ targRPM = (0.546172*distFromGoal)+722.4006;} //old Kf 0.000749
-            else if(!spinningUp && (distFromGoal > 320)){targRPM = 980;}                                                    //old Kf 0.0105
-            else if(!spinningUp && (distFromGoal < 140) && (distFromGoal != -1)){targRPM = (0.909091*distFromGoal)+703.18182;} //old Kf 0.000749 //TODO: this equation is really shoddy
+            }
+            if(!spinningUp && (distFromGoal >= 140) && (distFromGoal <= 270)){
+                targRPM = (0.546172*distFromGoal)+722.4006;
+            }
+            else if(!spinningUp && (distFromGoal > 320)){
+                targRPM = 980;
+            }
+
+
+            else if(!spinningUp && (distFromGoal < 140) && (distFromGoal != -1)){targRPM = (0.909091*distFromGoal)+703.18182;}
 
             targRPM = Range.clip(targRPM, 0, 980);
             shooter.setMaxAccel(RobotConstants.maxAccel);
@@ -362,6 +369,7 @@ public class Qualifier_Two_Teleop_Red extends LinearOpMode {
             if(pressNowShoot && !pressPrevShoot){
                 shooting = !shooting;
                 if (shooting){
+                    shootStep = 0;
                     if (   (pattern.equals("PPG") && postrack==cOut) || (pattern.equals("GPP") && postrack==aOut) || (pattern.equals("PGP") && postrack==bOut) ){
                         shootOrder = "ABC";
                         state = outtakeState.ABC;
@@ -383,15 +391,15 @@ public class Qualifier_Two_Teleop_Red extends LinearOpMode {
                 switch (state) {
                     case ABC:
                         switch (shootStep){
-                            case 0: transferServo.setPosition(aOut); if (stateTimer.seconds() > 1) {stateTimer.reset(); postrack = aOut; shootStep++; } break;
+                            case 0: transferServo.setPosition(aOut); postrack = aOut; if (stateTimer.seconds() > 1) {stateTimer.reset(); postrack = aOut; shootStep++; } break;
                             case 1: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
                             case 2: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
 
-                            case 3: transferServo.setPosition(bOut); if (stateTimer.seconds() > 1) {stateTimer.reset(); postrack = bOut; shootStep++; } break;
+                            case 3: transferServo.setPosition(bOut); postrack = bOut; if (stateTimer.seconds() > 1) {stateTimer.reset(); postrack = bOut; shootStep++; } break;
                             case 4: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
                             case 5: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
 
-                            case 6: transferServo.setPosition(cOut); if (stateTimer.seconds() > 1) {stateTimer.reset(); postrack = cOut; shootStep++; } break;
+                            case 6: transferServo.setPosition(cOut); postrack = cOut; if (stateTimer.seconds() > 1) {stateTimer.reset(); postrack = cOut; shootStep++; } break;
                             case 7: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
                             case 8: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); state = outtakeState.REST; } break;
                         }
@@ -399,15 +407,15 @@ public class Qualifier_Two_Teleop_Red extends LinearOpMode {
 
                     case BCA:
                         switch (shootStep){
-                            case 0: transferServo.setPosition(bOut); if (stateTimer.seconds() > 1) {stateTimer.reset(); postrack = bOut; shootStep++; } break;
+                            case 0: transferServo.setPosition(bOut); postrack = bOut; if (stateTimer.seconds() > 1) {stateTimer.reset(); postrack = bOut; shootStep++; } break;
                             case 1: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
                             case 2: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
 
-                            case 3: transferServo.setPosition(cOut); if (stateTimer.seconds() > 1) {stateTimer.reset(); postrack = cOut; shootStep++; } break;
+                            case 3: transferServo.setPosition(cOut); postrack = cOut; if (stateTimer.seconds() > 1) {stateTimer.reset(); postrack = cOut; shootStep++; } break;
                             case 4: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
                             case 5: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
 
-                            case 6: transferServo.setPosition(aOut); if (stateTimer.seconds() > 1) {stateTimer.reset(); postrack = aOut; shootStep++; } break;
+                            case 6: transferServo.setPosition(aOut); postrack = aOut; if (stateTimer.seconds() > 1) {stateTimer.reset(); postrack = aOut; shootStep++; } break;
                             case 7: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
                             case 8: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); state = outtakeState.REST; } break;
                         }
@@ -415,15 +423,15 @@ public class Qualifier_Two_Teleop_Red extends LinearOpMode {
 
                     case CAB:
                         switch (shootStep){
-                            case 0: transferServo.setPosition(cOut); if (stateTimer.seconds() > 1) {stateTimer.reset(); postrack = cOut; shootStep++; } break;
+                            case 0: transferServo.setPosition(cOut); postrack = cOut; if (stateTimer.seconds() > 1) {stateTimer.reset(); postrack = cOut; shootStep++; } break;
                             case 1: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
                             case 2: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
 
-                            case 3: transferServo.setPosition(aOut); if (stateTimer.seconds() > 1) {stateTimer.reset(); postrack = aOut; shootStep++; } break;
+                            case 3: transferServo.setPosition(aOut); postrack = aOut; if (stateTimer.seconds() > 1) {stateTimer.reset(); postrack = aOut; shootStep++; } break;
                             case 4: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
                             case 5: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
 
-                            case 6: transferServo.setPosition(bOut); if (stateTimer.seconds() > 1) {stateTimer.reset(); postrack = bOut; shootStep++; } break;
+                            case 6: transferServo.setPosition(bOut); postrack = bOut; if (stateTimer.seconds() > 1) {stateTimer.reset(); postrack = bOut; shootStep++; } break;
                             case 7: flickServo.setPosition(0.0); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); shootStep++; } break;
                             case 8: flickServo.setPosition(0.3); if (stateTimer.seconds() > 0.5) {stateTimer.reset(); state = outtakeState.REST; } break;
                         }
@@ -439,8 +447,9 @@ public class Qualifier_Two_Teleop_Red extends LinearOpMode {
 
             if(pressNowTransf && !pressPrevTransf){
                 if (transfFailsafe){
-                    transferServo.setPosition(postrack);
-                    cOut = postrack;
+                    cOut = postrackreset;
+                    postrack = cOut;
+                    transferServo.setPosition(cOut);
                     //TODO: THIS IS THER CORRECT OPMORE
                     bIn = postrack - (transferValues.cOut - transferValues.bIn);
                     aIn = postrack + (transferValues.aIn - transferValues.cOut);
@@ -449,12 +458,13 @@ public class Qualifier_Two_Teleop_Red extends LinearOpMode {
                     aOut = postrack + (transferValues.aOut - transferValues.cOut);
                     rest = postrack + (transferValues.rest - transferValues.cOut);
                 }
-                transfFailsafe = !transfFailsafe;}
+                transfFailsafe = !transfFailsafe;
+                }
 
             if(transfFailsafe){
                 //GOAL: get cOut to the top, calibrate the rest based on that
-                if (gamepad2.right_bumper && postrack <= 0.995){postrack += 0.005;}
-                if (gamepad2.left_bumper && postrack >= 0.005){postrack -= 0.005;}
+                if (gamepad2.right_bumper && postrack <= 0.995){postrackreset += 0.005;}
+                if (gamepad2.left_bumper && postrack >= 0.005){postrackreset -= 0.005;}
                 transferServo.setPosition(postrack);
                 telemetry.addData("postrack", postrack);
             }
