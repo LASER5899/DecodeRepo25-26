@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -11,6 +12,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 public class Heading_Fix_Teleop extends LinearOpMode {
 
     boolean pdiddyNow, pdiddyPrev,ganttChart;
+    private MecanumDrive drive;
+    private double heady;
 
 
     private DcMotor leftFrontDrive;
@@ -26,14 +29,14 @@ public class Heading_Fix_Teleop extends LinearOpMode {
 
     private IMU imu;
 
-    private void driveFieldRelative(double forward, double right, double rotate) {
+    private void driveFieldRelative(double forward, double right, double rotate, double head) {
         // First, convert direction being asked to drive to polar coordinates
         double theta = Math.atan2(forward, right);
         double r = Math.hypot(right, forward);
-
+        //double head = drive.localizer.getPose().heading.toDouble();
         // Second, rotate angle by the angle the robot is pointing
         theta = AngleUnit.normalizeRadians(theta -
-                imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS));
+                head);
 
         // Third, convert back to cartesian
         double newForward = r * Math.sin(theta);
@@ -98,6 +101,7 @@ public class Heading_Fix_Teleop extends LinearOpMode {
         intakeServo   = hardwareMap.get(CRServo.class, "intake_servo");
         transferServo = hardwareMap.get(Servo.class, "transfer_servo");
         flickServo    = hardwareMap.get(Servo.class, "flick_servo");
+        MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
         double tranferPosA = 0.68;
         double tranferPosB = 0.61;
         double tranferPosC = 0.535;
@@ -144,6 +148,8 @@ public class Heading_Fix_Teleop extends LinearOpMode {
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
+            drive.updatePoseEstimate();
+            heady = drive.localizer.getPose().heading.toDouble();
 
             // KEYBINDS
             /*
@@ -166,7 +172,7 @@ public class Heading_Fix_Teleop extends LinearOpMode {
             // If you press the A button, then you reset the Yaw to be zero from the way
             // the robot is currently pointing
             if (gamepad1.x) {
-                imu.resetYaw();
+                drive.localizer.setPose(new Pose2d(0, 0, Math.toRadians(0)));
             }
             // If you press the left bumper, you get a drive from the point of view of the robot
             // (much like driving an RC vehicle)
@@ -177,8 +183,9 @@ public class Heading_Fix_Teleop extends LinearOpMode {
 
 
             if (ganttChart) {
-                driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, Math.toRadians(20));
-                if (Math.abs((imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES)+ 20)) < 10){
+                //drive.updatePoseEstimate();
+                driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, Math.toRadians(20), heady);
+                if (((Math.abs(drive.localizer.getPose().heading.toDouble()+ Math.toRadians(20)) < Math.toRadians(3))|| (Math.abs(drive.localizer.getPose().heading.toDouble()- Math.toRadians(20))< Math.toRadians(3)))){
                     ganttChart = false;
                 }
                 //=driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);}
@@ -320,6 +327,7 @@ public class Heading_Fix_Teleop extends LinearOpMode {
             //telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower * speed * invDir, rightBackPower * speed * invDir);
             telemetry.addData("free schlep", "%4.2f", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
             telemetry.addData("diddy", "%4.2f", Math.abs((imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES)+ 20)));
+            telemetry.addData("eepstein", "%4.2f", drive.localizer.getPose().heading.toDouble()+ Math.toRadians(20));
             telemetry.addData("Speed", "%4.2f", speed);
             telemetry.addData("Invert Direction", "%1b", invertDir);
             telemetry.addData("flickServo", flickServo.getPosition());

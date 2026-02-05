@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.Rotation2d;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -11,6 +13,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 public class Decode_Teleop_Field_Relative extends LinearOpMode {
 
 
+    MecanumDrive drive = new MecanumDrive(hardwareMap, new Pose2d(0, 0, 0));
     private DcMotor leftFrontDrive;
     private DcMotor leftBackDrive;
     private DcMotor rightFrontDrive;
@@ -28,10 +31,10 @@ public class Decode_Teleop_Field_Relative extends LinearOpMode {
         // First, convert direction being asked to drive to polar coordinates
         double theta = Math.atan2(forward, right);
         double r = Math.hypot(right, forward);
-
+        double head = drive.localizer.getPose().heading.toDouble();
         // Second, rotate angle by the angle the robot is pointing
         theta = AngleUnit.normalizeRadians(theta -
-                imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS));
+               head);
 
         // Third, convert back to cartesian
         double newForward = r * Math.sin(theta);
@@ -163,7 +166,7 @@ public class Decode_Teleop_Field_Relative extends LinearOpMode {
             // If you press the A button, then you reset the Yaw to be zero from the way
             // the robot is currently pointing
             if (gamepad1.x) {
-                imu.resetYaw();
+                drive.localizer.setPose(new Pose2d(0, 0, Math.toRadians(0)));
             }
             // If you press the left bumper, you get a drive from the point of view of the robot
             // (much like driving an RC vehicle)
