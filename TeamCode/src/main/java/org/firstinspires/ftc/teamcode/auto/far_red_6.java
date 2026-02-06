@@ -46,12 +46,12 @@ public class far_red_6 extends LinearOpMode{
     private VoltageSensor battery;
 
     double bIn = 0.07;//0.07;
-    double cOut = 0.105;//0.100;
+    double cOut = 0.104;//0.105;!!!!!!!!!!11
     double aIn = 0.14;//0.145;
     double bOut = 0.175;//0.175;
     double cIn = 0.21;//0.21;
     double aOut = 0.250;//0.240;
-    double rest = 0.0875;//0.4;
+    double rest = 0.23;//0.4;
 
     private ShooterControl flywheel;
 
@@ -92,8 +92,15 @@ public class far_red_6 extends LinearOpMode{
 
     public class transferServo {
         private Servo transfer;
-        private final ElapsedTime timer = new ElapsedTime();
+        private final ElapsedTime timeraout = new ElapsedTime();
+        private final ElapsedTime timerbout = new ElapsedTime();
+        private final ElapsedTime timercout = new ElapsedTime();
+        private final ElapsedTime timerain = new ElapsedTime();
+        private final ElapsedTime timerbin = new ElapsedTime();
+        private final ElapsedTime timercin = new ElapsedTime();
+        private final ElapsedTime timerrest = new ElapsedTime();
         private final double move_time = 1.2;
+        private final double move_time_in = 1.7;
         public transferServo(HardwareMap hwMap) {
             transfer = hardwareMap.get(Servo.class, "transfer_servo");
         }
@@ -104,10 +111,10 @@ public class far_red_6 extends LinearOpMode{
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
                     transfer.setPosition(aOut);
-                    timer.reset();
+                    timeraout.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                return timeraout.seconds() < move_time; // true reruns action
             }
         }
         public Action toAOut(){
@@ -120,10 +127,10 @@ public class far_red_6 extends LinearOpMode{
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
                     transfer.setPosition(bOut);
-                    timer.reset();
+                    timerbout.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                return timerbout.seconds() < move_time; // true reruns action
             }
         }
         public Action toBOut(){
@@ -136,10 +143,10 @@ public class far_red_6 extends LinearOpMode{
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
                     transfer.setPosition(cOut);
-                    timer.reset();
+                    timercout.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                return timercout.seconds() < move_time; // true reruns action
             }
         }
         public Action toCOut(){
@@ -152,10 +159,10 @@ public class far_red_6 extends LinearOpMode{
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
                     transfer.setPosition(aIn);
-                    timer.reset();
+                    timerain.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                return timerain.seconds() < move_time_in; // true reruns action
             }
         }
         public Action toAIn(){
@@ -168,10 +175,10 @@ public class far_red_6 extends LinearOpMode{
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
                     transfer.setPosition(bIn);
-                    timer.reset();
+                    timerbin.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                return timerbin.seconds() < move_time_in; // true reruns action
             }
         }
         public Action toBIn(){
@@ -184,10 +191,10 @@ public class far_red_6 extends LinearOpMode{
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
                     transfer.setPosition(cIn);
-                    timer.reset();
+                    timercin.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                return timercin.seconds() < move_time_in; // true reruns action
             }
         }
         public Action toCIn(){
@@ -200,10 +207,10 @@ public class far_red_6 extends LinearOpMode{
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
                     transfer.setPosition(rest);
-                    timer.reset();
+                    timerrest.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                return timerrest.seconds() < move_time; // true reruns action
             }
         }
         public Action toNeutral(){
@@ -212,7 +219,8 @@ public class far_red_6 extends LinearOpMode{
     }
 
     public class flickServo {
-        private final ElapsedTime timer = new ElapsedTime();
+        private final ElapsedTime timerA = new ElapsedTime();
+        private final ElapsedTime timerB = new ElapsedTime();
         private final double move_time = 0.15;
         private boolean started = false;
         private Servo flicker;
@@ -225,12 +233,13 @@ public class far_red_6 extends LinearOpMode{
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
-                    timer.reset();
-                    //flicker.setPosition(0.0);
+                    //timer.reset();
+                    flicker.setPosition(0.0);
+                    timerA.reset();
                     started = true;
                 }
-                flicker.setPosition(0.0);
-                return timer.seconds() <= 0.8; // true reruns action
+                //flicker.setPosition(0.0);
+                return timerA.seconds() < 0.8; // true reruns action
             }
         }
         public Action kick(){
@@ -242,12 +251,15 @@ public class far_red_6 extends LinearOpMode{
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
-                    timer.reset();
+                    //timer.reset();
+                    //started = true;
+                    flicker.setPosition(0.3);
+                    timerB.reset();
                     started = true;
 
                 }
-                flicker.setPosition(0.3);
-                return timer.seconds() <= 0.8; // true reruns action
+                //flicker.setPosition(0.3);
+                return timerB.seconds() < 0.8; // true reruns action
             }
         }
         public Action goBack(){
@@ -304,11 +316,11 @@ public class far_red_6 extends LinearOpMode{
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 flywheel.setBatteryVoltage(battery.getVoltage());
-                flywheel.setKf(0.0028);
+                flywheel.setKf(0.00285);
                 flywheel.setKp(0.005);
                 flywheel.setKi(0);
                 flywheel.setKd(0.0009);
-                flywheel.setTargetRPM(980);
+                flywheel.setTargetRPM(1050);
                 flywheel.flywheelHold();
                 return true; // true reruns action
             }
@@ -355,7 +367,7 @@ public class far_red_6 extends LinearOpMode{
 
         TrajectoryActionBuilder test = drive.actionBuilder(pose0)
                 .strafeToConstantHeading(new Vector2d(-3, 0), new TranslationalVelConstraint(50))
-                .turnTo(Math.toRadians(30))
+                .turnTo(Math.toRadians(40))
                 .strafeToConstantHeading(new Vector2d(-26, -15), new TranslationalVelConstraint(50)) //counterclockwise by default
                 .turnTo(Math.toRadians(270))
                 .strafeToConstantHeading(new Vector2d(-26, -40), new TranslationalVelConstraint(10))
@@ -369,21 +381,22 @@ public class far_red_6 extends LinearOpMode{
 
         TrajectoryActionBuilder one = drive.actionBuilder(pose0)
                 .strafeToConstantHeading(new Vector2d(-3, 0))//, new TranslationalVelConstraint(50))
-                .turnTo(Math.toRadians(-20));
+                .turnTo(Math.toRadians(-35));
 
         TrajectoryActionBuilder two = drive.actionBuilder(pose2)
                 .strafeToLinearHeading(new Vector2d(-26, 12), Math.toRadians(-270));//, new TranslationalVelConstraint(10)); //counterclockwise by default
 
         TrajectoryActionBuilder three = drive.actionBuilder(pose3)
-                .strafeToConstantHeading(new Vector2d(-26, 45), new TranslationalVelConstraint(10));
+                //.strafeToConstantHeading(new Vector2d(-26, 45), new TranslationalVelConstraint(10));
+                .strafeToConstantHeading(new Vector2d(-26, 49), new TranslationalVelConstraint(10));
 
         TrajectoryActionBuilder four = drive.actionBuilder(pose4)
-                .strafeToConstantHeading(new Vector2d(-3, 0))//, new TranslationalVelConstraint(10))
-                .turnTo(Math.toRadians(-20));
+                .strafeToConstantHeading(new Vector2d(-3, 3))//, new TranslationalVelConstraint(10))
+                .turnTo(Math.toRadians(-35));
 
         TrajectoryActionBuilder five = drive.actionBuilder(pose5)
-                .strafeToConstantHeading(new Vector2d(-48, 12))//, new TranslationalVelConstraint(10))
-                .turnTo(Math.toRadians(-270));
+                .strafeToConstantHeading(new Vector2d(-55, 12))//, new TranslationalVelConstraint(10))
+                .turnTo(Math.toRadians(-275));
 
         TrajectoryActionBuilder six = drive.actionBuilder(pose6)
                 .strafeToConstantHeading(new Vector2d(-48, 45), new TranslationalVelConstraint(10));
@@ -410,7 +423,7 @@ public class far_red_6 extends LinearOpMode{
             new ParallelAction(
                 shooter.hold(),
                 intake.intaking(),
-                transfer.toAOut(),
+                //transfer.toAOut(),
                 new SequentialAction(
 
                     one.build(),
@@ -430,13 +443,15 @@ public class far_red_6 extends LinearOpMode{
                     new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
                         three.build(),
                         new SequentialAction(
-                            transfer.toAIn(),
                             transfer.toBIn(),
+                            transfer.toAIn(),
                             transfer.toCIn(),
                             transfer.toNeutral()
                         )
                     ),
                     four.build(),
+
+
 
                     transfer.toAOut(),
                     flicker.kick(),
