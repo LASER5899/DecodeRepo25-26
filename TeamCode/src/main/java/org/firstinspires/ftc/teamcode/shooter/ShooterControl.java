@@ -27,6 +27,7 @@ public class ShooterControl {
 
 
     public void setKp(double kp) { this.Kp = kp; }
+    public void setvoltCorr(double voltCorr) { this.voltCorr = voltCorr; }
     public void setKf(double kf) { this.Kf = kf; }
     public void setKi(double ki) { this.Ki = ki; }
     public void setKd(double kd) { this.Kd = kd; }
@@ -60,6 +61,7 @@ public class ShooterControl {
     double correctPow;
     double maxAccel; //= 1000; //TODO: find a value
 
+    double voltCorr =1;
     double Kp = 0.005;
     double Kf = 0.0028;//0.000749;
     double Kd = 0.0009; //TODO: find;
@@ -96,7 +98,7 @@ public class ShooterControl {
         if (dt >= 1e-4) {derivative = (error - lastError) / dt;} // skip if dt is too small because then derivative will be huge
 
         //correctPow = (Kp * error) + (Ki * integralSum) + (Kd * derivative) + (Kf * targetRPM / batteryVoltage); //13.6 ish at beginning
-        correctPow = (Kp * error) + (Ki * integralSum) + (Kd * derivative) + (Kf * targetRPM * 12.6 / (Math.pow(batteryVoltage, 1.5)));
+        correctPow = (Kp * error) + (Ki * integralSum) + (Kd * derivative) + (Kf * targetRPM * 12.6 / (Math.pow(batteryVoltage, voltCorr)));
 
         correctPow = Range.clip(correctPow,-1,1);
 

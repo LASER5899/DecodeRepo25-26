@@ -437,18 +437,24 @@ public class Heading_And_Flywheel extends LinearOpMode {
                 if (targRPM >= 920){spinningUp =false; shooter.setKf(RobotConstants.kF);}
             }
             if(!spinningUp && (distFromGoal >= 140) && (distFromGoal <= 270)){
-                //targRPM = (0.546172*distFromGoal)+722.4006;
-                targRPM = 1050;
-                shooter.setKf(0.00285);
+                targRPM = (0.546172*distFromGoal)+722.4006;
+                //targRPM = 1050;
+
+                shooter.setKf(0.0028);
+                shooter.setvoltCorr(1.5);
             }
             else if(!spinningUp && (distFromGoal > 320)){
-                targRPM = 980;
-                shooter.setKf(RobotConstants.kF);
+                targRPM = 1050;
+                shooter.setvoltCorr(2);
+                shooter.setKf(0.00285);
             }
-            else if(!spinningUp && (distFromGoal < 140) && (distFromGoal != -1)){targRPM = (0.909091*distFromGoal)+703.18182;}
+            else if(!spinningUp && (distFromGoal < 140) && (distFromGoal != -1)){
+                targRPM = (0.909091*distFromGoal)+703.18182;
+                shooter.setvoltCorr(1.5);
+            }
 
-            targRPM = 1050;
-            shooter.setKf(0.00285);
+            //targRPM = 1050;
+            //shooter.setKf(0.00285);
 
 
 
