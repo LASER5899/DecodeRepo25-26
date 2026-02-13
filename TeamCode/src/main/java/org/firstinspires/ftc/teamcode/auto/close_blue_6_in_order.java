@@ -108,41 +108,84 @@ public class close_blue_6_in_order extends LinearOpMode{
             private boolean started = false;
             private String sequence;
 
-            public ShootSet1(String sequence) {
+            /*public ShootSet1(String sequence) {
                 this.sequence = sequence;
-            }
+            }*/
 
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
+                    String sequence = sequ;
+                    if (sequence == null) sequence = "GPP";  // fallback
+
                     flickServo flicker = new flickServo(hardwareMap);
-                    if (sequence.equals("GPP")) {
+
+                    // ---- Shot 1 position ----
+                    if ("GPP".equals(sequence)) {
                         transfer.setPosition(aOut);
-                    } else if (sequence.equals("PGP")){
+                    } else if ("PGP".equals(sequence)) {
+                        transfer.setPosition(bOut);
+                    } else if ("PPG".equals(sequence)) {
+                        transfer.setPosition(aOut);   // P
+                    } else {
+                        transfer.setPosition(cOut);
+                    }
+                    sleep(1700);
+                    Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));
+
+// ---- Shot 2 position ----
+                    if ("GPP".equals(sequence)) {
+                        transfer.setPosition(bOut);
+                    } else if ("PGP".equals(sequence)) {
+                        transfer.setPosition(aOut);
+                    } else if ("PPG".equals(sequence)) {
+                        transfer.setPosition(bOut);   // P (second purple uses the other pos)
+                    } else {
+                        transfer.setPosition(cOut);
+                    }
+                    sleep(1200);
+                    Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));
+
+// ---- Shot 3 position ----
+                    if ("GPP".equals(sequence)) {
+                        transfer.setPosition(cOut);
+                    } else if ("PGP".equals(sequence)) {
+                        transfer.setPosition(cOut);
+                    } else if ("PPG".equals(sequence)) {
+                        transfer.setPosition(cOut);   // G (your standardized green position)
+                    } else {
+                        transfer.setPosition(aOut);
+                    }
+                    sleep(1200);
+                    Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));
+
+                    /*if ("GPP".equals(sequence)) {
+                        transfer.setPosition(aOut);
+                    } else if ("PGP".equals(sequence)) {
                         transfer.setPosition(bOut);
                     } else {
                         transfer.setPosition(cOut);
                     }
                     sleep(1700);
                     Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));
-                    if (sequence.equals("GPP")) {
+                    if ("GPP".equals(sequence)) {
                         transfer.setPosition(bOut);
-                    } else if (sequence.equals("PGP")){
+                    } else if ("PGP".equals(sequence)){
                         transfer.setPosition(aOut);
                     } else {
                         transfer.setPosition(cOut);
                     }
                     sleep(1200);
                     Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));
-                    if (sequence.equals("GPP")) {
+                    if ("GPP".equals(sequence)) {
                         transfer.setPosition(cOut);
-                    } else if (sequence.equals("PGP")){
+                    } else if ("PGP".equals(sequence)){
                         transfer.setPosition(cOut);
                     } else {
                         transfer.setPosition(aOut);
                     }
                     sleep(1200);
-                    Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));
+                    Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));*/
 
                     timer.reset();
                     started = true;
@@ -150,7 +193,8 @@ public class close_blue_6_in_order extends LinearOpMode{
                 return false; // true reruns action
             }
         }
-        public Action shootSet1(String sequence){ return new ShootSet1(sequence); }
+        //public Action shootSet1(String sequence){ return new ShootSet1(sequence); }
+        public Action shootSet1( ){ return new ShootSet1(); }
 
         public class ShootSet2 implements Action {
             private boolean started = false;
@@ -410,7 +454,7 @@ public class close_blue_6_in_order extends LinearOpMode{
 
         public Vision camera = new Vision();
 
-        private final ElapsedTime timer = new ElapsedTime();
+        private final ElapsedTime timercam = new ElapsedTime();
 
         public String sequence;
 
@@ -421,18 +465,34 @@ public class close_blue_6_in_order extends LinearOpMode{
         }
 
         public class ScanObelisk implements Action {
+            private boolean startedcam = false;
+
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                timer.reset();
-                String sequence = camera.scanForPattern();
-                while (sequence.equals("none") && timer.milliseconds() < 2000) {
-                    sequence = camera.scanForPattern();
+
+                if (!startedcam) {
+                    timercam.reset();
+                    startedcam = true;
                 }
-                if (sequence.equals("none")) {
-                    sequence = "GPP";
+
+                String sequence = camera.scanForPattern();   // ONLY CALL ONCE
+                if (sequence == null) sequence = "none";
+
+                telemetry.addData("cam", "%s", sequence);
+                telemetry.addData("t(ms)", "%.0f", timercam.milliseconds());
+                telemetry.update();
+
+                if ("none".equals(sequence) && timercam.milliseconds() < 5000) {
+                    return true; // keep scanning
                 }
-                sequ = sequence;
-                return false; // true reruns action
+
+                if ("none".equals(sequence)) {
+                    sequ = "GPP";  // timeout fallback
+                    return false;
+                }
+
+                sequ = sequence;   // latch valid
+                return false;
             }
         }
         public Action scanObelisk(){
@@ -533,7 +593,7 @@ public class close_blue_6_in_order extends LinearOpMode{
 
                                         two.build(),
 
-                                        transfer.shootSet1(sequ),
+                                        transfer.shootSet1(),
 
                                         three.build(),
 
@@ -548,7 +608,7 @@ public class close_blue_6_in_order extends LinearOpMode{
                                         ),
                                         five.build(),
 
-                                        transfer.shootSet1(sequ),
+                                        transfer.shootSet1(),
 
                                         /*
                                         five.build(),

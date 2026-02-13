@@ -108,6 +108,33 @@ public class far_red_6 extends LinearOpMode{
             transfer = hardwareMap.get(Servo.class, "transfer_servo");
         }
 
+        public class Diddy implements Action {
+            private final double target;
+            private final double step = 0.0005;
+
+            public Diddy(double targetPosition) {
+                this.target = targetPosition;
+            }
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                double current = transfer.getPosition();
+
+                if (current < target) {
+                    transfer.setPosition(current + step);
+                } else if (current > target) {
+                    transfer.setPosition(current - step);
+                }
+
+                // keep running until close enough
+                return Math.abs(current - target) > step;
+            }
+        }
+
+        public Action diddy(double target) {
+            return new Diddy(target);
+        }
+
         public class ToAOut implements Action {
             private boolean started = false;
             @Override
@@ -525,7 +552,8 @@ public class far_red_6 extends LinearOpMode{
                     intake.intaking(),
                     new SequentialAction(
                         one.build(),
-                        transfer.turnTransf(aOut+0.005, 1.2), //TODO: THIS +0.005 IS NOT TEST
+                        transfer.toAOut(),
+                        /*transfer.turnTransf(aOut+0.005, 1.2), //TODO: THIS +0.005 IS NOT TEST
                         flicker.kick(),
                         flicker.goBack(),
                         transfer.turnTransf(bOut-0.005, 1.2), //TODO: THIS -0.005 IS NOT TEST
@@ -533,7 +561,18 @@ public class far_red_6 extends LinearOpMode{
                         flicker.goBack(),
                         transfer.turnTransf(cOut-0.005, 1.2), //TODO: THIS -0.005 IS NOT TEST
                         flicker.kick(),
-                        flicker.goBack(),
+                        flicker.goBack(),*/
+                            transfer.diddy(aOut),
+                            flicker.kick(),
+                            flicker.goBack(),
+                            //transfer.toBOut(),
+                            transfer.diddy(bOut),
+                            flicker.kick(),
+                            flicker.goBack(),
+                            //transfer.toCOut(),
+                            transfer.diddy(cOut),
+                            flicker.kick(),
+                            flicker.goBack(),
                         two.build(),
                         new ParallelAction(
                             three.build(),
@@ -547,7 +586,7 @@ public class far_red_6 extends LinearOpMode{
                                 transfer.turnTransf(rest, 1),
                                 four.build()
                                 ),
-                        transfer.turnTransf(aOut+0.005, 1.2), //TODO: THIS +0.005 IS NOT TEST
+                        /*transfer.turnTransf(aOut+0.005, 1.2), //TODO: THIS +0.005 IS NOT TEST
                         flicker.kick(),
                         flicker.goBack(),
                         transfer.turnTransf(bOut-0.005, 1.2), //TODO: THIS -0.005 IS NOT TEST
@@ -555,7 +594,18 @@ public class far_red_6 extends LinearOpMode{
                         flicker.goBack(),
                         transfer.turnTransf(cOut - 0.005, 1.2),
                         flicker.kick(),
-                        flicker.goBack(),
+                        flicker.goBack(),*/
+                            transfer.diddy(aOut),
+                            flicker.kick(),
+                            flicker.goBack(),
+                            //transfer.toBOut(),
+                            transfer.diddy(bOut),
+                            flicker.kick(),
+                            flicker.goBack(),
+                            //transfer.toCOut(),
+                            transfer.diddy(cOut),
+                            flicker.kick(),
+                            flicker.goBack(),
                         eight.build(),
                         shooter.stop(),
                         intake.stopIntaking()

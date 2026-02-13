@@ -97,6 +97,33 @@ public class far_blue_6 extends LinearOpMode{
             transfer = hardwareMap.get(Servo.class, "transfer_servo");
         }
 
+        public class Diddy implements Action {
+            private final double target;
+            private final double step = 0.0005;
+
+            public Diddy(double targetPosition) {
+                this.target = targetPosition;
+            }
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                double current = transfer.getPosition();
+
+                if (current < target) {
+                    transfer.setPosition(current + step);
+                } else if (current > target) {
+                    transfer.setPosition(current - step);
+                }
+
+                // keep running until close enough
+                return Math.abs(current - target) > step;
+            }
+        }
+
+        public Action diddy(double target) {
+            return new Diddy(target);
+        }
+
         public class ToAOut implements Action {
             private boolean started = false;
             @Override
@@ -303,11 +330,12 @@ public class far_blue_6 extends LinearOpMode{
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 flywheel.setBatteryVoltage(battery.getVoltage());
-                flywheel.setKf(0.0028);
-                flywheel.setKp(0.005);
+                flywheel.setvoltCorr(1);
+                flywheel.setKf(0.00083);
+                flywheel.setKp(0.009);
                 flywheel.setKi(0);
                 flywheel.setKd(0.0009);
-                flywheel.setTargetRPM(980);
+                flywheel.setTargetRPM(1030);
                 flywheel.flywheelHold();
                 return true; // true reruns action
             }
@@ -409,18 +437,22 @@ public class far_blue_6 extends LinearOpMode{
             new ParallelAction(
                 shooter.hold(),
                 intake.intaking(),
-                transfer.toAOut(),
+                //transfer.toAOut(),
+                transfer.diddy(aOut),
                 new SequentialAction(
 
                     one.build(),
 
-                    transfer.toAOut(),
+                    //transfer.toAOut(),
+                    transfer.diddy(aOut),
                     flicker.kick(),
                     flicker.goBack(),
-                    transfer.toBOut(),
+                    //transfer.toBOut(),
+                    transfer.diddy(bOut),
                     flicker.kick(),
                     flicker.goBack(),
-                    transfer.toCOut(),
+                    //transfer.toCOut(),
+                    transfer.diddy(cOut),
                     flicker.kick(),
                     flicker.goBack(),
 
@@ -437,13 +469,16 @@ public class far_blue_6 extends LinearOpMode{
                     ),
                     four.build(),
 
-                    transfer.toAOut(),
+                    //transfer.toAOut(),
+                    transfer.diddy(aOut),
                     flicker.kick(),
                     flicker.goBack(),
-                    transfer.toBOut(),
+                    //transfer.toBOut(),
+                    transfer.diddy(bOut),
                     flicker.kick(),
                     flicker.goBack(),
-                    transfer.toCOut(),
+                    //transfer.toCOut(),
+                    transfer.diddy(cOut),
                     flicker.kick(),
                     flicker.goBack(),
                     /*

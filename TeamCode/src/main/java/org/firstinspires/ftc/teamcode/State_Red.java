@@ -16,8 +16,8 @@ import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-@TeleOp(name="AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA676767", group="Linear OpMode")
-public class Heading_And_Flywheel extends LinearOpMode {
+@TeleOp(name="!state red 67aaaaaa", group="Linear OpMode")
+public class State_Red extends LinearOpMode {
 
     boolean pdiddyNow, pdiddyPrev,ganttChart;
     private MecanumDrive drive;
@@ -95,9 +95,9 @@ public class Heading_And_Flywheel extends LinearOpMode {
         // We multiply by maxSpeed so that it can be set lower for outreaches
         // When a young child is driving the robot, we may not want to allow full
         // speed.
-        leftFrontDrive.setPower(frontLeftPower / maxPower);
+        leftFrontDrive.setPower(frontLeftPower  / maxPower);
         rightFrontDrive.setPower(frontRightPower / maxPower);
-        leftBackDrive.setPower(backLeftPower / maxPower);
+        leftBackDrive.setPower(backLeftPower  / maxPower);
         rightBackDrive.setPower(backRightPower / maxPower);
     }
 
@@ -270,20 +270,7 @@ public class Heading_And_Flywheel extends LinearOpMode {
             // (much like driving an RC vehicle)
             pdiddyNow = HEADING_FREEZE;
 
-            if(pdiddyNow && !pdiddyPrev){ganttChart = !ganttChart;}
 
-
-
-            if (ganttChart) {
-                //drive.updatePoseEstimate();
-                driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, Math.toRadians(25), heady);
-                if (((Math.abs(drive.localizer.getPose().heading.toDouble()+ Math.toRadians(25)) < Math.toRadians(3))|| (Math.abs(drive.localizer.getPose().heading.toDouble()- Math.toRadians(25))< Math.toRadians(3)))){
-                    ganttChart = false;
-                }
-                //=driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);}
-            } else {
-                drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
-            }
 
             /*double max;
 
@@ -312,6 +299,7 @@ public class Heading_And_Flywheel extends LinearOpMode {
                 leftBackPower /= max;
                 rightBackPower /= max;
             }
+            */
 
 
 
@@ -333,6 +321,21 @@ public class Heading_And_Flywheel extends LinearOpMode {
                 keyA = false;
             }
 
+            if(pdiddyNow && !pdiddyPrev){ganttChart = !ganttChart;}
+
+
+
+            if (ganttChart) {
+                //drive.updatePoseEstimate();
+                driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, Math.toRadians(25), heady);
+                if (((Math.abs(drive.localizer.getPose().heading.toDouble()+ Math.toRadians(25)) < Math.toRadians(3))|| (Math.abs(drive.localizer.getPose().heading.toDouble()- Math.toRadians(25))< Math.toRadians(3)))){
+                    ganttChart = false;
+                }
+                //=driveFieldRelative(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);}
+            } /*else {
+                drive(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
+            }*/
+
             // INVERTED DIRECTION CONTROLS
             if (C_INV_DIR) {
                 if (keyB == false) {
@@ -346,7 +349,7 @@ public class Heading_And_Flywheel extends LinearOpMode {
                 }
             } else {
                 keyB = false;
-            }*/
+            }
 
             String sequence = camera.scanForPattern();
             if (!patternDetected && !(sequence.equals("none"))){
@@ -444,7 +447,7 @@ public class Heading_And_Flywheel extends LinearOpMode {
                 shooter.setvoltCorr(1.5);
             }
             else if(!spinningUp && (distFromGoal > 320)){
-                targRPM = 1050;
+                targRPM = 1070;
                 shooter.setvoltCorr(2);
                 shooter.setKf(0.00285);
             }
@@ -622,13 +625,45 @@ public class Heading_And_Flywheel extends LinearOpMode {
             }
 
 
-            /*if(!turnCodeOn) {
-                leftFrontDrive.setPower(leftFrontPower * speed * invDir);
+            if(!turnCodeOn && !HEADING_FREEZE) {
+                /*leftFrontDrive.setPower(leftFrontPower * speed * invDir);
                 rightFrontDrive.setPower(rightFrontPower * speed * invDir);
                 leftBackDrive.setPower(leftBackPower * speed * invDir);
-                rightBackDrive.setPower(rightBackPower * speed * invDir);
-            }*/
+                rightBackDrive.setPower(rightBackPower * speed * invDir);*/
+                //drive(-
+                double max;
 
+                // POV Mode uses left joystick to go axial & strafe, and right joystick to yaw.
+                double axial = -C_AXIAL;  // Note: pushing stick axial gives negative value
+                double lateral = C_LATERAL;
+                double yaw = C_YAW;
+
+
+                // Combine the joystick requests for each axis-motion to determine each wheel's power.
+                // Set up a variable for each drive wheel to save the power level for telemetry.
+                leftFrontPower = axial + lateral + yaw;
+                rightFrontPower = axial - lateral - yaw;
+                rightBackPower = axial + lateral - yaw;
+                leftBackPower = axial - lateral + yaw;
+
+                // Normalize the values so no wheel power exceeds 100%
+                // This ensures that the robot maintains the desired motion.
+                max = Math.max(Math.abs(leftFrontPower), Math.abs(rightFrontPower));
+                max = Math.max(max, Math.abs(leftBackPower));
+                max = Math.max(max, Math.abs(rightBackPower));
+
+                if (max > 1.0) {
+                    leftFrontPower /= max;
+                    rightFrontPower /= max;
+                    leftBackPower /= max;
+                    rightBackPower /= max;
+                }
+
+                leftFrontDrive.setPower(leftFrontPower  * speed);
+                rightFrontDrive.setPower(rightFrontPower * speed);
+                leftBackDrive.setPower(leftBackPower  * speed);
+                rightBackDrive.setPower(rightBackPower * speed);
+            }
             pressPrevShoot = pressNowShoot;
             pressPrevTransf = pressNowTransf;
             pressPrevManualShoot = pressNowManualShoot;
