@@ -303,11 +303,12 @@ public class close_blue_6 extends LinearOpMode{
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 flywheel.setBatteryVoltage(battery.getVoltage());
-                flywheel.setKf(0.0028);
-                flywheel.setKp(0.005);
+                flywheel.setvoltCorr(1.5);
+                flywheel.setKf(0.00083);
+                flywheel.setKp(0.009);
                 flywheel.setKi(0);
                 flywheel.setKd(0.0009);
-                flywheel.setTargetRPM(810);
+                flywheel.setTargetRPM(815);
                 flywheel.flywheelHold();
                 return true; // true reruns action
             }

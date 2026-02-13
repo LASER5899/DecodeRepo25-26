@@ -21,18 +21,22 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.teamcode.MecanumDrive;
-import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.Vision;
 import org.firstinspires.ftc.teamcode.classes.Transfer_Values;
 
+import org.firstinspires.ftc.teamcode.MecanumDrive;
+import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
+import org.firstinspires.ftc.teamcode.tuning.shooter.RobotConstants;
+
 @Config
-@Autonomous(name = "close red 6", group = "Autonomous")
+@Autonomous(name = "close blue 6 in order", group = "Autonomous")
 //@Disabled
 //psuedocode
 /*
 
  */
-public class close_red_6 extends LinearOpMode{
+public class close_blue_6_in_order extends LinearOpMode{
 
     // if odometry is not properly tuned or constantly being retuned:
     // you MIGHT find it useful to change these values and use multiples of them instead of direct number
@@ -43,6 +47,7 @@ public class close_red_6 extends LinearOpMode{
 
     private Transfer_Values transferValues;
     private VoltageSensor battery;
+
 
     double bIn = 0.07;//0.07;
     double cOut = 0.105;//0.100;
@@ -57,6 +62,8 @@ public class close_red_6 extends LinearOpMode{
     //VoltageSensor battery;
 
     //mechanism instantiation
+
+    String sequ;
 
     public class intakeServo {
         private CRServo intake;
@@ -96,6 +103,74 @@ public class close_red_6 extends LinearOpMode{
         public transferServo(HardwareMap hwMap) {
             transfer = hardwareMap.get(Servo.class, "transfer_servo");
         }
+
+        public class ShootSet1 implements Action {
+            private boolean started = false;
+            private String sequence;
+
+            public ShootSet1(String sequence) {
+                this.sequence = sequence;
+            }
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!started) {
+                    flickServo flicker = new flickServo(hardwareMap);
+                    if (sequence.equals("GPP")) {
+                        transfer.setPosition(aOut);
+                    } else if (sequence.equals("PGP")){
+                        transfer.setPosition(bOut);
+                    } else {
+                        transfer.setPosition(cOut);
+                    }
+                    sleep(1700);
+                    Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));
+                    if (sequence.equals("GPP")) {
+                        transfer.setPosition(bOut);
+                    } else if (sequence.equals("PGP")){
+                        transfer.setPosition(aOut);
+                    } else {
+                        transfer.setPosition(cOut);
+                    }
+                    sleep(1200);
+                    Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));
+                    if (sequence.equals("GPP")) {
+                        transfer.setPosition(cOut);
+                    } else if (sequence.equals("PGP")){
+                        transfer.setPosition(cOut);
+                    } else {
+                        transfer.setPosition(aOut);
+                    }
+                    sleep(1200);
+                    Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));
+
+                    timer.reset();
+                    started = true;
+                }
+                return false; // true reruns action
+            }
+        }
+        public Action shootSet1(String sequence){ return new ShootSet1(sequence); }
+
+        public class ShootSet2 implements Action {
+            private boolean started = false;
+            private String sequence;
+
+            public ShootSet2(String sequence) {
+                this.sequence = sequence;
+            }
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!started) {
+                    transfer.setPosition(aOut);
+                    timer.reset();
+                    started = true;
+                }
+                return timer.seconds() < move_time + 0.5; // true reruns action
+            }
+        }
+        public Action shootSet2(String sequence){ return new ShootSet2(sequence); }
 
         public class ToAOut implements Action {
             private boolean started = false;
@@ -212,7 +287,7 @@ public class close_red_6 extends LinearOpMode{
 
     public class flickServo {
         private final ElapsedTime timer = new ElapsedTime();
-        private final double move_time = 1;
+        private final double move_time = 0.1;
         private boolean started = false;
         private Servo flicker;
         public flickServo(HardwareMap hwMap) {
@@ -331,29 +406,64 @@ public class close_red_6 extends LinearOpMode{
         }
     }
 
+    public class camera {
+
+        public Vision camera = new Vision();
+
+        private final ElapsedTime timer = new ElapsedTime();
+
+        public String sequence;
+
+        public camera(HardwareMap hwMap) {
+            WebcamName cam1 = hardwareMap.get(WebcamName.class, "Camera1");
+            camera.aprilTagSetUp(cam1);
+            camera.setTarget(Vision.Target.blue);
+        }
+
+        public class ScanObelisk implements Action {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                timer.reset();
+                String sequence = camera.scanForPattern();
+                while (sequence.equals("none") && timer.milliseconds() < 2000) {
+                    sequence = camera.scanForPattern();
+                }
+                if (sequence.equals("none")) {
+                    sequence = "GPP";
+                }
+                sequ = sequence;
+                return false; // true reruns action
+            }
+        }
+        public Action scanObelisk(){
+            return new ScanObelisk();
+        }
+    }
+
+
     //begin code
     @Override
     public void runOpMode() throws InterruptedException {
 
-
         battery = hardwareMap.voltageSensor.iterator().next();
-
 
         flywheel = new ShooterControl(hardwareMap);
 
         Pose2d pose0 = new Pose2d(0, 0, Math.toRadians(0));
-        Pose2d pose2 = new Pose2d(45, -20, Math.toRadians(-40));
-        Pose2d pose3 = new Pose2d(49, -10, Math.toRadians(90));
-        Pose2d pose4 = new Pose2d(48, 17, Math.toRadians(90));
-        Pose2d pose5 = new Pose2d(45, -20, Math.toRadians(-45));
-        Pose2d pose6 = new Pose2d(73, -10, Math.toRadians(90));
-        Pose2d pose7 = new Pose2d(73, 20, Math.toRadians(90));
-        Pose2d pose8 = new Pose2d(45, -20, Math.toRadians(-50));
+        Pose2d pose1 = new Pose2d(45, 20, Math.toRadians(-20));
+        Pose2d pose2 = new Pose2d(45, 20, Math.toRadians(50));
+        Pose2d pose3 = new Pose2d(49, 10, Math.toRadians(-90));
+        Pose2d pose4 = new Pose2d(48, -17, Math.toRadians(-90));
+        Pose2d pose5 = new Pose2d(45, 20, Math.toRadians(50));
+        Pose2d pose6 = new Pose2d(73, 10, Math.toRadians(-90));
+        Pose2d pose7 = new Pose2d(73, -20, Math.toRadians(-90));
+        Pose2d pose8 = new Pose2d(45, 20, Math.toRadians(50));
         MecanumDrive drive = new MecanumDrive(hardwareMap, pose0);
         outtakeMotor shooter = new outtakeMotor(hardwareMap);
         transferServo transfer = new transferServo(hardwareMap);
         intakeServo intake = new intakeServo(hardwareMap);
         flickServo flicker = new flickServo(hardwareMap);
+        camera beginTs = new camera(hardwareMap);
 
         TrajectoryActionBuilder test = drive.actionBuilder(pose0)
                 .strafeToConstantHeading(new Vector2d(-3, 0), new TranslationalVelConstraint(50))
@@ -370,31 +480,34 @@ public class close_red_6 extends LinearOpMode{
                 .strafeToConstantHeading(new Vector2d(-15, -15), new TranslationalVelConstraint(50));
 
         TrajectoryActionBuilder one = drive.actionBuilder(pose0)
-                .strafeToLinearHeading(new Vector2d(45, -20), Math.toRadians(-40));//, new TranslationalVelConstraint(10));
+                .strafeToLinearHeading(new Vector2d(45, 20), Math.toRadians(-20));//, new TranslationalVelConstraint(10));
 
-        TrajectoryActionBuilder two = drive.actionBuilder(pose2)
-                .strafeToLinearHeading(new Vector2d(49, -10), Math.toRadians(90));//, new TranslationalVelConstraint(10)); //counterclockwise by default
+        TrajectoryActionBuilder two = drive.actionBuilder(pose1)
+                .turnTo(Math.toRadians(50));
 
-        TrajectoryActionBuilder three = drive.actionBuilder(pose3)
-                .strafeToConstantHeading(new Vector2d(48, 17), new TranslationalVelConstraint(15));
+        TrajectoryActionBuilder three = drive.actionBuilder(pose2)
+                .strafeToLinearHeading(new Vector2d(49, 10), Math.toRadians(-90));//, new TranslationalVelConstraint(10)); //counterclockwise by default
 
-        TrajectoryActionBuilder four = drive.actionBuilder(pose4)
-                .strafeToConstantHeading(new Vector2d(45, -20))//, new TranslationalVelConstraint(10))
-                .turnTo(Math.toRadians(-45));
+        TrajectoryActionBuilder four = drive.actionBuilder(pose3)
+                .strafeToConstantHeading(new Vector2d(48, -17), new TranslationalVelConstraint(15));
 
-        TrajectoryActionBuilder five = drive.actionBuilder(pose5)
-                .strafeToConstantHeading(new Vector2d(73, -10))//, new TranslationalVelConstraint(10))
-                .turnTo(Math.toRadians(90));
+        TrajectoryActionBuilder five = drive.actionBuilder(pose4)
+                .strafeToConstantHeading(new Vector2d(45, 20))//, new TranslationalVelConstraint(10))
+                .turnTo(Math.toRadians(50));
 
-        TrajectoryActionBuilder six = drive.actionBuilder(pose6)
-                .strafeToConstantHeading(new Vector2d(73, 20), new TranslationalVelConstraint(15));
+        TrajectoryActionBuilder six = drive.actionBuilder(pose5)
+                .strafeToConstantHeading(new Vector2d(73, 10))//, new TranslationalVelConstraint(10))
+                .turnTo(Math.toRadians(-90));
 
-        TrajectoryActionBuilder seven = drive.actionBuilder(pose7)
-                .strafeToConstantHeading(new Vector2d(45, -20))//, new TranslationalVelConstraint(10))
-                .turnTo(Math.toRadians(-50));
+        TrajectoryActionBuilder seven = drive.actionBuilder(pose6)
+                .strafeToConstantHeading(new Vector2d(73, -20), new TranslationalVelConstraint(15));
 
-        TrajectoryActionBuilder eight = drive.actionBuilder(pose8)
-                .strafeToConstantHeading(new Vector2d(50, -5));//, new TranslationalVelConstraint(10));
+        TrajectoryActionBuilder eight = drive.actionBuilder(pose7)
+                .strafeToConstantHeading(new Vector2d(45, 20))//, new TranslationalVelConstraint(10))
+                .turnTo(Math.toRadians(50));
+
+        TrajectoryActionBuilder nine = drive.actionBuilder(pose8)
+                .strafeToConstantHeading(new Vector2d(50, 5));//, new TranslationalVelConstraint(10));
 
         // actions that need to happen on init
 
@@ -416,21 +529,16 @@ public class close_red_6 extends LinearOpMode{
 
                                         one.build(),
 
-                                        transfer.toAOut(),
-                                        flicker.kick(),
-                                        flicker.goBack(),
-                                        transfer.toBOut(),
-                                        flicker.kick(),
-                                        flicker.goBack(),
-                                        transfer.toCOut(),
-                                        flicker.kick(),
-                                        flicker.goBack(),
-                                        //TODO: TRANSFER CORRECT
+                                        beginTs.scanObelisk(),
 
                                         two.build(),
 
+                                        transfer.shootSet1(sequ),
+
+                                        three.build(),
+
                                         new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
-                                                three.build(),
+                                                four.build(),
                                                 new SequentialAction(
                                                         transfer.toAIn(),
                                                         transfer.toBIn(),
@@ -438,20 +546,12 @@ public class close_red_6 extends LinearOpMode{
                                                         transfer.toNeutral()
                                                 )
                                         ),
-                                        four.build(),
+                                        five.build(),
 
-                                        transfer.toAOut(),
-                                        flicker.kick(),
-                                        flicker.goBack(),
-                                        transfer.toBOut(),
-                                        flicker.kick(),
-                                        flicker.goBack(),
-                                        transfer.toCOut(),
-                                        flicker.kick(),
-                                        flicker.goBack(),
+                                        transfer.shootSet1(sequ),
+
                                         /*
                                         five.build(),
-                                        //TODO: THIS IS THE FIXED OOTU
 
                                         new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
                                                 six.build(),
@@ -474,7 +574,7 @@ public class close_red_6 extends LinearOpMode{
                                         flicker.kick(),
                                         flicker.goBack(),
                                         */
-                                        eight.build(),
+                                        nine.build(),
 
                                         shooter.stop(),
                                         intake.stopIntaking()
