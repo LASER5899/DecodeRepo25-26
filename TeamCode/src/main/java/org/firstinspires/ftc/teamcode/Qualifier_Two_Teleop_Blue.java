@@ -531,6 +531,8 @@ public class Qualifier_Two_Teleop_Blue extends LinearOpMode {
             telemetry.addData("Target RPM", targRPM);
             telemetry.addData("Flywheel measured velocity", flywheel.getVelocity());
 
+            telemetry.addData("scan for pattern: ", camera.scanForPattern());
+
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower * speed * invDir, rightFrontPower * speed * invDir);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower * speed * invDir, rightBackPower * speed * invDir);
             telemetry.addData("Speed", "%4.2f", speed);

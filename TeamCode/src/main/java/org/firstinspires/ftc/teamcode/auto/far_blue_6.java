@@ -335,7 +335,7 @@ public class far_blue_6 extends LinearOpMode{
                 flywheel.setKp(0.009);
                 flywheel.setKi(0);
                 flywheel.setKd(0.0009);
-                flywheel.setTargetRPM(1030);
+                flywheel.setTargetRPM(1015);
                 flywheel.flywheelHold();
                 return true; // true reruns action
             }
@@ -367,10 +367,10 @@ public class far_blue_6 extends LinearOpMode{
         flywheel = new ShooterControl(hardwareMap);
 
         Pose2d pose0 = new Pose2d(0, 0, Math.toRadians(0));
-        Pose2d pose2 = new Pose2d(-3, 0, Math.toRadians(20));
-        Pose2d pose3 = new Pose2d(-26, -12, Math.toRadians(270));
-        Pose2d pose4 = new Pose2d(-26, -45, Math.toRadians(270));
-        Pose2d pose5 = new Pose2d(-3, 0, Math.toRadians(20));
+        Pose2d pose2 = new Pose2d(-6, 3, Math.toRadians(20));
+        Pose2d pose3 = new Pose2d(-26, -12, Math.toRadians(265));
+        Pose2d pose4 = new Pose2d(-28, -51, Math.toRadians(265));
+        Pose2d pose5 = new Pose2d(-6, 3, Math.toRadians(20));
         Pose2d pose6 = new Pose2d(-48, -12, Math.toRadians(270));
         Pose2d pose7 = new Pose2d(-48, -45, Math.toRadians(270));
         Pose2d pose8 = new Pose2d(-3, 0, Math.toRadians(20));

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
@@ -12,7 +13,6 @@ import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -22,22 +22,18 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.Vision;
-import org.firstinspires.ftc.teamcode.classes.Transfer_Values;
-
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
-import org.firstinspires.ftc.teamcode.tuning.shooter.RobotConstants;
+import org.firstinspires.ftc.teamcode.classes.Transfer_Values;
 
 @Config
-@Autonomous(name = "close blue 6 in order", group = "Autonomous")
-@Disabled
+@Autonomous(name = "test far red 6", group = "Autonomous")
+//@Disabled
 //psuedocode
 /*
 
  */
-public class close_blue_6_in_order extends LinearOpMode{
+public class test_far_red_6 extends LinearOpMode{
 
     // if odometry is not properly tuned or constantly being retuned:
     // you MIGHT find it useful to change these values and use multiples of them instead of direct number
@@ -49,22 +45,21 @@ public class close_blue_6_in_order extends LinearOpMode{
     private Transfer_Values transferValues;
     private VoltageSensor battery;
 
-
     double bIn = 0.07;//0.07;
-    double cOut = 0.105;//0.100;
+    double cOut = 0.104;//0.105;!!!!!!!!!!11
     double aIn = 0.14;//0.145;
     double bOut = 0.175;//0.175;
     double cIn = 0.21;//0.21;
     double aOut = 0.250;//0.240;
-    double rest = 0.0875;//0.4;
+    double rest = 0.23;//0.4;
+    double kick = 0.0;
+    double back = 0.3;
 
     private ShooterControl flywheel;
 
     //VoltageSensor battery;
 
     //mechanism instantiation
-
-    String sequ;
 
     public class intakeServo {
         private CRServo intake;
@@ -99,123 +94,46 @@ public class close_blue_6_in_order extends LinearOpMode{
 
     public class transferServo {
         private Servo transfer;
-        private final ElapsedTime timer = new ElapsedTime();
+        private final ElapsedTime timeraout = new ElapsedTime();
+        private final ElapsedTime timerbout = new ElapsedTime();
+        private final ElapsedTime timercout = new ElapsedTime();
+        private final ElapsedTime timerain = new ElapsedTime();
+        private final ElapsedTime timerbin = new ElapsedTime();
+        private final ElapsedTime timercin = new ElapsedTime();
+        private final ElapsedTime timerrest = new ElapsedTime();
+        private final ElapsedTime timeryay = new ElapsedTime();
         private final double move_time = 1.2;
+        private final double move_time_in = 1.3;
         public transferServo(HardwareMap hwMap) {
             transfer = hardwareMap.get(Servo.class, "transfer_servo");
         }
 
-        public class ShootSet1 implements Action {
-            private boolean started = false;
-            private String sequence;
+        public class Diddy implements Action {
+            private final double target;
+            private final double step = 0.0007;
 
-            /*public ShootSet1(String sequence) {
-                this.sequence = sequence;
-            }*/
-
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                if (!started) {
-                    String sequence = sequ;
-                    if (sequence == null) sequence = "GPP";  // fallback
-
-                    flickServo flicker = new flickServo(hardwareMap);
-
-                    // ---- Shot 1 position ----
-                    if ("GPP".equals(sequence)) {
-                        transfer.setPosition(aOut);
-                    } else if ("PGP".equals(sequence)) {
-                        transfer.setPosition(bOut);
-                    } else if ("PPG".equals(sequence)) {
-                        transfer.setPosition(aOut);   // P
-                    } else {
-                        transfer.setPosition(cOut);
-                    }
-                    sleep(1700);
-                    Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));
-
-// ---- Shot 2 position ----
-                    if ("GPP".equals(sequence)) {
-                        transfer.setPosition(bOut);
-                    } else if ("PGP".equals(sequence)) {
-                        transfer.setPosition(aOut);
-                    } else if ("PPG".equals(sequence)) {
-                        transfer.setPosition(bOut);   // P (second purple uses the other pos)
-                    } else {
-                        transfer.setPosition(cOut);
-                    }
-                    sleep(1200);
-                    Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));
-
-// ---- Shot 3 position ----
-                    if ("GPP".equals(sequence)) {
-                        transfer.setPosition(cOut);
-                    } else if ("PGP".equals(sequence)) {
-                        transfer.setPosition(cOut);
-                    } else if ("PPG".equals(sequence)) {
-                        transfer.setPosition(cOut);   // G (your standardized green position)
-                    } else {
-                        transfer.setPosition(aOut);
-                    }
-                    sleep(1200);
-                    Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));
-
-                    /*if ("GPP".equals(sequence)) {
-                        transfer.setPosition(aOut);
-                    } else if ("PGP".equals(sequence)) {
-                        transfer.setPosition(bOut);
-                    } else {
-                        transfer.setPosition(cOut);
-                    }
-                    sleep(1700);
-                    Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));
-                    if ("GPP".equals(sequence)) {
-                        transfer.setPosition(bOut);
-                    } else if ("PGP".equals(sequence)){
-                        transfer.setPosition(aOut);
-                    } else {
-                        transfer.setPosition(cOut);
-                    }
-                    sleep(1200);
-                    Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));
-                    if ("GPP".equals(sequence)) {
-                        transfer.setPosition(cOut);
-                    } else if ("PGP".equals(sequence)){
-                        transfer.setPosition(cOut);
-                    } else {
-                        transfer.setPosition(aOut);
-                    }
-                    sleep(1200);
-                    Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));*/
-
-                    timer.reset();
-                    started = true;
-                }
-                return false; // true reruns action
-            }
-        }
-        //public Action shootSet1(String sequence){ return new ShootSet1(sequence); }
-        public Action shootSet1( ){ return new ShootSet1(); }
-
-        public class ShootSet2 implements Action {
-            private boolean started = false;
-            private String sequence;
-
-            public ShootSet2(String sequence) {
-                this.sequence = sequence;
+            public Diddy(double targetPosition) {
+                this.target = targetPosition;
             }
 
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                if (!started) {
-                    transfer.setPosition(aOut);
-                    timer.reset();
-                    started = true;
+                double current = transfer.getPosition();
+
+                if (current < (target)) {
+                    transfer.setPosition(current + step);
+                } else if (current > target) {
+                    transfer.setPosition(current - step);
                 }
-                return timer.seconds() < move_time + 0.5; // true reruns action
+
+                // keep running until close enough
+                return Math.abs(current - target) > step;
             }
         }
-        public Action shootSet2(String sequence){ return new ShootSet2(sequence); }
+
+        public Action diddy(double target) {
+            return new Diddy(target);
+        }
 
         public class ToAOut implements Action {
             private boolean started = false;
@@ -223,10 +141,10 @@ public class close_blue_6_in_order extends LinearOpMode{
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
                     transfer.setPosition(aOut);
-                    timer.reset();
+                    timeraout.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time + 0.5; // true reruns action
+                return timeraout.seconds() < move_time; // true reruns action
             }
         }
         public Action toAOut(){
@@ -239,10 +157,10 @@ public class close_blue_6_in_order extends LinearOpMode{
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
                     transfer.setPosition(bOut);
-                    timer.reset();
+                    timerbout.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                return timerbout.seconds() < move_time; // true reruns action
             }
         }
         public Action toBOut(){
@@ -255,10 +173,10 @@ public class close_blue_6_in_order extends LinearOpMode{
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
                     transfer.setPosition(cOut);
-                    timer.reset();
+                    timercout.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                return timercout.seconds() < move_time; // true reruns action
             }
         }
         public Action toCOut(){
@@ -271,10 +189,10 @@ public class close_blue_6_in_order extends LinearOpMode{
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
                     transfer.setPosition(aIn);
-                    timer.reset();
+                    timerain.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                return timerain.seconds() < move_time_in; // true reruns action
             }
         }
         public Action toAIn(){
@@ -287,10 +205,10 @@ public class close_blue_6_in_order extends LinearOpMode{
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
                     transfer.setPosition(bIn);
-                    timer.reset();
+                    timerbin.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                return timerbin.seconds() < move_time_in; // true reruns action
             }
         }
         public Action toBIn(){
@@ -303,10 +221,10 @@ public class close_blue_6_in_order extends LinearOpMode{
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
                     transfer.setPosition(cIn);
-                    timer.reset();
+                    timercin.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time + 1; // true reruns action
+                return timercin.seconds() < move_time_in; // true reruns action
             }
         }
         public Action toCIn(){
@@ -319,20 +237,48 @@ public class close_blue_6_in_order extends LinearOpMode{
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
                     transfer.setPosition(rest);
-                    timer.reset();
+                    timerrest.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                return timerrest.seconds() < move_time; // true reruns action
             }
         }
         public Action toNeutral(){
             return new ToNeutral();
         }
+
+        public class TurnTransf implements Action {
+            private boolean started = false;
+            private final double pos;
+            private final double sec;
+
+            public TurnTransf(double pos, double sec) {
+                this.pos = pos;
+                this.sec = sec;
+            }
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!started) {
+                    transfer.setPosition(pos);
+                    timeryay.reset();
+                    started = true;
+                }
+                if(!(timeryay.seconds() < sec)){timeryay.reset(); return false;}
+                else{return true;}
+                //return timeryay.seconds() < sec; // true reruns action
+            }
+        }
+        public Action turnTransf(double pos, double sec){
+            return new TurnTransf(pos,sec);
+        }
     }
 
     public class flickServo {
-        private final ElapsedTime timer = new ElapsedTime();
-        private final double move_time = 0.1;
+        private final ElapsedTime timerA = new ElapsedTime();
+        private final ElapsedTime timerB = new ElapsedTime();
+        private final ElapsedTime timerslay = new ElapsedTime();
+        private final double move_time = 0.15;
         private boolean started = false;
         private Servo flicker;
         public flickServo(HardwareMap hwMap) {
@@ -344,12 +290,13 @@ public class close_blue_6_in_order extends LinearOpMode{
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
-                    timer.reset();
-                    //flicker.setPosition(0.0);
+                    //timer.reset();
+                    flicker.setPosition(0.0);
+                    timerA.reset();
                     started = true;
                 }
-                flicker.setPosition(0.0);
-                return timer.seconds() <= 0.4; // true reruns action
+                //flicker.setPosition(0.0);
+                return timerA.seconds() < 0.5; // true reruns action
             }
         }
         public Action kick(){
@@ -361,16 +308,45 @@ public class close_blue_6_in_order extends LinearOpMode{
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
-                    timer.reset();
+                    //timer.reset();
+                    //started = true;
+                    flicker.setPosition(0.3);
+                    timerB.reset();
                     started = true;
 
                 }
-                flicker.setPosition(0.3);
-                return timer.seconds() <= 0.4; // true reruns action
+                //flicker.setPosition(0.3);
+                return timerB.seconds() < 0.5; // true reruns action
             }
         }
         public Action goBack(){
             return new GoBack();
+        }
+
+        public class moveKicker implements Action {
+            private boolean started = false;
+            private final double pos;
+            //private final double sec;
+
+            public moveKicker(double pos) {
+                this.pos = pos;
+                //this.sec = sec;
+            }
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!started) {
+                    flicker.setPosition(pos);
+                    timerslay.reset();
+                    started = true;
+                }
+                if(!(timerslay.seconds() < 1)){timerslay.reset(); return false;}
+                else{return true;}
+                //return timeryay.seconds() < sec; // true reruns action
+            }
+        }
+        public Action moveKicker(double pos){
+            return new moveKicker(pos);
         }
     }
 
@@ -423,12 +399,12 @@ public class close_blue_6_in_order extends LinearOpMode{
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 flywheel.setBatteryVoltage(battery.getVoltage());
-                flywheel.setvoltCorr(1.5);
-                flywheel.setKf(0.00083);
+                flywheel.setvoltCorr(2);
+                flywheel.setKf(0.00285);
                 flywheel.setKp(0.009);
                 flywheel.setKi(0);
                 flywheel.setKd(0.0009);
-                flywheel.setTargetRPM(815);
+                flywheel.setTargetRPM(1070);
                 flywheel.flywheelHold();
                 return true; // true reruns action
             }
@@ -451,57 +427,6 @@ public class close_blue_6_in_order extends LinearOpMode{
         }
     }
 
-    public class camera {
-
-        public Vision camera = new Vision();
-
-        private final ElapsedTime timercam = new ElapsedTime();
-
-        public String sequence;
-
-        public camera(HardwareMap hwMap) {
-            WebcamName cam1 = hardwareMap.get(WebcamName.class, "Camera1");
-            camera.aprilTagSetUp(cam1);
-            camera.setTarget(Vision.Target.blue);
-        }
-
-        public class ScanObelisk implements Action {
-            private boolean startedcam = false;
-
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-
-                if (!startedcam) {
-                    timercam.reset();
-                    startedcam = true;
-                }
-
-                String sequence = camera.scanForPattern();   // ONLY CALL ONCE
-                if (sequence == null) sequence = "none";
-
-                telemetry.addData("cam", "%s", sequence);
-                telemetry.addData("t(ms)", "%.0f", timercam.milliseconds());
-                telemetry.update();
-
-                if ("none".equals(sequence) && timercam.milliseconds() < 5000) {
-                    return true; // keep scanning
-                }
-
-                if ("none".equals(sequence)) {
-                    sequ = "GPP";  // timeout fallback
-                    return false;
-                }
-
-                sequ = sequence;   // latch valid
-                return false;
-            }
-        }
-        public Action scanObelisk(){
-            return new ScanObelisk();
-        }
-    }
-
-
     //begin code
     @Override
     public void runOpMode() throws InterruptedException {
@@ -511,24 +436,22 @@ public class close_blue_6_in_order extends LinearOpMode{
         flywheel = new ShooterControl(hardwareMap);
 
         Pose2d pose0 = new Pose2d(0, 0, Math.toRadians(0));
-        Pose2d pose1 = new Pose2d(45, 20, Math.toRadians(-20));
-        Pose2d pose2 = new Pose2d(45, 20, Math.toRadians(50));
-        Pose2d pose3 = new Pose2d(49, 10, Math.toRadians(-90));
-        Pose2d pose4 = new Pose2d(48, -17, Math.toRadians(-90));
-        Pose2d pose5 = new Pose2d(45, 20, Math.toRadians(50));
-        Pose2d pose6 = new Pose2d(73, 10, Math.toRadians(-90));
-        Pose2d pose7 = new Pose2d(73, -20, Math.toRadians(-90));
-        Pose2d pose8 = new Pose2d(45, 20, Math.toRadians(50));
+        Pose2d pose2 = new Pose2d(-6, 2, Math.toRadians(-25));
+        Pose2d pose3 = new Pose2d(-26, 12, Math.toRadians(-265));
+        Pose2d pose4 = new Pose2d(-28, 51, Math.toRadians(-265));
+        //Pose2d pose5 = new Pose2d(-3, 3, Math.toRadians(-20));
+        //Pose2d pose6 = new Pose2d(-48, 12, Math.toRadians(-270));
+        //Pose2d pose7 = new Pose2d(-48, 45, Math.toRadians(-270));
+        Pose2d pose8 = new Pose2d(-3, 3, Math.toRadians(-28));
         MecanumDrive drive = new MecanumDrive(hardwareMap, pose0);
         outtakeMotor shooter = new outtakeMotor(hardwareMap);
         transferServo transfer = new transferServo(hardwareMap);
         intakeServo intake = new intakeServo(hardwareMap);
         flickServo flicker = new flickServo(hardwareMap);
-        camera beginTs = new camera(hardwareMap);
 
-        TrajectoryActionBuilder test = drive.actionBuilder(pose0)
+        /*TrajectoryActionBuilder test = drive.actionBuilder(pose0)
                 .strafeToConstantHeading(new Vector2d(-3, 0), new TranslationalVelConstraint(50))
-                .turnTo(Math.toRadians(30))
+                .turnTo(Math.toRadians(40))
                 .strafeToConstantHeading(new Vector2d(-26, -15), new TranslationalVelConstraint(50)) //counterclockwise by default
                 .turnTo(Math.toRadians(270))
                 .strafeToConstantHeading(new Vector2d(-26, -40), new TranslationalVelConstraint(10))
@@ -539,36 +462,36 @@ public class close_blue_6_in_order extends LinearOpMode{
                 .strafeToConstantHeading(new Vector2d(-50, -40), new TranslationalVelConstraint(10))
                 .strafeToLinearHeading(new Vector2d(-3, 0), Math.toRadians(30), new TranslationalVelConstraint(50))
                 .strafeToConstantHeading(new Vector2d(-15, -15), new TranslationalVelConstraint(50));
-
+        */
         TrajectoryActionBuilder one = drive.actionBuilder(pose0)
-                .strafeToLinearHeading(new Vector2d(45, 20), Math.toRadians(-20));//, new TranslationalVelConstraint(10));
+                //.strafeToConstantHeading(new Vector2d(-3, 0))//, new TranslationalVelConstraint(50))
+                .strafeToConstantHeading(new Vector2d(-6, 2))//, new TranslationalVelConstraint(50))
+                .turnTo(Math.toRadians(-25));
 
-        TrajectoryActionBuilder two = drive.actionBuilder(pose1)
-                .turnTo(Math.toRadians(50));
+        TrajectoryActionBuilder two = drive.actionBuilder(pose2)
+                .strafeToLinearHeading(new Vector2d(-26, 12), Math.toRadians(-265));//285//, new TranslationalVelConstraint(10)); //counterclockwise by default
 
-        TrajectoryActionBuilder three = drive.actionBuilder(pose2)
-                .strafeToLinearHeading(new Vector2d(49, 10), Math.toRadians(-90));//, new TranslationalVelConstraint(10)); //counterclockwise by default
+        TrajectoryActionBuilder three = drive.actionBuilder(pose3)
+                //.strafeToConstantHeading(new Vector2d(-26, 45), new TranslationalVelConstraint(10));
+                .strafeToConstantHeading(new Vector2d(-28, 51), new TranslationalVelConstraint(10));
 
-        TrajectoryActionBuilder four = drive.actionBuilder(pose3)
-                .strafeToConstantHeading(new Vector2d(48, -17), new TranslationalVelConstraint(15));
+        TrajectoryActionBuilder four = drive.actionBuilder(pose4)
+                .strafeToConstantHeading(new Vector2d(-3, 3))//, new TranslationalVelConstraint(10))
+                .turnTo(Math.toRadians(-28));
 
-        TrajectoryActionBuilder five = drive.actionBuilder(pose4)
-                .strafeToConstantHeading(new Vector2d(45, 20))//, new TranslationalVelConstraint(10))
-                .turnTo(Math.toRadians(50));
+        /*TrajectoryActionBuilder five = drive.actionBuilder(pose5)
+                .strafeToConstantHeading(new Vector2d(-55, 12));//, new TranslationalVelConstraint(10))
+                //.turnTo(Math.toRadians(-295);
 
-        TrajectoryActionBuilder six = drive.actionBuilder(pose5)
-                .strafeToConstantHeading(new Vector2d(73, 10))//, new TranslationalVelConstraint(10))
-                .turnTo(Math.toRadians(-90));
+        TrajectoryActionBuilder six = drive.actionBuilder(pose6)
+                .strafeToConstantHeading(new Vector2d(-48, 45), new TranslationalVelConstraint(10));
 
-        TrajectoryActionBuilder seven = drive.actionBuilder(pose6)
-                .strafeToConstantHeading(new Vector2d(73, -20), new TranslationalVelConstraint(15));
+        TrajectoryActionBuilder seven = drive.actionBuilder(pose7)
+                .strafeToConstantHeading(new Vector2d(-3, 0))//, new TranslationalVelConstraint(10))
+                .turnTo(Math.toRadians(-20));*/
 
-        TrajectoryActionBuilder eight = drive.actionBuilder(pose7)
-                .strafeToConstantHeading(new Vector2d(45, 20))//, new TranslationalVelConstraint(10))
-                .turnTo(Math.toRadians(50));
-
-        TrajectoryActionBuilder nine = drive.actionBuilder(pose8)
-                .strafeToConstantHeading(new Vector2d(50, 5));//, new TranslationalVelConstraint(10));
+        TrajectoryActionBuilder eight = drive.actionBuilder(pose8)
+                .strafeToConstantHeading(new Vector2d(-15, 15));//, new TranslationalVelConstraint(10));
 
         // actions that need to happen on init
 
@@ -579,64 +502,112 @@ public class close_blue_6_in_order extends LinearOpMode{
         if (isStopRequested()) return;
 
         Actions.runBlocking(
+            /*new SequentialAction(
+                shooter.fireUp(),
+                new ParallelAction(
+                    shooter.hold(),
+                    intake.intaking(),
+                    new SequentialAction(
+                        one.build(),
+                        transfer.toAOut(),
+                        flicker.kick(),
+                        flicker.goBack(),
+                        transfer.toBOut(),
+                        flicker.kick(),
+                        flicker.goBack(),
+                        transfer.toCOut(),
+                        flicker.kick(),
+                        flicker.goBack(),
+                        two.build(),
+                        new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
+                            three.build(),
+                            new SequentialAction(
+                                transfer.toBIn(),
+                                transfer.toAIn(),
+                                transfer.toCIn(),
+                                transfer.toNeutral()
+                            )
+                        ),
+                        four.build(),
+                        transfer.toAOut(),
+                        flicker.kick(),
+                        flicker.goBack(),
+                        transfer.toBOut(),
+                        flicker.kick(),
+                        flicker.goBack(),
+                        transfer.toCOut(),
+                        flicker.kick(),
+                        flicker.goBack(),
+                        eight.build(),
+                        shooter.stop(),
+                        intake.stopIntaking()
+                    )
+                )
+                )
+            );*/
                 new SequentialAction(
-
                         shooter.fireUp(),
                         new ParallelAction(
                                 shooter.hold(),
                                 intake.intaking(),
                                 transfer.toAOut(),
                                 new SequentialAction(
-
                                         one.build(),
-
-                                        beginTs.scanObelisk(),
-
+                                        //transfer.toAOut(),
+                        /*transfer.turnTransf(aOut+0.005, 1.2), //TODO: THIS +0.005 IS NOT TEST
+                        flicker.kick(),
+                        flicker.goBack(),
+                        transfer.turnTransf(bOut-0.005, 1.2), //TODO: THIS -0.005 IS NOT TEST
+                        flicker.kick(),
+                        flicker.goBack(),
+                        transfer.turnTransf(cOut-0.005, 1.2), //TODO: THIS -0.005 IS NOT TEST
+                        flicker.kick(),
+                        flicker.goBack(),*/
+                                        transfer.diddy(aOut),
+                                        flicker.kick(),
+                                        flicker.goBack(),
+                                        //transfer.toBOut(),
+                                        transfer.diddy(bOut),
+                                        flicker.kick(),
+                                        flicker.goBack(),
+                                        //transfer.toCOut(),
+                                        transfer.diddy(cOut),
+                                        flicker.kick(),
+                                        flicker.goBack(),
                                         two.build(),
-
-                                        transfer.shootSet1(),
-
-                                        three.build(),
-
-                                        new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
-                                                four.build(),
+                                        new ParallelAction(
+                                                three.build(),
                                                 new SequentialAction(
-                                                        transfer.toAIn(),
-                                                        transfer.toBIn(),
-                                                        transfer.toCIn(),
-                                                        transfer.toNeutral()
+                                                        transfer.turnTransf(bIn, 1.7),
+                                                        transfer.turnTransf(aIn, 1.7),
+                                                        transfer.turnTransf(cIn, 1.7)
                                                 )
                                         ),
-                                        five.build(),
-
-                                        transfer.shootSet1(),
-
-                                        /*
-                                        five.build(),
-
-                                        new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
-                                                six.build(),
-                                                new SequentialAction(
-                                                        transfer.toAOut(),
-                                                        transfer.toBOut(),
-                                                        transfer.toCOut(),
-                                                        transfer.toNeutral()
-                                                )
+                                        new ParallelAction(
+                                                transfer.turnTransf(rest, 1),
+                                                four.build()
                                         ),
-                                        seven.build(),
-
-                                        transfer.toAIn(),
+                        /*transfer.turnTransf(aOut+0.005, 1.2), //TODO: THIS +0.005 IS NOT TEST
+                        flicker.kick(),
+                        flicker.goBack(),
+                        transfer.turnTransf(bOut-0.005, 1.2), //TODO: THIS -0.005 IS NOT TEST
+                        flicker.kick(),
+                        flicker.goBack(),
+                        transfer.turnTransf(cOut - 0.005, 1.2),
+                        flicker.kick(),
+                        flicker.goBack(),*/
+                                        transfer.diddy(aOut),
                                         flicker.kick(),
                                         flicker.goBack(),
-                                        transfer.toBIn(),
+                                        //transfer.toBOut(),
+                                        transfer.diddy(bOut),
                                         flicker.kick(),
                                         flicker.goBack(),
-                                        transfer.toCIn(),
+                                        //transfer.toCOut(),
+                                        transfer.diddy(cOut),
                                         flicker.kick(),
                                         flicker.goBack(),
-                                        */
-                                        nine.build(),
-
+                                        eight.build(),
                                         shooter.stop(),
                                         intake.stopIntaking()
                                 )
