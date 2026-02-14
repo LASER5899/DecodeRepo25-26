@@ -99,7 +99,7 @@ public class far_blue_6 extends LinearOpMode{
 
         public class Diddy implements Action {
             private final double target;
-            private final double step = 0.0005;
+            private final double step = 0.001;
 
             public Diddy(double targetPosition) {
                 this.target = targetPosition;
@@ -213,7 +213,7 @@ public class far_blue_6 extends LinearOpMode{
                     timer.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                return timer.seconds() < move_time + 0.5; // true reruns action
             }
         }
         public Action toCIn(){
@@ -330,12 +330,12 @@ public class far_blue_6 extends LinearOpMode{
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 flywheel.setBatteryVoltage(battery.getVoltage());
-                flywheel.setvoltCorr(1);
-                flywheel.setKf(0.00083);
+                flywheel.setvoltCorr(2);
+                flywheel.setKf(0.00285);
                 flywheel.setKp(0.009);
                 flywheel.setKi(0);
                 flywheel.setKd(0.0009);
-                flywheel.setTargetRPM(1015);
+                flywheel.setTargetRPM(1030);
                 flywheel.flywheelHold();
                 return true; // true reruns action
             }
@@ -367,10 +367,10 @@ public class far_blue_6 extends LinearOpMode{
         flywheel = new ShooterControl(hardwareMap);
 
         Pose2d pose0 = new Pose2d(0, 0, Math.toRadians(0));
-        Pose2d pose2 = new Pose2d(-6, 3, Math.toRadians(20));
+        Pose2d pose2 = new Pose2d(-6, -3, Math.toRadians(20));
         Pose2d pose3 = new Pose2d(-26, -12, Math.toRadians(265));
         Pose2d pose4 = new Pose2d(-28, -51, Math.toRadians(265));
-        Pose2d pose5 = new Pose2d(-6, 3, Math.toRadians(20));
+        Pose2d pose5 = new Pose2d(-6, -3, Math.toRadians(20));
         Pose2d pose6 = new Pose2d(-48, -12, Math.toRadians(270));
         Pose2d pose7 = new Pose2d(-48, -45, Math.toRadians(270));
         Pose2d pose8 = new Pose2d(-3, 0, Math.toRadians(20));
@@ -395,17 +395,17 @@ public class far_blue_6 extends LinearOpMode{
                 .strafeToConstantHeading(new Vector2d(-15, -15), new TranslationalVelConstraint(50));
 
         TrajectoryActionBuilder one = drive.actionBuilder(pose0)
-                .strafeToConstantHeading(new Vector2d(-3, 0))//, new TranslationalVelConstraint(50))
+                .strafeToConstantHeading(new Vector2d(-6, -3))//, new TranslationalVelConstraint(50))
                 .turnTo(Math.toRadians(20));
 
         TrajectoryActionBuilder two = drive.actionBuilder(pose2)
                 .strafeToLinearHeading(new Vector2d(-26, -12), Math.toRadians(270));//, new TranslationalVelConstraint(10)); //counterclockwise by default
 
         TrajectoryActionBuilder three = drive.actionBuilder(pose3)
-                .strafeToConstantHeading(new Vector2d(-26, -45), new TranslationalVelConstraint(10));
+                .strafeToConstantHeading(new Vector2d(-28, -51), new TranslationalVelConstraint(10));
 
         TrajectoryActionBuilder four = drive.actionBuilder(pose4)
-                .strafeToConstantHeading(new Vector2d(-3, 0))//, new TranslationalVelConstraint(10))
+                .strafeToConstantHeading(new Vector2d(-6, -3))//, new TranslationalVelConstraint(10))
                 .turnTo(Math.toRadians(20));
 
         TrajectoryActionBuilder five = drive.actionBuilder(pose5)
