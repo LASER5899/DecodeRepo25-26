@@ -32,7 +32,6 @@ import org.firstinspires.ftc.teamcode.tuning.shooter.RobotConstants;
 
 @Config
 @Autonomous(name = "close blue 6 in order", group = "Autonomous")
-@Disabled
 //psuedocode
 /*
 
@@ -64,7 +63,7 @@ public class close_blue_6_in_order extends LinearOpMode{
 
     //mechanism instantiation
 
-    String sequ;
+    public String sequ = "PPG";
 
     public class intakeServo {
         private CRServo intake;
@@ -116,46 +115,48 @@ public class close_blue_6_in_order extends LinearOpMode{
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
-                    String sequence = sequ;
-                    if (sequence == null) sequence = "GPP";  // fallback
+                    //String sequence = sequ;
+                    if (sequence == null) {
+                        sequence = "GPP"; // fallback
+                    }
 
                     flickServo flicker = new flickServo(hardwareMap);
 
                     // ---- Shot 1 position ----
-                    if ("GPP".equals(sequence)) {
+                    if ("GPP".equals(sequ)) {
                         transfer.setPosition(aOut);
-                    } else if ("PGP".equals(sequence)) {
+                    } else if ("PGP".equals(sequ)) {
                         transfer.setPosition(bOut);
-                    } else if ("PPG".equals(sequence)) {
-                        transfer.setPosition(aOut);   // P
+                    } else if ("PPG".equals(sequ)) {
+                        transfer.setPosition(bOut);   // P
                     } else {
-                        transfer.setPosition(cOut);
+                        transfer.setPosition(aOut);
                     }
                     sleep(1700);
                     Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));
 
-// ---- Shot 2 position ----
-                    if ("GPP".equals(sequence)) {
+                    // ---- Shot 2 position ----
+                    if ("GPP".equals(sequ)) {
                         transfer.setPosition(bOut);
-                    } else if ("PGP".equals(sequence)) {
+                    } else if ("PGP".equals(sequ)) {
                         transfer.setPosition(aOut);
-                    } else if ("PPG".equals(sequence)) {
-                        transfer.setPosition(bOut);   // P (second purple uses the other pos)
+                    } else if ("PPG".equals(sequ)) {
+                        transfer.setPosition(cOut);   // P (second purple uses the other pos)
                     } else {
-                        transfer.setPosition(cOut);
+                        transfer.setPosition(bOut);
                     }
                     sleep(1200);
                     Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));
 
-// ---- Shot 3 position ----
-                    if ("GPP".equals(sequence)) {
+                    // ---- Shot 3 position ----
+                    if ("GPP".equals(sequ)) {
                         transfer.setPosition(cOut);
-                    } else if ("PGP".equals(sequence)) {
+                    } else if ("PGP".equals(sequ)) {
                         transfer.setPosition(cOut);
-                    } else if ("PPG".equals(sequence)) {
-                        transfer.setPosition(cOut);   // G (your standardized green position)
+                    } else if ("PPG".equals(sequ)) {
+                        transfer.setPosition(aOut);   // G (your standardized green position)
                     } else {
-                        transfer.setPosition(aOut);
+                        transfer.setPosition(cOut);
                     }
                     sleep(1200);
                     Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));
@@ -195,7 +196,7 @@ public class close_blue_6_in_order extends LinearOpMode{
             }
         }
         //public Action shootSet1(String sequence){ return new ShootSet1(sequence); }
-        public Action shootSet1( ){ return new ShootSet1(); }
+        public Action shootSet1(){ return new ShootSet1(); }
 
         public class ShootSet2 implements Action {
             private boolean started = false;
@@ -428,7 +429,7 @@ public class close_blue_6_in_order extends LinearOpMode{
                 flywheel.setKp(0.009);
                 flywheel.setKi(0);
                 flywheel.setKd(0.0009);
-                flywheel.setTargetRPM(815);
+                flywheel.setTargetRPM(820);
                 flywheel.flywheelHold();
                 return true; // true reruns action
             }
@@ -483,6 +484,8 @@ public class close_blue_6_in_order extends LinearOpMode{
                 telemetry.addData("t(ms)", "%.0f", timercam.milliseconds());
                 telemetry.update();
 
+                sequ = sequence;   // latch valid
+
                 if ("none".equals(sequence) && timercam.milliseconds() < 5000) {
                     return true; // keep scanning
                 }
@@ -492,7 +495,6 @@ public class close_blue_6_in_order extends LinearOpMode{
                     return false;
                 }
 
-                sequ = sequence;   // latch valid
                 return false;
             }
         }
