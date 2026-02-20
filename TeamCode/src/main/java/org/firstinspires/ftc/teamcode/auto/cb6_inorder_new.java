@@ -31,12 +31,12 @@ import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
 import org.firstinspires.ftc.teamcode.tuning.shooter.RobotConstants;
 
 @Config
-@Autonomous(name = "close blue 6 in order", group = "Autonomous")
+@Autonomous(name = "!!!!sixsevennnn new", group = "Autonomous")
 //psuedocode
 /*
 
  */
-public class close_blue_6_in_order extends LinearOpMode{
+public class cb6_inorder_new extends LinearOpMode{
 
     // if odometry is not properly tuned or constantly being retuned:
     // you MIGHT find it useful to change these values and use multiples of them instead of direct number
@@ -107,21 +107,16 @@ public class close_blue_6_in_order extends LinearOpMode{
         public class ShootSet1 implements Action {
             private boolean started = false;
             private String sequence;
-
-            /*public ShootSet1(String sequence) {
-                this.sequence = sequence;
-            }*/
+            private final ElapsedTime t1 = new ElapsedTime();
 
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
-                    //String sequence = sequ;
+                    t1.reset();
                     if (sequence == null) {
                         sequence = "GPP"; // fallback
                     }
-
                     flickServo flicker = new flickServo(hardwareMap);
-
                     // ---- Shot 1 position ----
                     if ("GPP".equals(sequ)) {
                         transfer.setPosition(aOut);
@@ -132,8 +127,28 @@ public class close_blue_6_in_order extends LinearOpMode{
                     } else {
                         transfer.setPosition(aOut);
                     }
-                    sleep(1700);
-                    Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));
+                    timer.reset();
+                    started = true;
+                }
+                return false; // true reruns action
+            }
+        }
+        //public Action shootSet1(String sequence){ return new ShootSet1(sequence); }
+        public Action shootSet1(){ return new ShootSet1(); }
+
+        public class ShootSet2 implements Action {
+            private boolean started = false;
+            private String sequence;
+            private final ElapsedTime t1 = new ElapsedTime();
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!started) {
+                    t1.reset();
+                    if (sequence == null) {
+                        sequence = "GPP"; // fallback
+                    }
+                    flickServo flicker = new flickServo(hardwareMap);
 
                     // ---- Shot 2 position ----
                     if ("GPP".equals(sequ)) {
@@ -145,8 +160,29 @@ public class close_blue_6_in_order extends LinearOpMode{
                     } else {
                         transfer.setPosition(bOut);
                     }
-                    sleep(1200);
-                    Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));
+
+                    timer.reset();
+                    started = true;
+                }
+                return t1.seconds() < 1.7; // true reruns action
+            }
+        }
+        //public Action shootSet1(String sequence){ return new ShootSet1(sequence); }
+        public Action shootSet2(){ return new ShootSet1(); }
+
+        public class ShootSet3 implements Action {
+            private boolean started = false;
+            private String sequence;
+            private final ElapsedTime t2 = new ElapsedTime();
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!started) {
+                    t2.reset();
+                    if (sequence == null) {
+                        sequence = "GPP"; // fallback
+                    }
+                    flickServo flicker = new flickServo(hardwareMap);
 
                     // ---- Shot 3 position ----
                     if ("GPP".equals(sequ)) {
@@ -161,65 +197,18 @@ public class close_blue_6_in_order extends LinearOpMode{
                     sleep(1200);
                     Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));
 
-                    /*if ("GPP".equals(sequence)) {
-                        transfer.setPosition(aOut);
-                    } else if ("PGP".equals(sequence)) {
-                        transfer.setPosition(bOut);
-                    } else {
-                        transfer.setPosition(cOut);
-                    }
-                    sleep(1700);
-                    Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));
-                    if ("GPP".equals(sequence)) {
-                        transfer.setPosition(bOut);
-                    } else if ("PGP".equals(sequence)){
-                        transfer.setPosition(aOut);
-                    } else {
-                        transfer.setPosition(cOut);
-                    }
-                    sleep(1200);
-                    Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));
-                    if ("GPP".equals(sequence)) {
-                        transfer.setPosition(cOut);
-                    } else if ("PGP".equals(sequence)){
-                        transfer.setPosition(cOut);
-                    } else {
-                        transfer.setPosition(aOut);
-                    }
-                    sleep(1200);
-                    Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));*/
-
                     timer.reset();
                     started = true;
                 }
-                return false; // true reruns action
+                return t2.seconds() < 1.7; // true reruns action
             }
         }
         //public Action shootSet1(String sequence){ return new ShootSet1(sequence); }
-        public Action shootSet1(){ return new ShootSet1(); }
-
-        public class ShootSet2 implements Action {
-            private boolean started = false;
-            private String sequence;
-
-            public ShootSet2(String sequence) {
-                this.sequence = sequence;
-            }
-
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                if (!started) {
-                    transfer.setPosition(aOut);
-                    timer.reset();
-                    started = true;
-                }
-                return timer.seconds() < move_time + 0.5; // true reruns action
-            }
-        }
-        public Action shootSet2(String sequence){ return new ShootSet2(sequence); }
-
+        public Action shootSet3(){ return new ShootSet1(); }
         public class ToAOut implements Action {
             private boolean started = false;
+
+            private final ElapsedTime t3 = new ElapsedTime();
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
@@ -227,7 +216,7 @@ public class close_blue_6_in_order extends LinearOpMode{
                     timer.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time + 0.5; // true reruns action
+                return t3.seconds() < 1.7; // true reruns action
             }
         }
         public Action toAOut(){
@@ -340,46 +329,6 @@ public class close_blue_6_in_order extends LinearOpMode{
             flicker = hardwareMap.get(Servo.class, "flick_servo");
         }
 
-        public class OneShot implements Action {
-            private final Servo transfer;
-            private final Servo flicker;
-            private final double pos;
-            private final double wait;
-
-            private final ElapsedTime t = new ElapsedTime();
-            private int step = 0;
-
-            public OneShot(Servo transfer, Servo flicker, double pos, double wait) {
-                this.transfer = transfer;
-                this.flicker = flicker;
-                this.pos = pos;
-                this.wait = wait;
-            }
-
-            @Override
-            public boolean run(@NonNull TelemetryPacket p) {
-                switch (step) {
-                    case 0:
-                        transfer.setPosition(pos);
-                        t.reset();
-                        step++;
-                        return true;
-
-                    case 1:
-                        if (t.seconds() < wait) return true;
-                        flicker.setPosition(0.0); // kick
-                        t.reset();
-                        step++;
-                        return true;
-
-                    case 2:
-                        if (t.seconds() < 0.2) return true;
-                        flicker.setPosition(0.3); // return
-                        return false;
-                }
-                return false;
-            }
-        }
 
         public class Kick implements Action {
             private boolean started = false;
@@ -640,6 +589,14 @@ public class close_blue_6_in_order extends LinearOpMode{
                                         two.build(),
 
                                         transfer.shootSet1(),
+                                        flicker.kick(),
+                                        flicker.goBack(),
+                                        transfer.shootSet2(),
+                                        flicker.kick(),
+                                        flicker.goBack(),
+                                        transfer.shootSet3(),
+                                        flicker.kick(),
+                                        flicker.goBack(),
 
                                         three.build(),
 
@@ -655,6 +612,14 @@ public class close_blue_6_in_order extends LinearOpMode{
                                         five.build(),
 
                                         transfer.shootSet1(),
+                                        flicker.kick(),
+                                        flicker.goBack(),
+                                        transfer.shootSet2(),
+                                        flicker.kick(),
+                                        flicker.goBack(),
+                                        transfer.shootSet3(),
+                                        flicker.kick(),
+                                        flicker.goBack(),
 
                                         /*
                                         five.build(),
