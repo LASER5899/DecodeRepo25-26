@@ -49,7 +49,7 @@ public class cb6_inorder_new extends LinearOpMode{
     private VoltageSensor battery;
 
 
-    double bIn = 0.07;//0.07;
+    double bIn = 0.28;//0.07;
     double cOut = 0.105;//0.100;
     double aIn = 0.14;//0.145;
     double bOut = 0.175;//0.175;
@@ -63,7 +63,7 @@ public class cb6_inorder_new extends LinearOpMode{
 
     //mechanism instantiation
 
-    public String sequ = "PPG";
+    public String sequ = "GPP";
 
     public class intakeServo {
         private CRServo intake;
@@ -107,12 +107,12 @@ public class cb6_inorder_new extends LinearOpMode{
         public class ShootSet1 implements Action {
             private boolean started = false;
             private String sequence;
-            private final ElapsedTime t1 = new ElapsedTime();
+            private final ElapsedTime timer = new ElapsedTime();
 
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
-                    t1.reset();
+                    timer.reset();
                     if (sequence == null) {
                         sequence = "GPP"; // fallback
                     }
@@ -130,7 +130,7 @@ public class cb6_inorder_new extends LinearOpMode{
                     timer.reset();
                     started = true;
                 }
-                return false; // true reruns action
+                return timer.seconds() < 1.2; // true reruns action
             }
         }
         //public Action shootSet1(String sequence){ return new ShootSet1(sequence); }
@@ -139,12 +139,12 @@ public class cb6_inorder_new extends LinearOpMode{
         public class ShootSet2 implements Action {
             private boolean started = false;
             private String sequence;
-            private final ElapsedTime t1 = new ElapsedTime();
+            private final ElapsedTime timer = new ElapsedTime();
 
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
-                    t1.reset();
+                    timer.reset();
                     if (sequence == null) {
                         sequence = "GPP"; // fallback
                     }
@@ -160,25 +160,24 @@ public class cb6_inorder_new extends LinearOpMode{
                     } else {
                         transfer.setPosition(bOut);
                     }
-
                     timer.reset();
                     started = true;
                 }
-                return t1.seconds() < 1.7; // true reruns action
+                return timer.seconds() < 1.1; // true reruns action
             }
         }
         //public Action shootSet1(String sequence){ return new ShootSet1(sequence); }
-        public Action shootSet2(){ return new ShootSet1(); }
+        public Action shootSet2(){ return new ShootSet2(); }
 
         public class ShootSet3 implements Action {
             private boolean started = false;
             private String sequence;
-            private final ElapsedTime t2 = new ElapsedTime();
+            private final ElapsedTime timer = new ElapsedTime();
 
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
-                    t2.reset();
+                    timer.reset();
                     if (sequence == null) {
                         sequence = "GPP"; // fallback
                     }
@@ -194,17 +193,14 @@ public class cb6_inorder_new extends LinearOpMode{
                     } else {
                         transfer.setPosition(cOut);
                     }
-                    sleep(1200);
-                    Actions.runBlocking(new SequentialAction(flicker.kick(), flicker.goBack()));
-
                     timer.reset();
                     started = true;
                 }
-                return t2.seconds() < 1.7; // true reruns action
+                return timer.seconds() < 1.1; // true reruns action
             }
         }
         //public Action shootSet1(String sequence){ return new ShootSet1(sequence); }
-        public Action shootSet3(){ return new ShootSet1(); }
+        public Action shootSet3(){ return new ShootSet3(); }
         public class ToAOut implements Action {
             private boolean started = false;
 
@@ -542,7 +538,7 @@ public class cb6_inorder_new extends LinearOpMode{
                 .strafeToLinearHeading(new Vector2d(49, 10), Math.toRadians(-90));//, new TranslationalVelConstraint(10)); //counterclockwise by default
 
         TrajectoryActionBuilder four = drive.actionBuilder(pose3)
-                .strafeToConstantHeading(new Vector2d(48, -17), new TranslationalVelConstraint(15));
+                .strafeToConstantHeading(new Vector2d(48, -17), new TranslationalVelConstraint(10));
 
         TrajectoryActionBuilder five = drive.actionBuilder(pose4)
                 .strafeToConstantHeading(new Vector2d(45, 20))//, new TranslationalVelConstraint(10))
@@ -599,13 +595,14 @@ public class cb6_inorder_new extends LinearOpMode{
                                         flicker.goBack(),
 
                                         three.build(),
+                                        transfer.toBIn(),
 
                                         new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
                                                 four.build(),
                                                 new SequentialAction(
-                                                        transfer.toAIn(),
                                                         transfer.toBIn(),
                                                         transfer.toCIn(),
+                                                        transfer.toAIn(),
                                                         transfer.toNeutral()
                                                 )
                                         ),

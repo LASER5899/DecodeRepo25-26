@@ -19,7 +19,7 @@ import com.qualcomm.robotcore.util.Range;
 @TeleOp(name="!state blue 67aaaaaa", group="Linear OpMode")
 public class State_Blue extends LinearOpMode {
 
-    boolean pdiddyNow, pdiddyPrev,ganttChart;
+    boolean pdiddyNow, pdiddyPrev, ganttChart;
     private MecanumDrive drive;
     private double heady;
     private IMU imu;

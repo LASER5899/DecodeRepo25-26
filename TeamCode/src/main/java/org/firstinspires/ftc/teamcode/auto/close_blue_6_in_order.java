@@ -49,7 +49,7 @@ public class close_blue_6_in_order extends LinearOpMode{
     private VoltageSensor battery;
 
 
-    double bIn = 0.07;//0.07;
+    double bIn = 0.28;//0.07;
     double cOut = 0.105;//0.100;
     double aIn = 0.14;//0.145;
     double bOut = 0.175;//0.175;
@@ -646,9 +646,9 @@ public class close_blue_6_in_order extends LinearOpMode{
                                         new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
                                                 four.build(),
                                                 new SequentialAction(
-                                                        transfer.toAIn(),
                                                         transfer.toBIn(),
                                                         transfer.toCIn(),
+                                                        transfer.toAIn(),
                                                         transfer.toNeutral()
                                                 )
                                         ),
