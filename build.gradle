@@ -11,8 +11,12 @@ buildscript {
     }
     dependencies {
         // Note for FTC Teams: Do not modify this yourself.
-        classpath 'com.android.tools.build:gradle:8.7.0'
+        classpath 'com.android.tools.build:gradle:8.12.3'
     }
+}
+//TODO: check?? build was successful for spotbugs
+plugins {
+    id("com.github.spotbugs") version "6.4.2"
 }
 
 // This is now required because aapt2 has to be downloaded from the
@@ -27,3 +31,5 @@ allprojects {
 repositories {
     mavenCentral()
 }
+
+
