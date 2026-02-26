@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import androidx.annotation.NonNull;
+
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
@@ -12,7 +13,6 @@ import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -23,20 +23,18 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.Vision;
 import org.firstinspires.ftc.teamcode.classes.Transfer_Values;
-
-import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
-import org.firstinspires.ftc.teamcode.tuning.shooter.RobotConstants;
 
 @Config
-@Autonomous(name = "!!!!sixsevennnn blue new", group = "Autonomous")
+@Autonomous(name = "!!!!sixsevennnn red new", group = "Autonomous")
 //psuedocode
 /*
 
  */
-public class cb6_inorder_new extends LinearOpMode{
+public class cr6_inorder_new extends LinearOpMode{
 
     // if odometry is not properly tuned or constantly being retuned:
     // you MIGHT find it useful to change these values and use multiples of them instead of direct number
@@ -201,6 +199,7 @@ public class cb6_inorder_new extends LinearOpMode{
         }
         //public Action shootSet1(String sequence){ return new ShootSet1(sequence); }
         public Action shootSet3(){ return new ShootSet3(); }
+
         public class ToAOut implements Action {
             private boolean started = false;
 
@@ -260,7 +259,7 @@ public class cb6_inorder_new extends LinearOpMode{
                     timer.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                return timer.seconds() < 1.5; // true reruns action
             }
         }
         public Action toAIn(){
@@ -276,7 +275,7 @@ public class cb6_inorder_new extends LinearOpMode{
                     timer.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                return timer.seconds() < 1.2; // true reruns action
             }
         }
         public Action toBIn(){
@@ -292,7 +291,7 @@ public class cb6_inorder_new extends LinearOpMode{
                     timer.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time + 1; // true reruns action
+                return timer.seconds() < 1.1; // true reruns action
             }
         }
         public Action toCIn(){
@@ -308,7 +307,7 @@ public class cb6_inorder_new extends LinearOpMode{
                     timer.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                return timer.seconds() < 0.2; // true reruns action
             }
         }
         public Action toNeutral(){
@@ -318,7 +317,7 @@ public class cb6_inorder_new extends LinearOpMode{
 
     public class flickServo {
         private final ElapsedTime timer = new ElapsedTime();
-        private final double move_time = 0.1;
+        private final double move_time = 0.2;
         private boolean started = false;
         private Servo flicker;
         public flickServo(HardwareMap hwMap) {
@@ -332,11 +331,10 @@ public class cb6_inorder_new extends LinearOpMode{
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
                     timer.reset();
-                    //flicker.setPosition(0.0);
+                    flicker.setPosition(0.0);
                     started = true;
                 }
-                flicker.setPosition(0.0);
-                return timer.seconds() <= 0.4; // true reruns action
+                return timer.seconds() <= 0.2; // true reruns action
             }
         }
         public Action kick(){
@@ -349,11 +347,10 @@ public class cb6_inorder_new extends LinearOpMode{
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!started) {
                     timer.reset();
+                    flicker.setPosition(0.3);
                     started = true;
-
                 }
-                flicker.setPosition(0.3);
-                return timer.seconds() <= 0.4; // true reruns action
+                return timer.seconds() <= 0.2; // true reruns action
             }
         }
         public Action goBack(){
@@ -499,14 +496,14 @@ public class cb6_inorder_new extends LinearOpMode{
         flywheel = new ShooterControl(hardwareMap);
 
         Pose2d pose0 = new Pose2d(0, 0, Math.toRadians(0));
-        Pose2d pose1 = new Pose2d(45, 20, Math.toRadians(-20));
-        Pose2d pose2 = new Pose2d(45, 20, Math.toRadians(50));
-        Pose2d pose3 = new Pose2d(49, 10, Math.toRadians(-90));
-        Pose2d pose4 = new Pose2d(48, -17, Math.toRadians(-90));
-        Pose2d pose5 = new Pose2d(45, 20, Math.toRadians(50));
-        Pose2d pose6 = new Pose2d(73, 10, Math.toRadians(-90));
-        Pose2d pose7 = new Pose2d(73, -20, Math.toRadians(-90));
-        Pose2d pose8 = new Pose2d(45, 20, Math.toRadians(50));
+        Pose2d pose1 = new Pose2d(45, -20, Math.toRadians(20));
+        Pose2d pose2 = new Pose2d(45, -20, Math.toRadians(-45));
+        Pose2d pose3 = new Pose2d(49, -10, Math.toRadians(90));
+        Pose2d pose4 = new Pose2d(48, 17, Math.toRadians(90));
+        Pose2d pose5 = new Pose2d(45, -20, Math.toRadians(-45));
+        Pose2d pose6 = new Pose2d(73, -10, Math.toRadians(90));
+        Pose2d pose7 = new Pose2d(73, 20, Math.toRadians(90));
+        Pose2d pose8 = new Pose2d(45, -20, Math.toRadians(-45));
         MecanumDrive drive = new MecanumDrive(hardwareMap, pose0);
         outtakeMotor shooter = new outtakeMotor(hardwareMap);
         transferServo transfer = new transferServo(hardwareMap);
@@ -529,34 +526,34 @@ public class cb6_inorder_new extends LinearOpMode{
                 .strafeToConstantHeading(new Vector2d(-15, -15), new TranslationalVelConstraint(50));
 
         TrajectoryActionBuilder one = drive.actionBuilder(pose0)
-                .strafeToLinearHeading(new Vector2d(45, 20), Math.toRadians(-20));//, new TranslationalVelConstraint(10));
+                .strafeToLinearHeading(new Vector2d(45, -20), Math.toRadians(20));//, new TranslationalVelConstraint(10));
 
         TrajectoryActionBuilder two = drive.actionBuilder(pose1)
-                .turnTo(Math.toRadians(50));
+                .turnTo(Math.toRadians(-45));
 
         TrajectoryActionBuilder three = drive.actionBuilder(pose2)
-                .strafeToLinearHeading(new Vector2d(49, 10), Math.toRadians(-90));//, new TranslationalVelConstraint(10)); //counterclockwise by default
+                .strafeToLinearHeading(new Vector2d(49, -10), Math.toRadians(90));//, new TranslationalVelConstraint(10)); //counterclockwise by default
 
         TrajectoryActionBuilder four = drive.actionBuilder(pose3)
-                .strafeToConstantHeading(new Vector2d(48, -17), new TranslationalVelConstraint(10));
+                .strafeToConstantHeading(new Vector2d(48, 17), new TranslationalVelConstraint(15));
 
         TrajectoryActionBuilder five = drive.actionBuilder(pose4)
-                .strafeToConstantHeading(new Vector2d(45, 20))//, new TranslationalVelConstraint(10))
-                .turnTo(Math.toRadians(50));
+                .strafeToConstantHeading(new Vector2d(45, -20))//, new TranslationalVelConstraint(10))
+                .turnTo(Math.toRadians(-45));
 
         TrajectoryActionBuilder six = drive.actionBuilder(pose5)
-                .strafeToConstantHeading(new Vector2d(73, 10))//, new TranslationalVelConstraint(10))
-                .turnTo(Math.toRadians(-90));
+                .strafeToConstantHeading(new Vector2d(73, -10))//, new TranslationalVelConstraint(10))
+                .turnTo(Math.toRadians(90));
 
         TrajectoryActionBuilder seven = drive.actionBuilder(pose6)
-                .strafeToConstantHeading(new Vector2d(73, -20), new TranslationalVelConstraint(15));
+                .strafeToConstantHeading(new Vector2d(73, 20), new TranslationalVelConstraint(15));
 
         TrajectoryActionBuilder eight = drive.actionBuilder(pose7)
-                .strafeToConstantHeading(new Vector2d(45, 20))//, new TranslationalVelConstraint(10))
-                .turnTo(Math.toRadians(50));
+                .strafeToConstantHeading(new Vector2d(45, -20))//, new TranslationalVelConstraint(10))
+                .turnTo(Math.toRadians(-45));
 
         TrajectoryActionBuilder nine = drive.actionBuilder(pose8)
-                .strafeToConstantHeading(new Vector2d(50, 5));//, new TranslationalVelConstraint(10));
+                .strafeToConstantHeading(new Vector2d(50, -5));//, new TranslationalVelConstraint(10));
 
         // actions that need to happen on init
 
@@ -578,7 +575,13 @@ public class cb6_inorder_new extends LinearOpMode{
                                 transfer.toAOut(),
                                 new SequentialAction(
 
-                                        one.build(),
+                                        new ParallelAction(
+                                                one.build(),
+                                                new SequentialAction(
+                                                        flicker.kick(),
+                                                        flicker.goBack()
+                                                )
+                                        ),
 
                                         beginTs.scanObelisk(),
 
@@ -594,8 +597,10 @@ public class cb6_inorder_new extends LinearOpMode{
                                         flicker.kick(),
                                         flicker.goBack(),
 
-                                        three.build(),
-                                        transfer.toBIn(),
+                                        new ParallelAction(
+                                                transfer.toBIn(),
+                                                three.build()
+                                        ),
 
                                         new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
                                                 four.build(),
