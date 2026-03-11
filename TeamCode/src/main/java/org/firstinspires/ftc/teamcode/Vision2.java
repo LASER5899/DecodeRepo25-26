@@ -25,7 +25,6 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import java.util.ArrayList;
 
 
 //                   VISION CLASS
@@ -48,7 +47,7 @@ import java.util.ArrayList;
  *       vertAngle() returns the angle to the top of the goal.
  *
  */
-public class Vision {
+public class Vision2 {
 
     // public Vision(HardwareMap map) {
     //     this.hardwareMap = map;
@@ -68,8 +67,6 @@ public class Vision {
     //Assign the web cam used here.
     AprilTagProcessor tagProcessor;
     AprilTagProcessor.Builder myAprilTagProcessorBuilder;
-
-
     AprilTagGameDatabase aprilTagGameDatabase;
     private int AprilTagId;
     private int TargetId = 0;
@@ -111,24 +108,21 @@ public class Vision {
                 .setDrawTagID(true)
                 .setDrawTagOutline(true)
                 .setTagLibrary(AprilTagGameDatabase.getDecodeTagLibrary())
-                .setLensIntrinsics(4862.49,4862.49,1363.75,19.5055)
                 .build();
         VisionPortal visionPortal = new VisionPortal.Builder()
                 .addProcessor(tagProcessor)
                 .setCamera(camera)  // uncomment once it exists
-              //  .setCameraResolution(new Size(800, 600))
-                //.setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+                .setCameraResolution(new Size(800, 600))
                 .build();
 
     }
 
     public void scanForTarget() {
         //telemetry.addLine("scanny scan scan");
-        ArrayList<AprilTagDetection> taglist = tagProcessor.getDetections();
-        if (!taglist.isEmpty()) {
+        if (!tagProcessor.getDetections().isEmpty()) {
             //telemetry.addLine("Not empty yo :)")
 
-            AprilTagDetection tag = taglist.get(0);
+            tag = tagProcessor.getDetections().get(0);
             if (TargetId == (int) tag.id) {
                 xDistance = tag.ftcPose.x * 2.54;
                 yDistance = tag.ftcPose.y * 2.54;
@@ -196,11 +190,12 @@ public class Vision {
     public double centerDistanceCM() {
 
         scanForTarget();
+        //yDistance();
         double centerDistance;
         if (range == -1.0) {
             centerDistance = -1;
         } else {
-            double range1 = Math.sqrt(yDistance*yDistance+xDistance*xDistance);
+            double range1 = Math.sqrt(yDistance * yDistance + xDistance * xDistance);
             centerDistance = Math.sqrt(TAG_TO_CENTER * TAG_TO_CENTER + range1 * range1 - 2 * TAG_TO_CENTER * range1 * Math.cos(Math.toRadians(180 - yaw)));
         }
 
@@ -347,17 +342,17 @@ public class Vision {
             double degrees_to_center = Math.toDegrees(Math.asin(TAG_TO_CENTER * Math.sin(Math.toRadians(180 - yaw)) / centerDistanceCM()));
             double bearing = getBearing();
             return degrees_to_center - bearing;
-        } return -10000;
+        }
+        return -10000;
     }
 
     // PLEASE REMOVE THIS FUNCTION AND PUT IT IN A DIFFERENT CLASS
-    public static void softStart(DcMotor dcMotor){
-        for(double i = 0; i<1;i=i+1){
+    public static void softStart(DcMotor dcMotor) {
+        for (double i = 0; i < 1; i = i + 1) {
 
         }
 
 
     }
-
 
 }

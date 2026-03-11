@@ -29,8 +29,9 @@ public class VisionTestEnvironment extends LinearOpMode {
         waitForStart();
         camera.aprilTagSetUp(cam1);
         while(opModeIsActive()){
-            telemetry.addData("GUAH is wow is Spanish",9);
+            telemetry.addData("Range",camera.getRange());
 
         }
+
     }
 }

@@ -107,8 +107,9 @@ public class State_Blue extends LinearOpMode {
 
 
         WebcamName cam1 = hardwareMap.get(WebcamName.class, "Camera1");
-        camera.setTarget(Vision.Target.blue);
         camera.aprilTagSetUp(cam1);
+        camera.setTarget(Vision.Target.blue);
+
 
         double presentVoltage;
 
