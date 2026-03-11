@@ -67,6 +67,8 @@ public class Vision {
     //Assign the web cam used here.
     AprilTagProcessor tagProcessor;
     AprilTagProcessor.Builder myAprilTagProcessorBuilder;
+
+
     AprilTagGameDatabase aprilTagGameDatabase;
     private int AprilTagId;
     private int TargetId = 0;
@@ -108,11 +110,13 @@ public class Vision {
                 .setDrawTagID(true)
                 .setDrawTagOutline(true)
                 .setTagLibrary(AprilTagGameDatabase.getDecodeTagLibrary())
+                .setLensIntrinsics(4862.49,4862.49,1363.75,19.5055)
                 .build();
         VisionPortal visionPortal = new VisionPortal.Builder()
                 .addProcessor(tagProcessor)
                 .setCamera(camera)  // uncomment once it exists
-                .setCameraResolution(new Size(640, 480))
+                .setCameraResolution(new Size(800, 600))
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                 .build();
 
     }
