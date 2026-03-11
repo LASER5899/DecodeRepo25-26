@@ -82,8 +82,10 @@ public class Calibration extends LinearOpMode
         if (USING_WEBCAM)
         {
             portal = new VisionPortal.Builder()
+
                     .setCamera(hardwareMap.get(WebcamName.class, "Camera1"))
                     .setCameraResolution(new Size(RESOLUTION_WIDTH, RESOLUTION_HEIGHT))
+                    .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                     .build();
         }
         else
