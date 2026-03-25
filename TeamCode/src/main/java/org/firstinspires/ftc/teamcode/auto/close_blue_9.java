@@ -24,16 +24,15 @@ import org.firstinspires.ftc.teamcode.classes.Transfer_Values;
 
 import org.firstinspires.ftc.teamcode.MecanumDrive;
 import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
-import org.firstinspires.ftc.teamcode.tuning.shooter.RobotConstants;
 
 @Config
-@Autonomous(name = "close blue 6", group = "Autonomous")
+@Autonomous(name = "close blue 9", group = "Autonomous")
 //@Disabled
 //psuedocode
 /*
 
  */
-public class close_blue_6 extends LinearOpMode{
+public class close_blue_9 extends LinearOpMode{
 
     // if odometry is not properly tuned or constantly being retuned:
     // you MIGHT find it useful to change these values and use multiples of them instead of direct number
@@ -107,7 +106,7 @@ public class close_blue_6 extends LinearOpMode{
                     timer.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time + 0.5; // true reruns action
+                return timer.seconds() < move_time; // true reruns action
             }
         }
         public Action toAOut(){
@@ -123,7 +122,7 @@ public class close_blue_6 extends LinearOpMode{
                     timer.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                return timer.seconds() < move_time - 0.3; // true reruns action
             }
         }
         public Action toBOut(){
@@ -139,7 +138,7 @@ public class close_blue_6 extends LinearOpMode{
                     timer.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                return timer.seconds() < move_time - 0.3; // true reruns action
             }
         }
         public Action toCOut(){
@@ -254,6 +253,7 @@ public class close_blue_6 extends LinearOpMode{
             return new GoBack();
         }
     }
+    
     public class outtakeMotor {
         private DcMotorEx shooter;
         double power = 0;
@@ -374,7 +374,7 @@ public class close_blue_6 extends LinearOpMode{
                 .strafeToLinearHeading(new Vector2d(49, 10), Math.toRadians(-90));//, new TranslationalVelConstraint(10)); //counterclockwise by default
 
         TrajectoryActionBuilder three = drive.actionBuilder(pose3)
-                .strafeToConstantHeading(new Vector2d(48, -17), new TranslationalVelConstraint(15));
+                .strafeToConstantHeading(new Vector2d(48, -17), new TranslationalVelConstraint(10));
 
         TrajectoryActionBuilder four = drive.actionBuilder(pose4)
                 .strafeToConstantHeading(new Vector2d(45, 20))//, new TranslationalVelConstraint(10))
@@ -385,7 +385,7 @@ public class close_blue_6 extends LinearOpMode{
                 .turnTo(Math.toRadians(-90));
 
         TrajectoryActionBuilder six = drive.actionBuilder(pose6)
-                .strafeToConstantHeading(new Vector2d(73, -20), new TranslationalVelConstraint(15));
+                .strafeToConstantHeading(new Vector2d(73, -20), new TranslationalVelConstraint(10));
 
         TrajectoryActionBuilder seven = drive.actionBuilder(pose7)
                 .strafeToConstantHeading(new Vector2d(45, 20))//, new TranslationalVelConstraint(10))
@@ -414,7 +414,6 @@ public class close_blue_6 extends LinearOpMode{
 
                                         one.build(),
 
-                                        transfer.toAOut(),
                                         flicker.kick(),
                                         flicker.goBack(),
                                         transfer.toBOut(),
@@ -425,6 +424,7 @@ public class close_blue_6 extends LinearOpMode{
                                         flicker.goBack(),
 
                                         two.build(),
+                                        transfer.toAIn(),
 
                                         new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
                                                 three.build(),
@@ -446,30 +446,30 @@ public class close_blue_6 extends LinearOpMode{
                                         transfer.toCOut(),
                                         flicker.kick(),
                                         flicker.goBack(),
-                                        /*
+
                                         five.build(),
 
                                         new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
                                                 six.build(),
                                                 new SequentialAction(
-                                                        transfer.toAOut(),
-                                                        transfer.toBOut(),
-                                                        transfer.toCOut(),
+                                                        transfer.toAIn(),
+                                                        transfer.toBIn(),
+                                                        transfer.toCIn(),
                                                         transfer.toNeutral()
                                                 )
                                         ),
                                         seven.build(),
 
-                                        transfer.toAIn(),
+                                        transfer.toAOut(),
                                         flicker.kick(),
                                         flicker.goBack(),
-                                        transfer.toBIn(),
+                                        transfer.toBOut(),
                                         flicker.kick(),
                                         flicker.goBack(),
-                                        transfer.toCIn(),
+                                        transfer.toCOut(),
                                         flicker.kick(),
                                         flicker.goBack(),
-                                        */
+
                                         eight.build(),
 
                                         shooter.stop(),
