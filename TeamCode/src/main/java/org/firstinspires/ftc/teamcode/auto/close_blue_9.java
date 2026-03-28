@@ -106,7 +106,7 @@ public class close_blue_9 extends LinearOpMode{
                     timer.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                return timer.seconds() < move_time - 0.2; // true reruns action
             }
         }
         public Action toAOut(){
@@ -122,7 +122,7 @@ public class close_blue_9 extends LinearOpMode{
                     timer.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time - 0.3; // true reruns action
+                return timer.seconds() < move_time - 0.5; // true reruns action
             }
         }
         public Action toBOut(){
@@ -138,7 +138,7 @@ public class close_blue_9 extends LinearOpMode{
                     timer.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time - 0.3; // true reruns action
+                return timer.seconds() < move_time - 0.5; // true reruns action
             }
         }
         public Action toCOut(){
@@ -202,7 +202,7 @@ public class close_blue_9 extends LinearOpMode{
                     timer.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                return timer.seconds() < move_time - 0.5; // true reruns action
             }
         }
         public Action toNeutral(){
@@ -229,7 +229,7 @@ public class close_blue_9 extends LinearOpMode{
                     started = true;
                 }
                 flicker.setPosition(0.0);
-                return timer.seconds() <= 0.4; // true reruns action
+                return timer.seconds() <= 0.2; // true reruns action
             }
         }
         public Action kick(){
@@ -246,7 +246,7 @@ public class close_blue_9 extends LinearOpMode{
 
                 }
                 flicker.setPosition(0.3);
-                return timer.seconds() <= 0.4; // true reruns action
+                return timer.seconds() <= 0.2; // true reruns action
             }
         }
         public Action goBack(){
@@ -340,12 +340,12 @@ public class close_blue_9 extends LinearOpMode{
         flywheel = new ShooterControl(hardwareMap);
 
         Pose2d pose0 = new Pose2d(0, 0, Math.toRadians(0));
-        Pose2d pose2 = new Pose2d(45, 20, Math.toRadians(50));
+        Pose2d pose2 = new Pose2d(45, 20, Math.toRadians(45));
         Pose2d pose3 = new Pose2d(49, 10, Math.toRadians(-90));
         Pose2d pose4 = new Pose2d(48, -17, Math.toRadians(-90));
         Pose2d pose5 = new Pose2d(45, 20, Math.toRadians(50));
-        Pose2d pose6 = new Pose2d(73, 10, Math.toRadians(-90));
-        Pose2d pose7 = new Pose2d(73, -20, Math.toRadians(-90));
+        Pose2d pose6 = new Pose2d(71.5, 10, Math.toRadians(-90));
+        Pose2d pose7 = new Pose2d(71.5 , -24, Math.toRadians(-90));
         Pose2d pose8 = new Pose2d(45, 20, Math.toRadians(50));
         MecanumDrive drive = new MecanumDrive(hardwareMap, pose0);
         outtakeMotor shooter = new outtakeMotor(hardwareMap);
@@ -368,24 +368,25 @@ public class close_blue_9 extends LinearOpMode{
                 .strafeToConstantHeading(new Vector2d(-15, -15), new TranslationalVelConstraint(50));
 
         TrajectoryActionBuilder one = drive.actionBuilder(pose0)
-                .strafeToLinearHeading(new Vector2d(45, 20), Math.toRadians(50));//, new TranslationalVelConstraint(10));
+                .strafeToLinearHeading(new Vector2d(45, 20), Math.toRadians(45));//, new TranslationalVelConstraint(10));
 
         TrajectoryActionBuilder two = drive.actionBuilder(pose2)
                 .strafeToLinearHeading(new Vector2d(49, 10), Math.toRadians(-90));//, new TranslationalVelConstraint(10)); //counterclockwise by default
 
         TrajectoryActionBuilder three = drive.actionBuilder(pose3)
-                .strafeToConstantHeading(new Vector2d(48, -17), new TranslationalVelConstraint(10));
+                .strafeToConstantHeading(new Vector2d(48, -17), new TranslationalVelConstraint(7.5));
 
         TrajectoryActionBuilder four = drive.actionBuilder(pose4)
                 .strafeToConstantHeading(new Vector2d(45, 20))//, new TranslationalVelConstraint(10))
                 .turnTo(Math.toRadians(50));
 
         TrajectoryActionBuilder five = drive.actionBuilder(pose5)
-                .strafeToConstantHeading(new Vector2d(73, 10))//, new TranslationalVelConstraint(10))
-                .turnTo(Math.toRadians(-90));
+                .strafeToLinearHeading(new Vector2d(71.5, 10), Math.toRadians(-90));
+                //.strafeToConstantHeading(new Vector2d(73, 10))//, new TranslationalVelConstraint(10))
+                //.turnTo(Math.toRadians(-90));
 
         TrajectoryActionBuilder six = drive.actionBuilder(pose6)
-                .strafeToConstantHeading(new Vector2d(73, -20), new TranslationalVelConstraint(10));
+                .strafeToConstantHeading(new Vector2d(71.5, -24), new TranslationalVelConstraint(7.5));
 
         TrajectoryActionBuilder seven = drive.actionBuilder(pose7)
                 .strafeToConstantHeading(new Vector2d(45, 20))//, new TranslationalVelConstraint(10))
@@ -423,8 +424,10 @@ public class close_blue_9 extends LinearOpMode{
                                         flicker.kick(),
                                         flicker.goBack(),
 
-                                        two.build(),
-                                        transfer.toAIn(),
+                                        new ParallelAction(
+                                                two.build(),
+                                                transfer.toAIn()
+                                        ),
 
                                         new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
                                                 three.build(),
