@@ -674,7 +674,7 @@ public class State_Blue extends LinearOpMode {
             telemetry.addData("free schlep", "%4.2f", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
             telemetry.addData("diddy", "%4.2f", Math.abs((imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES)+ 20)));
             telemetry.addData("eepstein", "%4.2f", drive.localizer.getPose().heading.toDouble()+ Math.toRadians(20));
-            telemetry.addData("Distance from Center of Red Goal (cm): ", camera.centerDistanceCM());
+            telemetry.addData("Distance from Center of blue Goal (cm): ", camera.centerDistanceCM());
             telemetry.addData("Target RPM", targRPM);
             telemetry.addData("Flywheel measured velocity", flywheel.getVelocity());
 

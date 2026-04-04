@@ -28,8 +28,11 @@ public class VisionTestEnvironment extends LinearOpMode {
 
         waitForStart();
         camera.aprilTagSetUp(cam1);
+        telemetry.addLine("Entering");
         while(opModeIsActive()){
+            telemetry.addLine("RUN RUN RUDOLF");
             telemetry.addData("Range",camera.getRange());
+            telemetry.update();
 
         }
 

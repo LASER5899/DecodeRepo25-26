@@ -111,14 +111,16 @@ public class Vision {
                 .setDrawTagID(true)
                 .setDrawTagOutline(true)
                 .setTagLibrary(AprilTagGameDatabase.getDecodeTagLibrary())
-                .setLensIntrinsics(4862.49,4862.49,1363.75,19.5055)
+                .setLensIntrinsics(800,800,400,300)
                 .build();
         VisionPortal visionPortal = new VisionPortal.Builder()
                 .addProcessor(tagProcessor)
-                .setCamera(camera)  // uncomment once it exists
-              //  .setCameraResolution(new Size(800, 600))
-                //.setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+                .setCamera(camera)
+                // uncomment once it exists
+                .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
+                .setCameraResolution(new Size(800, 600))
                 .build();
+
 
     }
 
@@ -317,7 +319,7 @@ public class Vision {
     int scanForPatternRun = 0;
 
     public String scanForPattern() {
-
+//10400 april tag
 
         if (gamePattern.equals("none") && !tagProcessor.getDetections().isEmpty()) {
             //telemetry.addLine("Not empty yo :)")
