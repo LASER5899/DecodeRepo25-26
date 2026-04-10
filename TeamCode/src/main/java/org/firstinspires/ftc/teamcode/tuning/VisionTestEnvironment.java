@@ -31,7 +31,7 @@ public class VisionTestEnvironment extends LinearOpMode {
         telemetry.addLine("Entering");
         while(opModeIsActive()){
                 telemetry.addLine("RUN RUN RUDOLF");
-            telemetry.addData("Range",camera.getRange());
+            telemetry.addData("Range",camera.centerDistanceCM());
             telemetry.update();
 
         }
