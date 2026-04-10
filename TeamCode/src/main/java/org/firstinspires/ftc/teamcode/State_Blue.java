@@ -440,19 +440,19 @@ public class State_Blue extends LinearOpMode {
                 shooter.setKf(RobotConstants.kF);
                 if (targRPM >= 920){spinningUp =false; shooter.setKf(RobotConstants.kF);}
             }
-            if(!spinningUp && (distFromGoal >= 1100) && (distFromGoal <= 2200)){ //1100 and 2200 TODO: CHANGE BACK TO 140 AND 270
+            if(!spinningUp && (distFromGoal >= 140) && (distFromGoal <= 180)){ //1100 and 2200 TODO: CHANGE BACK TO 140 AND 270
                 targRPM = (0.546172*distFromGoal)+722.4006;
                 //targRPM = 1050;
 
                 shooter.setKf(0.0028);
                 shooter.setvoltCorr(1.5);
             }
-            else if(!spinningUp && (distFromGoal > 2200)){ //2200 TODO: CHANGE BACK TO 320
+            else if(!spinningUp && (distFromGoal > 200)){ //2200 TODO: CHANGE BACK TO 320
                 targRPM = 1070;
                 shooter.setvoltCorr(2);
                 shooter.setKf(0.00285);
             }
-            else if(!spinningUp && (distFromGoal < 1100) && (distFromGoal != -1)){ //1100 TODO: CHANGE BACK TO 140
+            else if(!spinningUp && (distFromGoal < 140) && (distFromGoal != -1)){ //1100 TODO: CHANGE BACK TO 140
                 targRPM = (0.909091*distFromGoal)+703.18182;
                 shooter.setvoltCorr(1.5);
             }

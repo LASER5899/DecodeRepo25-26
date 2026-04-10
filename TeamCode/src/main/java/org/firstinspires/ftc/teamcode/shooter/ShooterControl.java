@@ -35,6 +35,7 @@ public class ShooterControl {
     public double getKf() { return Kf; }
     public double getKi() { return Ki; }
     public double getKd() { return Kd; }
+    public double getVoltCorr() { return voltCorr; }
 
     enum FlywheelState {RAMP, HOLD, DOWN};
 

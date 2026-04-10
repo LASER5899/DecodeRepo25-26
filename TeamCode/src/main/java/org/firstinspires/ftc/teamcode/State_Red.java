@@ -439,14 +439,14 @@ public class State_Red extends LinearOpMode {
                 shooter.setKf(RobotConstants.kF);
                 if (targRPM >= 920){spinningUp =false; shooter.setKf(RobotConstants.kF);}
             }
-            if(!spinningUp && (distFromGoal >= 140) && (distFromGoal <= 270)){
+            if(!spinningUp && (distFromGoal >= 140) && (distFromGoal <= 180)){
                 targRPM = (0.546172*distFromGoal)+722.4006;
                 //targRPM = 1050;
 
                 shooter.setKf(0.0028);
                 shooter.setvoltCorr(1.5);
             }
-            else if(!spinningUp && (distFromGoal > 320)){
+            else if(!spinningUp && (distFromGoal > 200)){
                 targRPM = 1070;
                 shooter.setvoltCorr(2);
                 shooter.setKf(0.00285);

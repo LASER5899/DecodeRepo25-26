@@ -9,6 +9,7 @@ public class RobotConstants {
     public static double kF = 0.0028;
     public static double kI = 0.0000;
     public static double kD = 0.0009;
+    //public static double voltCorr = 1.5;
     public static double holdSeconds = 5;
     public static double maxAccel = 500;
 
