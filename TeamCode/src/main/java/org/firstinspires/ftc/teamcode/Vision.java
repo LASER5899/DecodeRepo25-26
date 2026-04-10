@@ -111,7 +111,7 @@ public class Vision {
                 .setDrawTagID(true)
                 .setDrawTagOutline(true)
                 .setTagLibrary(AprilTagGameDatabase.getDecodeTagLibrary())
-                .setLensIntrinsics(800,800,400,300)
+                .setLensIntrinsics(274.188,274.188,429.983,256.227)
                 .build();
         VisionPortal visionPortal = new VisionPortal.Builder()
                 .addProcessor(tagProcessor)
