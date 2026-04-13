@@ -20,6 +20,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+@Disabled
 @TeleOp(name="Shooter Test Teleop", group="Linear OpMode")
 public class Shooter_Test_Teleop extends LinearOpMode {
     private DcMotorEx flywheel;

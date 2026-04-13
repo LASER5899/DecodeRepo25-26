@@ -16,10 +16,10 @@ import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-@TeleOp(name="!state red 67aaaaaa", group="Linear OpMode")
-public class State_Red extends LinearOpMode {
+@TeleOp(name="!Premier Blue", group="Linear OpMode")
+public class Premier_Blue extends LinearOpMode {
 
-    boolean pdiddyNow, pdiddyPrev,ganttChart;
+    boolean pdiddyNow, pdiddyPrev, ganttChart;
     private MecanumDrive drive;
     private double heady;
     private IMU imu;
@@ -107,8 +107,9 @@ public class State_Red extends LinearOpMode {
 
 
         WebcamName cam1 = hardwareMap.get(WebcamName.class, "Camera1");
-        camera.setTarget(Vision.Target.red);
         camera.aprilTagSetUp(cam1);
+        camera.setTarget(Vision.Target.blue);
+
 
         double presentVoltage;
 
@@ -439,19 +440,19 @@ public class State_Red extends LinearOpMode {
                 shooter.setKf(RobotConstants.kF);
                 if (targRPM >= 920){spinningUp =false; shooter.setKf(RobotConstants.kF);}
             }
-            if(!spinningUp && (distFromGoal >= 140) && (distFromGoal <= 180)){
+            if(!spinningUp && (distFromGoal >= 140) && (distFromGoal <= 180)){ //1100 and 2200 TODO: CHANGE BACK TO 140 AND 270
                 targRPM = (0.546172*distFromGoal)+722.4006;
                 //targRPM = 1050;
 
                 shooter.setKf(0.0028);
                 shooter.setvoltCorr(1.5);
             }
-            else if(!spinningUp && (distFromGoal > 200)){
+            else if(!spinningUp && (distFromGoal > 200)){ //2200 TODO: CHANGE BACK TO 320
                 targRPM = 1070;
                 shooter.setvoltCorr(2);
                 shooter.setKf(0.00285);
             }
-            else if(!spinningUp && (distFromGoal < 140) && (distFromGoal != -1)){
+            else if(!spinningUp && (distFromGoal < 140) && (distFromGoal != -1)){ //1100 TODO: CHANGE BACK TO 140
                 targRPM = (0.909091*distFromGoal)+703.18182;
                 shooter.setvoltCorr(1.5);
             }
@@ -673,7 +674,7 @@ public class State_Red extends LinearOpMode {
             telemetry.addData("free schlep", "%4.2f", imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
             telemetry.addData("diddy", "%4.2f", Math.abs((imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES)+ 20)));
             telemetry.addData("eepstein", "%4.2f", drive.localizer.getPose().heading.toDouble()+ Math.toRadians(20));
-            telemetry.addData("Distance from Center of Red Goal (cm): ", camera.centerDistanceCM());
+            telemetry.addData("Distance from Center of blue Goal (cm): ", camera.centerDistanceCM());
             telemetry.addData("Target RPM", targRPM);
             telemetry.addData("Flywheel measured velocity", flywheel.getVelocity());
 

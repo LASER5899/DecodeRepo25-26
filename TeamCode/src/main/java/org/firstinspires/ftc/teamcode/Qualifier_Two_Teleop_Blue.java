@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
+@Disabled
 @TeleOp(name="AAAToday's Teleop - Blue", group="Linear OpMode")
 public class Qualifier_Two_Teleop_Blue extends LinearOpMode {
     public enum outtakeState {

@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.*;
 
 import org.firstinspires.ftc.teamcode.classes.Transfer_Values;
 
+@Disabled
 @TeleOp(name="Qualifier Teleop", group="Linear OpMode")
 public class Qualifier_Teleop extends LinearOpMode {
 

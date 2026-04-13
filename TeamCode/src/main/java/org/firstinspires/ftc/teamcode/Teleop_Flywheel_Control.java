@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
+@Disabled
 @TeleOp(name="Teleop w Flywheel", group="Linear OpMode")
 public class Teleop_Flywheel_Control extends LinearOpMode {
     public enum outtakeState {
