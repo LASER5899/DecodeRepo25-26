@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.old.redo;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+@Disabled
 @TeleOp(name="Old LASER Main Teleop w classes", group="Linear OpMode")
 public class OldTeleopWithClasses extends LinearOpMode {
 

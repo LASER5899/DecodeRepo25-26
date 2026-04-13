@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -7,6 +8,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 
+
+@Disabled
 
 @TeleOp(name="BLUE_Decode_Teleop_with_alignment", group="Linear OpMode")
 public class BLUE_Decode_Teleop2_with_alignment extends LinearOpMode {

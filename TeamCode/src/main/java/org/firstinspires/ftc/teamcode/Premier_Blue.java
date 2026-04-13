@@ -448,8 +448,8 @@ public class Premier_Blue extends LinearOpMode {
                 shooter.setvoltCorr(1.5);
             }
             else if(!spinningUp && (distFromGoal > 200)){ //2200 TODO: CHANGE BACK TO 320
-                targRPM = 1070;
-                shooter.setvoltCorr(2);
+                targRPM = 1030;
+                shooter.setvoltCorr(1.5);
                 shooter.setKf(0.00285);
             }
             else if(!spinningUp && (distFromGoal < 140) && (distFromGoal != -1)){ //1100 TODO: CHANGE BACK TO 140
@@ -463,7 +463,7 @@ public class Premier_Blue extends LinearOpMode {
 
 
 
-            targRPM = Range.clip(targRPM, 0, 1050);
+            targRPM = Range.clip(targRPM, 0, 2000);
             shooter.setMaxAccel(RobotConstants.maxAccel);
 
             shooter.setKp(RobotConstants.kP);
