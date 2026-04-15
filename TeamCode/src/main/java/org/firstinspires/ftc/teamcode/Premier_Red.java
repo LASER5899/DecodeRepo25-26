@@ -455,7 +455,7 @@ public class Premier_Red extends LinearOpMode {
                 shooter.setvoltCorr(1.5);
             }*/
             else if(!spinningUp && (distFromGoal > 300)){
-                targRPM = 1020;
+                targRPM = 940; //995
                 shooter.setvoltCorr(1.5);
                 shooter.setKf(0.00285);
             }

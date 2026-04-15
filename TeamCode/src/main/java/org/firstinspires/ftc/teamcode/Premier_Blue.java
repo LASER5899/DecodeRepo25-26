@@ -456,7 +456,7 @@ public class Premier_Blue extends LinearOpMode {
                 shooter.setvoltCorr(1.5);
             }*/
             else if(!spinningUp && (distFromGoal > 300)){ //2200 TODO: CHANGE BACK TO 320
-                targRPM = 1020;
+                targRPM = 940; //995
                 shooter.setvoltCorr(1.5);
                 shooter.setKf(0.00285);
             }
