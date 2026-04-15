@@ -31,7 +31,7 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.robotcontroller.external.samples;
+package org.firstinspires.ftc.teamcode;
 
 import android.util.Size;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -57,9 +57,9 @@ import java.util.Locale;
  * In OnBot Java, use "Add File" to add this OpMode from the list of Samples.
  */
 
-@TeleOp(name = "CAMERA TUNING", group = "Utility")
+@TeleOp(name = "Utility: Camera Frame Capture", group = "Utility")
 //@Disabled
-public class UtilityCameraFrameCapture extends LinearOpMode
+public class CameraCapture extends LinearOpMode
 {
     /*
      * EDIT THESE PARAMETERS AS NEEDED
@@ -82,9 +82,8 @@ public class UtilityCameraFrameCapture extends LinearOpMode
         if (USING_WEBCAM)
         {
             portal = new VisionPortal.Builder()
-                    .setCamera(hardwareMap.get(WebcamName.class, "Camera1"))
+                    .setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"))
                     .setCameraResolution(new Size(RESOLUTION_WIDTH, RESOLUTION_HEIGHT))
-                    .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                     .build();
         }
         else
@@ -92,7 +91,6 @@ public class UtilityCameraFrameCapture extends LinearOpMode
             portal = new VisionPortal.Builder()
                     .setCamera(INTERNAL_CAM_DIR)
                     .setCameraResolution(new Size(RESOLUTION_WIDTH, RESOLUTION_HEIGHT))
-                    .setStreamFormat(VisionPortal.StreamFormat.MJPEG)
                     .build();
         }
 
