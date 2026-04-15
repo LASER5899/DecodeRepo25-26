@@ -13,6 +13,7 @@ import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -28,6 +29,7 @@ import org.firstinspires.ftc.teamcode.classes.Transfer_Values;
 
 @Config
 @Autonomous(name = "test far red 6", group = "Autonomous")
+@Disabled
 //@Disabled
 //psuedocode
 /*

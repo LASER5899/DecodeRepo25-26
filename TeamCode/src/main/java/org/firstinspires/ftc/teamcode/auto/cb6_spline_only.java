@@ -12,6 +12,7 @@ import com.acmerobotics.roadrunner.TranslationalVelConstraint;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -27,6 +28,7 @@ import org.firstinspires.ftc.teamcode.shooter.ShooterControl;
 import org.firstinspires.ftc.teamcode.tuning.shooter.RobotConstants;
 
 @Config
+@Disabled
 @Autonomous(name = "!!!!!!!!!!!!!", group = "Autonomous")
 //@Disabled
 //psuedocode
@@ -96,6 +98,30 @@ public class cb6_spline_only extends LinearOpMode{
         private final double move_time = 1.2;
         public transferServo(HardwareMap hwMap) {
             transfer = hardwareMap.get(Servo.class, "transfer_servo");
+        }
+
+        public class Delay implements Action {
+            private boolean started = false;
+            private final double sec;
+            private final ElapsedTime delayTimer = new ElapsedTime();
+
+            public Delay(double sec) {
+                this.sec = sec;
+            }
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!started) {
+                    delayTimer.reset();
+                    started = true;
+                }
+                if(!(delayTimer.seconds() < sec)){delayTimer.reset(); return false;}
+                else{return true;}
+                //return timeryay.seconds() < sec; // true reruns action
+            }
+        }
+        public Action delay(double sec){
+            return new Delay(sec);
         }
 
         public class ToAOut implements Action {

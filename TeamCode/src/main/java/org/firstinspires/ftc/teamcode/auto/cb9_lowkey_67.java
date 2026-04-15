@@ -32,12 +32,12 @@ import org.firstinspires.ftc.teamcode.tuning.shooter.RobotConstants;
 
 @Config
 @Disabled
-@Autonomous(name = "!!!!sixsevennnn blue new", group = "Autonomous")
+@Autonomous(name = "!!!!!!!whatdiddybluddoinonthecalculatorisbludepstein", group = "Autonomous")
 //psuedocode
 /*
 
  */
-public class cb6_inorder_new extends LinearOpMode{
+public class cb9_lowkey_67 extends LinearOpMode{
 
     // if odometry is not properly tuned or constantly being retuned:
     // you MIGHT find it useful to change these values and use multiples of them instead of direct number
@@ -103,6 +103,30 @@ public class cb6_inorder_new extends LinearOpMode{
         private final double move_time = 1.2;
         public transferServo(HardwareMap hwMap) {
             transfer = hardwareMap.get(Servo.class, "transfer_servo");
+        }
+
+        public class Delay implements Action {
+            private boolean started = false;
+            private final double sec;
+            private final ElapsedTime delayTimer = new ElapsedTime();
+
+            public Delay(double sec) {
+                this.sec = sec;
+            }
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!started) {
+                    delayTimer.reset();
+                    started = true;
+                }
+                if(!(delayTimer.seconds() < sec)){delayTimer.reset(); return false;}
+                else{return true;}
+                //return timeryay.seconds() < sec; // true reruns action
+            }
+        }
+        public Action delay(double sec){
+            return new Delay(sec);
         }
 
         public class ShootSet1 implements Action {
@@ -213,7 +237,7 @@ public class cb6_inorder_new extends LinearOpMode{
                     timer.reset();
                     started = true;
                 }
-                return t3.seconds() < 1.7; // true reruns action
+                return t3.seconds() < 1; // true reruns action
             }
         }
         public Action toAOut(){
@@ -229,7 +253,7 @@ public class cb6_inorder_new extends LinearOpMode{
                     timer.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                return timer.seconds() < 1; // true reruns action
             }
         }
         public Action toBOut(){
@@ -245,7 +269,7 @@ public class cb6_inorder_new extends LinearOpMode{
                     timer.reset();
                     started = true;
                 }
-                return timer.seconds() < move_time; // true reruns action
+                return timer.seconds() < 1; // true reruns action
             }
         }
         public Action toCOut(){
@@ -530,7 +554,7 @@ public class cb6_inorder_new extends LinearOpMode{
                 .strafeToConstantHeading(new Vector2d(-15, -15), new TranslationalVelConstraint(50));*/
 
         TrajectoryActionBuilder one = drive.actionBuilder(pose0)
-                .strafeToLinearHeading(new Vector2d(45, 20), Math.toRadians(-20));//, new TranslationalVelConstraint(10));
+                .strafeToLinearHeading(new Vector2d(45, 20), Math.toRadians(50));//, new TranslationalVelConstraint(10));
 
         TrajectoryActionBuilder two = drive.actionBuilder(pose1)
                 .turnTo(Math.toRadians(50));
@@ -576,73 +600,54 @@ public class cb6_inorder_new extends LinearOpMode{
                         new ParallelAction(
                                 shooter.hold(),
                                 intake.intaking(),
-                                transfer.toAOut(),
+                                //transfer.toAOut(),
                                 new SequentialAction(
+
+                                        new ParallelAction(
 
                                         one.build(),
 
-                                        beginTs.scanObelisk(),
+                                        //beginTs.scanObelisk(),
 
-                                        two.build(),
 
-                                        transfer.shootSet1(),
-                                        flicker.kick(),
-                                        flicker.goBack(),
-                                        transfer.shootSet2(),
-                                        flicker.kick(),
-                                        flicker.goBack(),
-                                        transfer.shootSet3(),
-                                        flicker.kick(),
-                                        flicker.goBack(),
+                                        new SequentialAction(
+                                            transfer.delay(2),
+                                            transfer.toAOut(),
+                                            flicker.kick(),
+                                            flicker.goBack(),
+                                            transfer.toBOut(),
+                                            flicker.kick(),
+                                            flicker.goBack(),
+                                            transfer.toCOut(),
+                                            flicker.kick(),
+                                            flicker.goBack())),
 
-                                        three.build(),
-                                        transfer.toBIn(),
+                                    three.build(),
+                                    transfer.toBIn(),
+
 
                                         new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
                                                 four.build(),
                                                 new SequentialAction(
-                                                        transfer.toBIn(),
-                                                        transfer.toCIn(),
                                                         transfer.toAIn(),
+                                                        transfer.toCIn(),
+                                                        transfer.toBIn(),
                                                         transfer.toNeutral()
                                                 )
                                         ),
                                         five.build(),
 
-                                        transfer.shootSet1(),
+                                        transfer.toAOut(),
                                         flicker.kick(),
                                         flicker.goBack(),
-                                        transfer.shootSet2(),
+                                        transfer.toBOut(),
                                         flicker.kick(),
                                         flicker.goBack(),
-                                        transfer.shootSet3(),
+                                        transfer.toCOut(),
                                         flicker.kick(),
                                         flicker.goBack(),
 
-                                        /*
-                                        five.build(),
 
-                                        new ParallelAction( //TODO: the transfer timer should be longer for intaking than for outtaking
-                                                six.build(),
-                                                new SequentialAction(
-                                                        transfer.toAOut(),
-                                                        transfer.toBOut(),
-                                                        transfer.toCOut(),
-                                                        transfer.toNeutral()
-                                                )
-                                        ),
-                                        seven.build(),
-
-                                        transfer.toAIn(),
-                                        flicker.kick(),
-                                        flicker.goBack(),
-                                        transfer.toBIn(),
-                                        flicker.kick(),
-                                        flicker.goBack(),
-                                        transfer.toCIn(),
-                                        flicker.kick(),
-                                        flicker.goBack(),
-                                        */
                                         nine.build(),
 
                                         shooter.stop(),

@@ -32,6 +32,7 @@ import org.firstinspires.ftc.teamcode.tuning.shooter.RobotConstants;
 
 @Config
 @Autonomous(name = "close blue 6 in order", group = "Autonomous")
+@Disabled
 //psuedocode
 /*
 
