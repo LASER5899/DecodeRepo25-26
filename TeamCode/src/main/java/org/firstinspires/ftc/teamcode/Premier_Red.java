@@ -439,19 +439,27 @@ public class Premier_Red extends LinearOpMode {
                 shooter.setKf(RobotConstants.kF);
                 if (targRPM >= 920){spinningUp =false; shooter.setKf(RobotConstants.kF);}
             }
-            if(!spinningUp && (distFromGoal >= 140) && (distFromGoal <= 180)){
-                targRPM = (0.546172*distFromGoal)+722.4006;
+            if(!spinningUp && (distFromGoal >= 180) && (distFromGoal <= 300)){
+                targRPM = (0.546172*distFromGoal)+722.4006; //THIS WAS 722.4006
                 //targRPM = 1050;
 
                 shooter.setKf(0.0028);
                 shooter.setvoltCorr(1.5);
             }
-            else if(!spinningUp && (distFromGoal > 200)){
-                targRPM = 1030;
+
+           /* if(!spinningUp && (distFromGoal >= 170) && (distFromGoal <= 190)){ //TODO: WHOLE BLOCK IS NEW
+                targRPM = (0.546172*distFromGoal)+732.4006; //THIS WAS 722.4006
+                //targRPM = 1050;
+
+                shooter.setKf(0.0028);
+                shooter.setvoltCorr(1.5);
+            }*/
+            else if(!spinningUp && (distFromGoal > 300)){
+                targRPM = 1020;
                 shooter.setvoltCorr(1.5);
                 shooter.setKf(0.00285);
             }
-            else if(!spinningUp && (distFromGoal < 140) && (distFromGoal != -1)){
+            else if(!spinningUp && (distFromGoal < 180) && (distFromGoal != -1)){
                 targRPM = (0.909091*distFromGoal)+703.18182;
                 shooter.setvoltCorr(1.5);
             }
